@@ -1,0 +1,22 @@
+﻿@model Niras.Jordflytning.ViewModels.Mobile.MobileAdgangModel
+
+@{
+	Layout = null;
+}
+<h3>Adgang
+</h3>
+<h4></h4>
+<div data-controltype="textblock">
+	<p>
+		<b>For @Model.Adresse skal nedenstående godkendelse i
+							form af en QR kode anvendes når jorden skal afleveres&nbsp;på @Model.ModtagerAnlaegNavn
+							modtageanlæg.
+		</b>
+	</p>
+</div>
+<div style="" data-controltype="image">
+	<div id="qrcodeholder"></div>
+	@*<img style="width: 288px; height: 288px" src="http://assets.codiqa.com/djyZzCDvRHGaYq3AhooR_qrcode_big_eksempel_288x288.png">*@
+</div>
+<br/>
+Bom id: @Html.DisplayTextFor(x=>x.Loebenummer)

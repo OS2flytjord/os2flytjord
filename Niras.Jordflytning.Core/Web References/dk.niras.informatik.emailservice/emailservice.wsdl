@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://informatik.niras.dk/Services/EmailService/2009/09/30/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://informatik.niras.dk/Services/EmailService/2009/09/30/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://informatik.niras.dk/Services/EmailService/2009/09/30/">
+      <s:element name="SendEmail">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="senderId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="senderTimestamp" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailSubject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailContent" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="listRecipients" type="tns:ArrayOfRecipient" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="delayedsend" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="delayedSendTime" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfRecipient">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Recipient" nillable="true" type="tns:Recipient" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Recipient" />
+      <s:element name="SendEmailResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="SendEmailByNirasSMTP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="emailFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailSubject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailContent" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailTo" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendEmailByNirasSMTPResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="SendEmailWithBccByNirasSMTP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="emailFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailSubject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailContent" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailTo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailBcc" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendEmailWithBccByNirasSMTPResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="SendEmailWithAttachmentsByNirasSMTP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="emailFrom" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailSubject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailContent" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailTo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="emailBcc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="attachmentNames" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="attachments" type="tns:ArrayOfBase64Binary" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfBase64Binary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="base64Binary" nillable="true" type="s:base64Binary" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SendEmailWithAttachmentsByNirasSMTPResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="IsEmailSentToAll">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="senderId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="sendersTimestamp" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsEmailSentToAllResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsEmailSentToAllResult" nillable="true" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEmailObject">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="senderId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="senderTimestamp" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="customerPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEmailObjectResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetEmailObjectResult" type="tns:EmailData" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="EmailData" />
+      <s:element name="PutFile">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="buffer" type="s:base64Binary" />
+            <s:element minOccurs="0" maxOccurs="1" name="filename" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="PutFileResponse">
+        <s:complexType />
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="SendEmailSoapIn">
+    <wsdl:part name="parameters" element="tns:SendEmail" />
+  </wsdl:message>
+  <wsdl:message name="SendEmailSoapOut">
+    <wsdl:part name="parameters" element="tns:SendEmailResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendEmailByNirasSMTPSoapIn">
+    <wsdl:part name="parameters" element="tns:SendEmailByNirasSMTP" />
+  </wsdl:message>
+  <wsdl:message name="SendEmailByNirasSMTPSoapOut">
+    <wsdl:part name="parameters" element="tns:SendEmailByNirasSMTPResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendEmailWithBccByNirasSMTPSoapIn">
+    <wsdl:part name="parameters" element="tns:SendEmailWithBccByNirasSMTP" />
+  </wsdl:message>
+  <wsdl:message name="SendEmailWithBccByNirasSMTPSoapOut">
+    <wsdl:part name="parameters" element="tns:SendEmailWithBccByNirasSMTPResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendEmailWithAttachmentsByNirasSMTPSoapIn">
+    <wsdl:part name="parameters" element="tns:SendEmailWithAttachmentsByNirasSMTP" />
+  </wsdl:message>
+  <wsdl:message name="SendEmailWithAttachmentsByNirasSMTPSoapOut">
+    <wsdl:part name="parameters" element="tns:SendEmailWithAttachmentsByNirasSMTPResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsEmailSentToAllSoapIn">
+    <wsdl:part name="parameters" element="tns:IsEmailSentToAll" />
+  </wsdl:message>
+  <wsdl:message name="IsEmailSentToAllSoapOut">
+    <wsdl:part name="parameters" element="tns:IsEmailSentToAllResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEmailObjectSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEmailObject" />
+  </wsdl:message>
+  <wsdl:message name="GetEmailObjectSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEmailObjectResponse" />
+  </wsdl:message>
+  <wsdl:message name="PutFileSoapIn">
+    <wsdl:part name="parameters" element="tns:PutFile" />
+  </wsdl:message>
+  <wsdl:message name="PutFileSoapOut">
+    <wsdl:part name="parameters" element="tns:PutFileResponse" />
+  </wsdl:message>
+  <wsdl:portType name="EmailServiceSoap">
+    <wsdl:operation name="SendEmail">
+      <wsdl:input message="tns:SendEmailSoapIn" />
+      <wsdl:output message="tns:SendEmailSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailByNirasSMTP">
+      <wsdl:input message="tns:SendEmailByNirasSMTPSoapIn" />
+      <wsdl:output message="tns:SendEmailByNirasSMTPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailWithBccByNirasSMTP">
+      <wsdl:input message="tns:SendEmailWithBccByNirasSMTPSoapIn" />
+      <wsdl:output message="tns:SendEmailWithBccByNirasSMTPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailWithAttachmentsByNirasSMTP">
+      <wsdl:input message="tns:SendEmailWithAttachmentsByNirasSMTPSoapIn" />
+      <wsdl:output message="tns:SendEmailWithAttachmentsByNirasSMTPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsEmailSentToAll">
+      <wsdl:input message="tns:IsEmailSentToAllSoapIn" />
+      <wsdl:output message="tns:IsEmailSentToAllSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEmailObject">
+      <wsdl:input message="tns:GetEmailObjectSoapIn" />
+      <wsdl:output message="tns:GetEmailObjectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="PutFile">
+      <wsdl:input message="tns:PutFileSoapIn" />
+      <wsdl:output message="tns:PutFileSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="EmailServiceSoap" type="tns:EmailServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="SendEmail">
+      <soap:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmail" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailByNirasSMTP">
+      <soap:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmailByNirasSMTP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailWithBccByNirasSMTP">
+      <soap:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmailWithBccByNirasSMTP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailWithAttachmentsByNirasSMTP">
+      <soap:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmailWithAttachmentsByNirasSMTP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsEmailSentToAll">
+      <soap:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/IsEmailSentToAll" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEmailObject">
+      <soap:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/GetEmailObject" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PutFile">
+      <soap:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/PutFile" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="EmailServiceSoap12" type="tns:EmailServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="SendEmail">
+      <soap12:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmail" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailByNirasSMTP">
+      <soap12:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmailByNirasSMTP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailWithBccByNirasSMTP">
+      <soap12:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmailWithBccByNirasSMTP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendEmailWithAttachmentsByNirasSMTP">
+      <soap12:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/SendEmailWithAttachmentsByNirasSMTP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsEmailSentToAll">
+      <soap12:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/IsEmailSentToAll" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEmailObject">
+      <soap12:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/GetEmailObject" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PutFile">
+      <soap12:operation soapAction="http://informatik.niras.dk/Services/EmailService/2009/09/30/PutFile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="EmailService">
+    <wsdl:port name="EmailServiceSoap" binding="tns:EmailServiceSoap">
+      <soap:address location="http://informatik.niras.dk/services/emailtest/emailservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="EmailServiceSoap12" binding="tns:EmailServiceSoap12">
+      <soap12:address location="http://informatik.niras.dk/services/emailtest/emailservice.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

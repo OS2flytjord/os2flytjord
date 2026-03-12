@@ -1,0 +1,46 @@
+﻿@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+
+@{
+  ViewBag.Title = "Kvittering";
+  Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+@section BreadCrumb{
+- Forureningsstatus 
+}
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#btnKvittering").hide();
+    window.print();
+    
+  });
+
+</script>
+<div class="controlsbox row">
+  <div class="cbheader">
+    <h5>Oprindelsessted</h5>
+  </div>
+  <div class="row_control">
+    <div class="row">
+      @Html.Label("Tid")
+      @Html.TextBox("txtTid", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString(), new { @class = "readonly", @readonly = true })
+    </div>
+    <div class="row">
+      @Html.Label("Adresse")
+      @Html.TextBoxFor(m => m.Anmeldelse.Oprindelsessted.Adresse, new { @class = "readonly", @readonly = true })
+    </div>
+    <div class="row">
+      @Html.Label("Postnummer")
+      @Html.TextBoxFor(m => m.Anmeldelse.Oprindelsessted.Postnummer, new { Id = "txtPostnummer", @class = "readonly", @readonly = true, @style = "width:30px;margin-right:10px;" })
+      @Html.TextBoxFor(m => m.Anmeldelse.Oprindelsessted.PostDistrikt, new { Id = "txtPostDistrikt", @class = "readonly", @readonly = true, @style = "width:154px" })
+
+    </div>
+    <div class="row">
+      @Html.Label("Kommune")
+      @Html.TextBoxFor(x => x.Anmeldelse.Kommune.Navn, new { id = "txtKommune", @class = "readonly", @readonly = true })
+    </div>
+  </div>
+  <div style="clear: both"></div>
+</div>
+<div class="row">
+  @Html.Partial("~/Views/Anmeldelser/_stedJordforuningopslag.cshtml", Model)
+</div>

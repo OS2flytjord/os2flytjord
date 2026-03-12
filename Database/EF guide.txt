@@ -1,0 +1,31 @@
+1) slet JFModel.edmx
+2) udkommenter JordflytningEntities i app.config i Niras.Jordflytning.Infrastructure
+3) tilføj ny ADO.net Entity Data Model til Niras.Jordflytning.Infrastructure\Dataaccess, navngiv JFModel.edmx
+3a) Generate from database
+3b)Vælg database eller tidligere forbindelse. Navngiv entities som JordflytningEntities
+3c) Check tabels, Uncheck pluralize or singularize generated object names. Model Namespace sættes til Niras.Jordflytning.Core.Models
+4) Slet JFModel.tt i Niras.Jordflytning.Infrastructure
+5) Tilføj using Niras.Jordflytning.Core.Models; i Niras.Jordflytning.Infrastructure\DataAccess\JFModel.Context.cs
+6) Højre klik på JFModel.tt i Niras.Jordflytning.Core\Models\ Run custome tool
+
+
+I JFModel.tt skal der står denne reference
+const string inputFile = @"..\..\Niras.Jordflytning.Infrastructure\DataAccess\JFModel.edmx";
+
+
+
+Update model
+Åben diagram
+Højreklik update model from database
+Tilføj using Niras.Jordflytning.Core.Models; i Niras.Jordflytning.Infrastructure\DataAccess\JFModel.Context.cs
+I filen JFModel.emdx skal følgende søg/erstattes.
+Søg <Property Name="Id" Type="uniqueidentifier" Nullable="false" />
+Erstat <Property Name="Id" Type="uniqueidentifier" Nullable="false" StoreGeneratedPattern="Identity" />
+
+Søg <Property Name="Id" Type="Guid" Nullable="false" />
+Erstat <Property Name="Id" Type="Guid" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+
+Højre klik på JFModel.tt i Niras.Jordflytning.Core\Models\ Run custome tool
+
+
+

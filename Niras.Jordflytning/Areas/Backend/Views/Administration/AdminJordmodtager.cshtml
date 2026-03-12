@@ -1,0 +1,157 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.ViewModels.Backend
+@model JordmodtagerListModel
+
+@{
+  ViewBag.Title = "Jordmodtager administration";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+
+  <script type="text/javascript">
+    function editJordmodtagerForm(e) {
+
+
+      var buttonOpdater = $(e.container).parent().find(".k-grid-update");
+      var buttonAnnuller = $(e.container).parent().find(".k-grid-cancel");
+      buttonOpdater.text("OK");
+      buttonAnnuller.text("Annuller");
+    }
+
+    function gridJordModtagerError() {
+      var grid = $("#GridJordModtager").data("kendoGrid");
+      grid.cancelChanges();
+    }
+
+    function gridJordModtagerRequestEnd(e) {
+      if (e.type === "create") {
+        if (!e.response.Errors) {
+          e.sender.read();
+          window.displayMessage('Jordmodtagerfirmaet blev oprettet.');
+        } else {
+          alert("Modtageanlægget blev ikke oprettet");
+        }
+      }
+      //if (e.type == "update") {
+      //	if (!e.response.Errors) {
+      //		e.sender.read();
+      //	} else {
+      //		alert("Modtageranlægget blev ikke opdateret");
+      //	}
+      //}
+      //if (e.type == "destroy") {
+      //	e.sender.read();
+      //}
+    }
+
+    function GridJordModtagerDataBound() {
+      $("#GridJordModtager tbody tr").hover(
+        function() {
+          $(this).toggleClass("k-state-hover");
+        }
+      );
+    }
+
+    $(document).ready(function() {
+      $("#GridJordModtager tbody tr").hover(
+        function() {
+          $(this).toggleClass("k-state-hover");
+        }
+      );
+    });
+
+    function openTab(text, url) {
+      if (parent.addTab) {
+        parent.addTab(text, url);
+      }
+    }
+
+    function onJordmodtagerSelected() {
+      $("#GridJordModtager tbody tr").hover(
+        function() {
+          $(this).toggleClass("k-state-hover");
+        }
+      );
+
+      var grid = $("#GridJordModtager").data("kendoGrid");
+      var idJord;
+      grid.select().each(function() {
+        var dataItem = grid.dataItem($(this));
+        idJord = dataItem.Id;
+        var faneNavn = dataItem.Navn;
+        openTab(faneNavn, "@Url.Action("SelectJordmodtager", "Administration")" + "?id=" + idJord);
+      });
+      $("#GridJordModtager tbody tr").hover(
+        function() {
+          $(this).toggleClass("k-state-hover");
+        }
+      );
+    }
+
+    function gridJordmodtagerHover() {
+      $("#GridJordModtager tbody tr").hover(
+               function () {
+                 $(this).toggleClass("k-state-hover");
+               }
+           );
+    }
+    
+  </script>
+}
+
+<div>
+    <div class="controlsbox" style="margin-top: 10px">
+        <div class="cbheader">
+            <h5>Vælg jordmodtagerfirma for at redigere</h5>
+        </div>
+        <div class="row_line">
+            @(Html.Kendo().Grid<JordmodtagerViewModel>()
+                  .Name("GridJordModtager")
+                  .HtmlAttributes(new { style = "font-size:12px; margin-top:5px;" })
+                  .ToolBar(toolbar => 
+                      { 
+                          toolbar.Create().Text("Opret jordmodtagerfirma");
+                      })
+                  .Columns(columns =>
+                      {
+                          columns.Bound(p => p.Navn).Sortable(true).Title("Navn").Width(200);
+                          columns.Bound(p => p.Adresse).Sortable(true).Title("Adresse").Width(200);
+                          columns.Bound(p => p.Postnummer).Sortable(true).Title("Postnr.").Width(50);
+                          columns.Bound(p => p.By).Sortable(true).Title("By").Width(100);
+                          columns.Bound(p => p.Aktiv)
+                                 .Sortable(true)
+                                 .Title("Aktiv")
+                                 .ClientTemplate("<input disabled='disabled' type='checkbox' #= Aktiv ? checked='checked' :'' # />")
+                                 .Width(20);
+                          columns.Bound(p => p.JordmodtagerMedFlytjordAbonnement)
+                               .Sortable(true)
+                               .Title("Jordmodtagerfirma med Flytjord abonnement")
+                               .ClientTemplate("<input disabled='disabled' type='checkbox' #= JordmodtagerMedFlytjordAbonnement ? checked='checked' :'' # />")
+                               .Width(20);                   
+                      })
+                  .Sortable()
+                  .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 20, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))   
+                  .Groupable()   
+                  .Events(e => e.Edit("editJordmodtagerForm").DataBound("gridJordmodtagerHover"))
+                  .Editable(
+                  editable => {
+                                editable.Mode(GridEditMode.PopUp);
+                                editable.Window(z => { z.Title("Opret jordmodtagerfirma"); z.Width(500); });
+                  }
+                  )                      
+                  .Events(events => events.Change("onJordmodtagerSelected").DataBound("GridJordModtagerDataBound"))
+                  .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                  .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .PageSize(500)
+                                                .Read(read => read.Action("ReadJordmodtagere", "Administration")) 
+                                                .Create(update => update.Action("CreateJordmodtager", "Administration"))
+                                                                .Model(model => { model.Id(p => p.Id); model.Field(p => p.Id).DefaultValue(new Guid()); model.Field(p => p.JordmodtagerMedFlytjordAbonnement).DefaultValue(false); })
+																								.Events(events => events.RequestEnd("gridJordModtagerRequestEnd").Error("gridJordModtagerError")))
+																								
+                  )
+        </div>
+        <div style="clear: both"></div> 
+    </div>
+</div>

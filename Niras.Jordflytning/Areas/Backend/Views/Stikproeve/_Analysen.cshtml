@@ -1,0 +1,188 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.StikproeveModel
+
+<script type="text/javascript">
+
+    function ForureningskomponenterGridRequestEnd(e) {
+        if (e.type === "create") {
+            if (!e.response.Errors) {
+                e.sender.read();
+            }
+        }
+    }
+
+    function forurenEdit(e) {
+
+        $(e.container).parent().css({
+            width: '550px',
+            height: '150px'
+        });
+
+        var title = $(e.container).parent().find(".k-window-title");
+        var button = $(e.container).parent().find(".k-grid-update");
+        var buttonAnnuller = $(e.container).parent().find(".k-grid-cancel");
+
+        $("#txtForureningStikAutoComplete").kendoAutoComplete({
+            dataTextField: "DisplayName", // The widget is bound to the "name" field
+            dataValueField: "Id",
+            minLength: 2,
+            placeholder: "Forureningskomponent",
+            filter: "contains",
+            change: function () { kendoAutoComplete(); },
+            dataSource: {
+                serverFiltering: true,
+                serverPaging: true,
+                pageSize: 1,
+                transport: {
+                    read: "/Backend/Stikproeve/SearchForureningskomponent",
+                    parameterMap: function () {
+                        return { wildcard: $("#txtForureningStikAutoComplete").val() };
+                    }
+                }
+            }
+        });
+
+        $("#txtForureningStikAutoComplete").keypress(function (e) {
+
+            if (e.keyCode == '13' || e.keyCode == '9') {
+                e.preventDefault();
+                kendoAutoComplete();
+            }
+        });
+
+        function kendoAutoComplete() {
+            var displayName = $("#txtForureningStikAutoComplete").data("kendoAutoComplete").value();
+            if (displayName != '') {
+                //Read komponent med id
+                $.post("/Stikproeve/ReadForureningskomponent", { DisplayName: displayName }, function (result) {
+                    if (result) {
+                        $("#hfId").val(result.Id).change();
+                        $("#hfNavn").val(result.Navn).change();
+                        $("#hfKode").val(result.Kode).change();
+                        $("#jfMax").val(result.Max).change();
+                    } else {
+                        alert("Der skete en fejl, prøv at vælge igen");
+                    }
+                });
+            }
+        }
+
+        $(title).text('Tilføj forureningskomponent');
+        $(button).html('<span class="k-icon k-update">Gem</span>Gem');
+        $(buttonAnnuller).html('<span class="k-icon k-cancel">Annuller</span>Annuller');
+
+        $("#txtForureningStikAutoComplete").focus(); // Virker ikke
+    }
+
+</script>
+
+<div style="clear: both"></div>
+<div class="row" id="divAnalysen">
+
+    <div style="margin-top: 10px; margin-bottom: 40px">
+        @Html.Label("Analyse udført", new { style = "width: 100px;" })
+        @{
+            var analyseUdfoertHtmlAttributes = new Dictionary<string, object>();
+            analyseUdfoertHtmlAttributes.Add("id", "chkAnalyseUdfoert");
+            analyseUdfoertHtmlAttributes.Add("style", "height:23px");
+        }
+        @Html.CheckBoxFor(m => m.AnalyseUdfoert, analyseUdfoertHtmlAttributes)
+
+    </div>
+    
+    <div style="margin-bottom: 10px" class="controlsbox">
+        <div class="cbheader">
+            <h5>Forureningskomponenter</h5>
+        </div>
+        <div class="row_control">
+            @(Html.Kendo().Grid(Model.Forureningskomponenter)
+                  .Name("ForureningskomponenterGrid")
+                  .Events(e => e.Edit("forurenEdit"))
+                  .Columns(columns =>
+                      {
+                          columns.Bound(p => p.Id).Hidden();
+                          columns.Bound(p => p.DisplayName).Title("Forureningskomponent");
+                          columns.Bound(p => p.DisplayVaerdi).Title("Resultat");
+                          columns.Bound(p => p.DisplayMax).Title("Grænseværdi").Width(100);
+                          columns.Bound(p => p.Status).Title("Status");
+                          columns.Command(c => c.Destroy().Text("Fjern"));
+                      })
+                  .ToolBar(action => action.Create().Text("Tilføj"))
+                  .Editable(editable => editable
+                                            .Mode(GridEditMode.PopUp)
+                                            .Window(w => w.Title("Tilføj forureningskomponent"))
+                                            .TemplateName("StikproeveForurenningsKomponenterCustomPopupEditor")
+                                            .DisplayDeleteConfirmation("Vil du fjerne forureningskomponenten?"))
+                  .Selectable()
+                  .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                        model.Field(p => p.Id).DefaultValue(new Guid());
+                                                    })
+                                                .Destroy(destroy => destroy.Action("ForureningskomponenterGridDestroy", "Stikproeve").Data("additionalInfo"))
+                                                .Read(read => read.Action("ForureningskomponenterGridRead", "Stikproeve").Data("additionalInfo"))
+                                                .Create(create => create.Action("ForureningskomponenterGridCreate", "Stikproeve").Data("additionalInfo"))
+                                                .Events(e => e.RequestEnd("ForureningskomponenterGridRequestEnd"))
+                  ))
+        
+        </div>
+        
+        <div class="row_control">
+        &nbsp;
+        </div>
+
+        </div>
+    
+
+    <div class="controlsbox">
+        <div class="cbheader">
+            <h5>Dokumenter</h5>
+        </div>
+        <div class="row_control">
+            <!--Kendo start -->
+            @(Html.Kendo().Grid(Model.AnalyseDokumenter)
+                  .Name("AnalyseDokumenterGrid")
+                  .Columns(columns =>
+                  {
+                      columns.Bound(p => p.Dato).Title("Tilføjet").Width(100).Format("{0:dd-MM-yyyy HH:mm}");
+                      columns.Bound(p => p.Filnavn).Title("Fil").Width(200);
+                      columns.Bound(p => p.Id)
+                             .ClientTemplate(Html.ActionLink("Åben", "DownloadDokumentation", new { stikproeveId = Model.Id, filnavn = "#=Filnavn#", target = "_blank" })
+                                                 .ToHtmlString()).Title("").Width(70);
+                      columns.Command(c => c.Destroy().Text("Fjern")).Width(70);
+                      //columns.Command(c => { c.Destroy().Text("Fjern"); }).Width(100); //Denne række får tabstrip til at fejl i IE.
+                      //columns.Command(cm => cm.Select());//OK virker fint.           
+                  })
+                  .Selectable()
+                  .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne dokumentet?"))
+                  .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .ServerOperation(false)
+                                                .Model(model => { model.Id(p => p.Id); })
+                                                .Read(read => read.Action("AnalyseDokumenterGrid_Read", "Stikproeve").Data("additionalInfo"))
+                                                .Create(create => create.Action("AnalyseDokumenterGrid_Create", "Stikproeve").Data("additionalInfo"))
+                                                .Destroy(des => des.Action("AnalyseDokumenterGrid_Destroy", "Stikproeve").Data("additionalInfo"))
+                  ))
+            <div class="row_control" style="margin-left: 0px !important">
+                <input type="button" id="btnShowWinFileUpload" value="Vedhæft dokument" />
+            </div>
+        </div>
+
+        <div style="clear: both"></div>
+    </div>
+
+    <div style="clear: both"></div>
+</div>
+
+<div id="winFileUpload" style="display: none">
+  <div class="row">
+    @Html.Label("Vælg fil")
+    <input name="attachments" id="attachments" type="file" value="Vedhæft fil" />
+  </div>
+  <div class="row" id="divFilprogress" style="display: none">
+    <img src="~/Content/Icons/ProgressBar.gif" />
+  </div>
+</div>
+<div style="clear: both"></div>

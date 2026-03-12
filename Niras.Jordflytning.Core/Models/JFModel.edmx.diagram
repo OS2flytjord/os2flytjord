@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="96a2b29fc1e0438cb68fc86d24188497" Name="Diagram1" ZoomLevel="103">
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.AdvisType" Width="1.5" PointX="0.75" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.AffaldType" Width="1.5" PointX="8" PointY="47.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.AndenOprindJordType" Width="2.5" PointX="15" PointY="25.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Anmelder" Width="1.5" PointX="0.75" PointY="19.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Betaler" Width="1.5" PointX="0.875" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Betaleringsoplysning" Width="1.5" PointX="5.25" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.BetingelserJordtip" Width="1.5" PointX="7.5" PointY="32.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.BrugerProfil" Width="1.5" PointX="3" PointY="0.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Cartographer_Layers" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Dokumentation" Width="1.5" PointX="12.5" PointY="35.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.DokumentationType" Width="2" PointX="10.25" PointY="47.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Dokumenter" Width="1.5" PointX="7.5" PointY="35.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Enhed" Width="1.5" PointX="5.25" PointY="42.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Firmaoplysninger" Width="1.5" PointX="1.5" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Forureningskomponent" Width="1.5" PointX="13.25" PointY="39.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Graensevaerdier" Width="1.5" PointX="7.5" PointY="39" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Interesant" Width="1.5" PointX="5.25" PointY="39.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.JordanlaegType" Width="1.5" PointX="3" PointY="23.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.JordflytningType" Width="1.5" PointX="8" PointY="50" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.JordForureningskomponent" Width="2.875" PointX="15.5" PointY="35.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Jordmodtager" Width="1.5" PointX="3" PointY="43.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Kommune" Width="1.5" PointX="0.75" PointY="29" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Konfig" Width="1.5" PointX="3" PointY="40.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Lastbil" Width="1.5" PointX="11" PointY="43.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Matrikel" Width="1.5" PointX="13.5" PointY="21.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.MiljoeklasseType" Width="1.5" PointX="8.75" PointY="43.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.ModtagerAnlaeg" Width="1.5" PointX="5.25" PointY="32.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.OprindelsesstedKlassifikationType" Width="2.5" PointX="9" PointY="16.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.PlanlagteStikproever" Width="1.5" PointX="5.25" PointY="22" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Sagsbehandler" Width="1.5" PointX="0.75" PointY="33" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.StatusBetaler" Width="1.5" PointX="13.25" PointY="43.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.StatusStikproeve" Width="1.5" PointX="20.75" PointY="32" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.StatusStikproeveType" Width="1.5" PointX="18.5" PointY="28.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Stikproeve" Width="1.5" PointX="15.5" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Transportoer" Width="1.5" PointX="0.75" PointY="35.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Vognlaes" Width="1.5" PointX="13.25" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.webpages_Membership" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.webpages_OAuthMembership" Width="1.5" PointX="7.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.webpages_Roles" Width="1.5" PointX="0.75" PointY="0.875" IsExpanded="true" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Betaler_StatusBetaler" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordtip_BetingelserJordtip" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.DokumentationType_Dokumentation" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordtip_Dokumenter" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Enhed_Graensevaerdier" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Forureningskomponent_Graensevaerdier" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Forureningskomponent_JordForureningskomponent" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordtip_Graensevaerdier" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.JordanlaegType_ModtagerAnlaeg" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordmodtager_Jordtip" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordmodtager_StatusBetaler" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Kommune_Konfig" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Lastbil_Transportoer" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Vognlaes_Lastbil" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.MiljoeklasseType_Lastbil" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Stikproeve_PlanlagteStikproever" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.StatusStikproeveType_StatusStikproeve" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Stikproeve_StatusStikproeve" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Vognlaes_Stikproeve" ManuallyRouted="false" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.webpages_UsersInRoles" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.StatusAnmeldelseType" Width="1.5" PointX="5.5" PointY="4.75" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.PersonJordmodtager" Width="1.5" PointX="0.82973757611109755" PointY="21.662308881833361" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.PersonKommune" Width="1.5" PointX="0.5" PointY="26.625" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordmodtager_PersonJordmodtager" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Kommune_PersonKommune" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.AnalyseDokument" Width="1.5" PointX="9.1243242868801211" PointY="11.865961169761588" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Stikproeve_AnalyseDokument" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.BogholderOpslagstavle" Width="1.5" PointX="1.81563450108079" PointY="8.8436173539811822" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Betaler_BogholderOpslagstavle" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordmodtager_BogholderOpslagstavle" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Jordforureningsopslag" Width="1.5" PointX="10.75" PointY="21.625" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.KommuneJordklassifikation" Width="1.5" PointX="10.827769506176827" PointY="12.597237443829531" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Kommune_KommuneJordklassifikation" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.BemyndigedeAnmeldere" Width="1.5" PointX="5.3478055863398151" PointY="10.341094364570964" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmelder_BemyndigedeAnmeldere" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Betaler_BemyndigedeAnmeldere" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Kommunikation" Width="1.5" PointX="1.1814302360552502" PointY="9.9636149601841417" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Advis" Width="1.5" PointX="10.625" PointY="1.625" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Besked" Width="1.5" PointX="5.1038349275960746" PointY="22.327344442870164" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.AdvisType_Advis" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Besked_Advis1" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Besked_Kommunikation" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Person" Width="1.5" PointX="3.8237628619297235" PointY="15.228878087936378" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Advis" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Anmelder" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Betaler" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_BogholderOpslagstavle" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Firmaoplysninger_Person" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_KommunikationFra" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_KommunikationTil" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_PersonJordmodtager" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_PersonKommune" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_PlanlagteStikproever" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Sagsbehandler" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_StatusStikproeve" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Stikproeve" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Transportoer" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Alarm" Width="1.5" PointX="0.23548508260188861" PointY="1.2159241294562464" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Besked_Alarm" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Alarm" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Log" Width="1.5" PointX="8.8944168579273" PointY="18.213638612168673" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_Log" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Stikproeve_Log" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Delta" Width="1.5" PointX="0.18532292926000568" PointY="23.907263811634511" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Log_Delta" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.AnalyseForureningskomponent" Width="1.5" PointX="7.6949826347152612" PointY="4.0255544353395489" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Enhed_AnalyseForureningskomponent" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Forureningskomponent_AnalyseForureningskomponent" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Stikproeve_AnalyseForureningskomponent" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.JordKlassifikationType" Width="1.5" PointX="6.6417910636597268" PointY="18.296284207280859" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.LandsdelType" Width="1.5" PointX="10.661757716285884" PointY="18.717008077873388" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.JordKlassifikationType_Jordforureningsopslag" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.JordKlassifikationType_KommuneJordklassifikation" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.JordKlassifikationType_ModtagerAnlaeg" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Landsdel_JordKlassifikationType" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.StatusAnmeldelse" Width="1.5" PointX="4.9530468755183028" PointY="15.471620179466726" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Person_StatusAnmeldelse" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.StatusAnmeldelseType_StatusAnmeldelse" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.NLogEntries" Width="1.5" PointX="2.2654119181751327" PointY="29.899135871743383" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Anmeldelse" Width="1.5" PointX="2.5902149521700175" PointY="29.067352546875995" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Advis" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Alarm" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Anmeldelse" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Betaleringsoplysning" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Interesant" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Jordforureningsopslag" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Kommunikation" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Log" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_PlanlagteStikproever" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_StatusAnmeldelse" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Vognlaes" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Betaler_Anmeldelse" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Anmeldelse_Anmelder" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Anmeldelse_Transportoer" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jordtip_Anmeldelse" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Kommune_Anmeldelse" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Sagsbehandler_Anmeldelse" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Jord" Width="1.5" PointX="10.567432745624069" PointY="16.232792563844843" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.AffaldType_Jord" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Jord" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jord_Dokumentation" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Jord_JordForureningskomponent" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.JordarbejdeKlassifikationType_Jordarbejde" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.JordflytningType_Jord" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Oprindelsessted" Width="1.5" PointX="10.4809421442826" PointY="29.903303383804534" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK__Oprindels__Anden__72B0FDB1" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Anmeldelse_Oprindelsessted" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.Oprindelsessted_Matrikel" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.OprindelsesstedKlassifikationType_Oprindelsessted" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.AnmeldelseEffektivStatus" Width="1.5" PointX="5.125" PointY="52.875" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_AnmeldelseEffektivStatus_Anmeldelse" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Opgavetype" Width="1.5" PointX="7.375" PointY="7.75" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Opgavetype_Kommune" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.GebyrTidsregistrering" Width="1.5" PointX="9.625" PointY="26.25" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_GebyrTidsregistrering_Opgavetype" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.Gebyr" Width="1.5" PointX="3" PointY="47.75" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Anmeldelse_Gebyr" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Gebyr_FrigivetAfSagsbehandler" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Gebyr_Sagsbehandler" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_GebyrTidsregistrering_Gebyr" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_GebyrTidsregistrering_Sagsbehandler" />
+        <EntityTypeShape EntityType="Niras.Jordflytning.Core.Models.FaktureringUdtraek" Width="1.5" PointX="9.375" PointY="7.875" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_Gebyr_FaktureringUdtraek" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_FaktureringUdtraek_OprettetAfSagsbehandler" />
+        <AssociationConnector Association="Niras.Jordflytning.Core.Models.FK_FaktureringUdtraek_OverfoertAfSagsbehandler" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

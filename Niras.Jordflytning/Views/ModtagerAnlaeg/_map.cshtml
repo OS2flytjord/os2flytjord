@@ -1,0 +1,22 @@
+﻿@model Niras.Jordflytning.ViewModels.ModtagerAnlaeg.ModtagerAnlaegKortModel
+
+<div class="row" id="divMapTools" style="background-color: #FFFFFF;">
+    <input type="button" id="btnMapDigPolygon" value="Angiv placering" onclick="mapModtagerAnlaegDigitaliser()" style="display: @(Model.ShowDigitaliserButton ? "block" : "none") height: 50px; margin-left: 10px; margin-top: 12px;" data-tooptip="Placering gemmes, når modtageanlægget opdateres."/>
+    Modtageanlæggets placering kan angives og/eller ændres ved at aktivere knappen "Angiv placering" og efterfølgende klikke i kortet, der hvor modtageanlægget er placeret. Herefter skal kortvinduet lukkes og Gem knappen på modtageanlægssiden aktiveres for at gemme den nye placering.
+  </div>
+<div class="row">
+  <div id="divMapModtagerAnlaeg" class="kiMap" style="width: 100%; height: 545px">
+      
+  </div>
+</div>
+
+@Html.HiddenFor(m=>m.wkt,new {Id="hflModtagerAnlaegWkt"})
+@Html.HiddenFor(m=>m.MapModtagerAnlaegLx,new {Id="hflMapModtagerAnlaegLx"})
+@Html.HiddenFor(m=>m.MapModtagerAnlaegLy,new {Id="hflMapModtagerAnlaegLy"})
+@Html.HiddenFor(m=>m.MapModtagerAnlaegUx,new {Id="hflMapModtagerAnlaegUx"})
+@Html.HiddenFor(m=>m.MapModtagerAnlaegUy,new {Id="hflMapModtagerAnlaegUy"})
+
+<script type="text/javascript" >
+  
+
+</script>

@@ -1,0 +1,62 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+<div class="row_line" >
+  @if (Model.AnmeldelseModel.JordklassifikationTypeListe != null)
+  {
+    if (Model.AnmeldelseModel.JordklassifikationTypeListe.Any())
+    {
+      foreach (var c in Model.AnmeldelseModel.JordklassifikationTypeListe)
+      {
+        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordKlassifikationType.Id, c.Id, new {@class = "jordklassifikationTypeRadiolist", style="margin-left: 0px;",data_tooltip = c.Tooltip})
+        @Html.Label("forurening", c.Navn, new {style = "width:auto !important; margin-right: 30px;", data_tooltip = c.Tooltip, @class="jordklassifikationTypeLabels" })
+                
+      }
+      
+      <div style="clear: both">
+        <p>Obs: For at kunne nedklassificere jorden, skal der vedlægges dokumentation</p>
+      </div>
+    }
+    else if (Model.AnmeldelseModel.SelectedJordklassifikationTypeNavn != null)
+    {
+        @Html.Label("Valgte forureningskategori", new { style = "width:178px;" })
+        @Html.Label(Model.AnmeldelseModel.SelectedJordklassifikationTypeNavn)
+        
+    }
+    else
+    {
+      @:(Forureningskategorien hentes efter oprindelsesstedet er angivet)
+    }
+  }
+  else if (Model.AnmeldelseModel.SelectedJordklassifikationTypeNavn != null)
+  {
+    @Html.Label("Valgte forureningskategori", new { style = "width:178px;" })
+     @Html.Label(Model.AnmeldelseModel.SelectedJordklassifikationTypeNavn)
+  }
+  else
+  {
+    @:(Forureningskategorien hentes efter oprindelsesstedet er angivet)
+  }
+</div>
+@Html.HiddenFor(m=>m.AnmeldelseModel.SelectedJordklassifikationTypeVedAndenOprindelse, new {id="hflJordKlassifikationTypeVedAndenOprindelse"})
+<script type="text/javascript">
+$(".jordklassifikationTypeRadiolist").change(function() {
+        $(".jordklassifikationTypeRadiolist").each(function() {
+          if ($(this).prop('checked') == true) {
+            //$("#hflForureningOpslagJordklassifikationTypeId").val($(this).val());
+            $("#hflJordKlassifikationType").val($(this).val());
+          }
+        });
+        window.popModtagerAnlaeg();
+});
+$(".jordklassifikationTypeRadiolist").each(function () {
+  $(this).kendoTooltip({
+    content: $(this).attr("data-tooltip"),
+    position: "top",
+  });
+});
+$(".jordklassifikationTypeLabels").each(function () {
+  $(this).kendoTooltip({
+    content: $(this).attr("data-tooltip"),
+    position: "top",
+  });
+});
+  </script>

@@ -1,0 +1,50 @@
+﻿@model Niras.Jordflytning.ViewModels.ModtagerAnlaeg.KonfliktSoegningModel
+
+@if (!string.IsNullOrWhiteSpace(Model.GenerelFejl))
+{
+    <b>@Model.GenerelFejl</b>
+}
+
+@if (Model.AntalFejl > 0)
+{
+    <b>Der skete @Model.AntalFejl fejl ved konfliktsøgningen!</b>
+}
+
+@if (Model.AntalKonflikter > 0)
+{
+    <b>Der blev fundet @Model.AntalKonflikter konflikt@(Model.AntalFejl != 1 ? "er" : "")</b>
+}
+else
+{
+    <text>Der er ingen konflikter.</text>
+}
+<br/>
+<br/>
+@foreach (var leverandoerResultat in Model.LeverandoerResultater)
+{
+
+    if (leverandoerResultat.AntalFejl > 0)
+    {
+        <b>Der opstod fejl ved konfliktsøgning hos @leverandoerResultat.Kilde</b>
+        if (!string.IsNullOrWhiteSpace(leverandoerResultat.StatusUrl))
+        {
+            <a href="@leverandoerResultat.StatusUrl" target="_blank">Se status</a>
+        }
+    }
+    else
+    {
+        <text>@leverandoerResultat.Kilde:</text>
+    }
+
+    <ul>
+    @foreach (var serviceResultat in leverandoerResultat.ServiceResultater.OrderByDescending(r => r.Fejlet).ThenByDescending(f => f.Konflikt).ThenBy(f => f.Beskrivelse))
+    {
+        <li style="color: @(serviceResultat.Konflikt ? "#FF0000" : (serviceResultat.Fejlet ? "#808080" : "inherit"))">@serviceResultat.Beskrivelse@(serviceResultat.Konflikt ? "!" : "")
+        @if (serviceResultat.Fejlet)
+        {
+            <b>(Forespørgsel fejlede!)</b>
+        }
+        </li>
+    }
+    </ul>
+}

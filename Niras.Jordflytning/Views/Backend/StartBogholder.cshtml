@@ -1,0 +1,96 @@
+﻿@{
+	ViewBag.Title = "StartBogholder";
+	Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+
+			//$("#soeg").click(function (e) {
+			//  e.preventDefault(); //stop default event (click på knap)
+			//  $("#soegeparametre").toggle();
+			//  $("#soegeresultat").toggle();
+			//});
+
+			//$("#nulstil").click(function (e) {
+			//  e.preventDefault(); //stop default event (click på knap)
+			//  $("#soegeparametre").toggle();
+			//  $("#soegeresultat").toggle();
+			//});
+
+			$("td", "#anmeldelser").click(function () {
+				openTab("Betaler", "/Backend/AdminBetaler");
+			});
+
+			$("td", "#alarmer").click(function () {
+				openTab("Betaler", "/Backend/AdminBetaler");
+			});
+		});
+
+	</script>
+}
+
+@section TopMenu {
+	<div>
+		<input id="genindlaes" type="submit" value="Genindlæs" class="toolbarButton" />
+	</div>
+}
+
+<div class="row">
+	<h4>Betalere som kræver behandling</h4>
+</div>
+<div class="row">
+	<table id="betalere" border="1" cellpadding="3">
+		<tr>
+			<th class="gridheader">Firma</th>
+			<th class="gridheader">Navn</th>
+			<th class="gridheader">Dato</th>
+			<th class="gridheader">Vis betaler</th>
+		</tr>
+		<tr>
+			<td>NIRAS A/S</td>
+			<td>Birgitte Johnsen</td>
+			<td>16-2-2013</td>
+			<td>Vis</td>
+		</tr>
+		<tr>
+			<td>Grav A/S</td>
+			<td>Per Jensen</td>
+			<td>12-2-2013</td>
+			<td>Vis</td>
+		</tr>
+	</table>
+</div>
+
+
+<div class="row">
+	<h4>Opslagstavle</h4>
+</div>
+<div class="row">
+	<table id="opslagstavle" border="1" cellpadding="3">
+		<tr>
+			<th class="gridheader">Betaler</th>
+			<th class="gridheader">Sidst redigeret</th>
+			<th class="gridheader">Redigeret af</th>
+			<th class="gridheader">Besked</th>
+			<th class="gridheader">Vis betaler</th>
+		</tr>
+		<tr>
+			<td>Grav A/S</td>
+			<td>12-2-2013</td>
+			<td>Anita</td>
+			<td>Tekst vedrørende betaleren..</td>
+			<td>Vis betaler</td>
+		</tr>
+		<tr>
+			<td>NIRAS A/S</td>
+			<td>11-2-2013</td>
+			<td>Anita</td>
+			<td>Tekst vedrørende betaleren..</td>
+			<td>Vis betaler</td>
+		</tr>
+
+	</table>
+</div>

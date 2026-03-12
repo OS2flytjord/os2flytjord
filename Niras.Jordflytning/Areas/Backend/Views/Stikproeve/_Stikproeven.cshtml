@@ -1,0 +1,127 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.StikproeveModel
+
+
+@using (Ajax.BeginForm("Stikproeve", "Stikproeve", new {area = "Backend"}, new AjaxOptions {HttpMethod = "POST", OnSuccess = "onFormSuccess"}, new {Id = "frmStikproeve"}))
+{  
+     @Html.HiddenFor(x => x.Id, new { id = "stkprId" })
+
+     @Html.HiddenFor(x => x.AnalyseUdfoert, new { id = "HfchkAnalyseUdfoert" })
+        
+        
+    <div style="clear: both"></div>
+    <div class="row" id="divStikproeven">
+        <div class="column" style="width: 499px; margin-right: 10px;">
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Oplysninger</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row row_line" >
+                        @Html.Label("Kontrolanalyse nummer", new {style="line-height:18px;"})
+                        @Html.DisplayTextFor(m => m.Nummer)
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row row_line">
+                        @*Html.Label("Intern bemærkning")*@
+                        <label style="width:181px"><span style="width:181px">Intern bemærkning</span><span style="color:red; font-size:11px; line-height:11px; display: block;">(der må ikke indtastes persondata)</span></label>
+                        @Html.TextAreaFor(m => m.InternBemaerkning, new {id = "txtInternBemaerkning", style="height:50px; "})
+                        @Html.ValidationMessageFor(m => m.InternBemaerkning)
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row row_line">
+                        @Html.Label("Laboratorie")
+                        @Html.Kendo().DropDownListFor(m => m.LabPersonId).DataValueField("Id").DataTextField("Navn").BindTo((IEnumerable<Object>) ViewData["labs"]).OptionLabel("Vælg").HtmlAttributes(new {style = "width:295px;", id = "ddlLaboratorie"})
+                        @Html.ValidationMessageFor(m => m.LabPersonId)
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Jordprøven</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row row_line">
+                        @Html.Label("Jordprøve udtaget", new {style="line-height:18px;"})
+                        @Html.CheckBoxFor(m => m.JordproeveUdtaget, new {id = "chkBoxJordproeveUdtaget", style="line-height:27px; margin-left: 0px;  margin-left: 0px; margin-top: 0px;"})
+                    </div>
+                    <div class="row row_line">
+                        @*Html.Label("Lugtvurdering")*@
+                        <label style="width:181px"><span style="width:181px">Lugtvurdering</span><span style="color:red; font-size:11px; line-height:11px; display: block;">(der må ikke indtastes persondata)</span></label>
+                        @Html.TextAreaFor(m => m.Lugtvurdering, new {id = "txtLugtvurdering", style="height: 50px;" })
+                    </div>
+                    <div class="row row_line">
+                        @*Html.Label("Beskrivelse")*@
+                        <label style="width:181px"><span style="width:181px">Beskrivelse</span><span style="color:red; font-size:11px; line-height:11px; display: block;">(der må ikke indtastes persondata)</span></label>
+                        @Html.TextArea("JordproeveBeskrivelse", new {id = "txtJordBeskrivelse", style="height: 50px;" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="column" style="width: 505px; margin-left: 0px; margin-right: 0px;">
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Vurdering</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row row_line">
+                        <label style="width:170px;">Godkendt	@Html.RadioButtonFor(m => m.GodkendtAfvistUnderbehandlingRbg, "godkendt", new {id = "rbnGodkendt", style="margin-left: 0px; "}) </label>
+
+                        <label style="width:150px;">Afvist @Html.RadioButtonFor(m => m.GodkendtAfvistUnderbehandlingRbg, "afvist", new {id = "rbnAfvist"})</label>
+                        <label style="width:150px;">Under behandling @Html.RadioButtonFor(m => m.GodkendtAfvistUnderbehandlingRbg, "underbehandling", new {id = "rbnUnderBehandling"})</label>
+                    </div>
+
+                    <div class="row">
+                        @Html.Label("Årsag til afvisning", new {style="width:170px;"})
+                        @Html.Kendo().DropDownListFor(m => m.AfvisningAarsag).DataValueField("Value").DataTextField("Text").BindTo(new List<SelectListItem>()
+                            {
+                                new SelectListItem { Text = @"Forureningskomponenter", Value = "1"},
+                                new SelectListItem { Text = @"Affald", Value = "2"} 
+                            }).HtmlAttributes(new {id = "ddlAfvisningAarsag", Style = "width:310px"}).Enable(Model.GodkendtAfvistUnderbehandlingRbg == "afvist")
+                        @Html.ValidationMessageFor(m => m.AfvisningAarsag)
+                    </div>
+                    @{
+                        var afvisBemaerkningHtmlAttributes = new Dictionary<string, object>();
+                        afvisBemaerkningHtmlAttributes.Add("style", "width:310px; height: 51px;");
+                        afvisBemaerkningHtmlAttributes.Add("id", "txtAfvisningBemaerkning");
+                        if (Model.GodkendtAfvistUnderbehandlingRbg != "afvist")
+                        {
+                            afvisBemaerkningHtmlAttributes.Add("disabled", "disabled");
+                        }
+                    }
+                    <div class="row row_line">
+                        @*Html.Label("Bemærkning til afvisning", new {style="width:170px;"})*@
+                        <label style="width:170px"><span style="width:170px">Bemærkning til afvisning</span><span style="color:red; font-size:10px; line-height:11px; display: block;">(der må ikke indtastes persondata)</span></label>
+                        @Html.TextAreaFor(m => m.AfvisningBemaerkning, new {id= "afvisBemaerkningHtmlAttributes", style="width:310px; height: 51px;" })
+                        @Html.ValidationMessageFor(m => m.AfvisningBemaerkning)
+                    </div>
+                </div>
+            </div>
+
+            <div class="controlsbox row" style="margin-top: 10px; height: 207px;">
+                <div class="cbheader">
+                    <h5>Bås</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row row_line">
+                        @Html.Label("Bås nummer", new {style="line-height:18px;"})
+                        @Html.DisplayTextFor(m => m.Baas)
+                    </div>
+                    <div class="row row_line">
+                        @Html.Label("Bås tømt", new {style="line-height:18px;"})
+                        @Html.CheckBoxFor(m => m.JordAfhentet, new {id = "chkBoxJordAfhentet"})
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="clear: both"></div>
+}
+
+
+

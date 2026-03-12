@@ -1,0 +1,43 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.Areas.Backend.ViewModels
+@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+
+<script type="text/javascript">
+
+    function loadHistorikForAnmeldelse() {
+        $("#grdHistorikAnmeldelse").data("kendoGrid").dataSource.read();
+    }
+
+</script>
+
+<div>
+    @(Html.Kendo().Grid<HistorikAnmeldelseModel>()
+        .Name("grdHistorikAnmeldelse")
+        .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Hidden();
+                columns.Bound(p => p.Tid).Title("Historik").Format("{0:dd-MM-yyyy H:mm:ss}");
+                columns.Bound(p => p.Handling).Title("Handling");
+                columns.Bound(p => p.Person).Title("");
+                columns.Bound(p => p.Link).Title("").Width(120).Encoded(false);
+                //columns.Bound(p => p.AdvisId).Title("")
+                //    .ClientTemplate(@Html.ActionLink("Send adviser", "Edit", new { ID = "#= AdvisId " }).ToHtmlString());
+
+                @*columns.Template(@<text>
+                    @Html.ActionLink(@item.AdvisId, "SendAdviser", "Edit", new { id = @item.AdvisId })
+                </text>)
+                .ClientTemplate("<a href='/Edit/SendAdviser/?id =#= AdvisId #'>#=AdvisId#</a>").Title("");*@
+
+                //columns.Bound(p => p.Id).Title("").ClientTemplate(
+                //@Html.ActionLink("Send adviser",
+                //    "Edit",
+                //    new { ID = "#=ID#" }).ToHtmlString());
+            })
+                                .DataSource(dataSource => dataSource.Ajax()
+                                    .ServerOperation(false)
+                                    .Read(read => read.Action("ReadHistorikForAnmeldelse", "Anmeldelser", new { area = "Backend" }).Data("getAnmeldelseId"))
+                                    .Model(model => model.Id(p => p.Id))
+                                  )
+    )
+</div>
+

@@ -1,0 +1,26 @@
+﻿@model Niras.Jordflytning.ViewModels.ModtagerAnlaeg.ModtagerAnlaegKortModel
+@{
+  ViewBag.Title = "Modtageanlæg";
+  Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+}
+@section Scripts{
+  <script src='@(Model.KortApiUrl)' type='text/javascript'></script>
+  <script src="~/Scripts/Map/mapModtagerAnlaeg.js" type="text/javascript"></script>  
+  
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      
+      var kiSite = '@(Model.KortSite)';
+      var kiPage = '@(Model.KortPageModtagere)';
+
+      mapInitModtagerAnlaeg(kiSite, kiPage);
+    });
+    
+  </script>
+  }
+
+
+  <div style="height: 100%; width: 100%;" >
+    @Html.Partial("_map", Model)
+  </div>

@@ -1,0 +1,633 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+
+@{
+    ViewBag.Title = "Blanket";
+    Layout = "~/Views/Shared/_LayoutBlanket.cshtml";
+}
+<script type="text/javascript">
+    //Wrap it within $(document).ready() to invoke the function after DOM loads.
+
+    $(document).ready(function () {
+        //https://github.com/jeromeetienne/jquery-qrcode
+
+
+        var lbnr = "1" + $("#hflNummer").val();
+        /*var pad = "0000000000";
+        (lbnr + pad).slice(-pad.length);*/
+
+        $('#qrcodeholder').qrcode({
+            text: lbnr,
+            //render: "canvas",  // 'canvas' or 'table'. Default value is 'canvas'
+            render: "table",  // 'canvas' or 'table'. Default value is 'canvas'
+            background: "#ffffff",
+            foreground: "#000000",
+            width: 100,
+            height: 100
+        });
+
+    });
+
+
+</script>
+
+@Html.HiddenFor(m => m.AnmeldelseModel.Anmeldelse.Nummer, new { Id = "hflNummer" })
+<div class="printStyleDiv">
+    <table style="border: 0px solid black; width: 180mm;">
+        @*  <tr>
+            <td style="padding: 15px ;vertical-align: top">
+               <table style="border: 1px solid black;">*@
+        <tr>
+            <td style="vertical-align: top; width: 180mm">
+                <table>
+                    <tr>
+                        <td colspan="2">
+                            <h2>FlytJord.dk</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;width: 120mm">
+                            <table>
+                                <tr>
+                                    <td style="vertical-align: top; padding: 15px; text-align: left; ">
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <div id="qrcodeholder"></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size: 100%"><b>Bom id: @Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Nummer).ToString().Insert(0, "1")</b></td>
+                                            </tr>
+                                        </table>
+
+                                    </td>
+                                    <td style="text-align: left;  padding: 10px">
+                                        <table>
+                                            <tr>
+                                                <td style="font-size: 14px; font-weight: bold;">Løbenummer:</td>
+                                                <td style="font-size: 14px; font-weight: bold;">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Nummer)</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Anmeldelse indsendt:</td>
+                                                <td>@Html.DisplayFor(m => m.BlanketAnmeldelseAfsendt)</td>
+                                            </tr>
+                                            <tr>
+                                                @if (Model.AnmeldelseModel.Anmeldelse != null && Model.AnmeldelseModel.AnmeldelseErAktiv)
+                                                {
+                                                    <td>Anmeldelse godkendt:</td>
+                                                    <td>@Html.DisplayFor(m => m.BlanketAnmeldelseGodkendt)</td>
+                                                }
+                                                @if (Model != null && Model.BlanketAnmeldelseAfvist != "")
+                                                {
+                                                    <td>Anmeldelse afvist:</td>
+                                                    <td>@Html.DisplayFor(m => m.BlanketAnmeldelseAfvist)</td>
+                                                }
+                                                @if (Model != null && Model.BlanketAnmeldelseAfsluttet != "")
+                                                {
+                                                    <td>Anmeldelse afsluttet:</td>
+                                                    <td>@Html.DisplayFor(m => m.BlanketAnmeldelseAfsluttet)</td>
+                                                }
+                                            </tr>
+
+
+                                            <tr>
+                                                <td>Sagsbehandler:</td>
+                                                <td>
+                                                    @Html.DisplayFor(m => m.BlanketSagsbehandler)
+                                                </td>
+                                            </tr>
+
+
+
+                                        </table>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </td>
+
+
+                    </tr>
+                </table>
+
+            </td>
+            <td style="text-align: right;padding: 10px;">
+                @Html.Raw(Model.BlanketLogo)
+            </td>
+
+        </tr>
+
+
+
+
+    </table>
+
+    <div class="headerH3">
+        Anmeldelse af Jordflytning
+    </div>
+    @{
+        var bgimage = "";
+        if (Model.AnmeldelseModel.Anmeldelse != null && Model.BlanketAnmeldelseErIndsendtMenIkkeAktiv && Model.BlanketAnmeldelseGodkendt != null)
+        {
+            bgimage = "background-image:url('/Content/Images/Anvist_vandmaerke2.png'); background-repeat:no-repeat;";
+        }
+        if (Model != null && Model.BlanketAnmeldelseAfvist != "")
+        {
+            bgimage = "";
+        }       
+    }
+<table style="width: 180mm;  @bgimage ">
+    <tr>
+        <td colspan="2">
+            <div class="hr"></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="leftcell">Ansøger / anmelder</td>
+        <td class="rigthcell">
+            <table style="width: 100%">
+                <tr>
+                    <td class="rightFirstTd">Navn: </td>
+                    <td colspan="3">@Html.DisplayFor(m => m.BlanketAnmelderNavn)</td>
+                </tr>
+                @*<tr>
+                      <td class="rightFirstTd">Adresse:</td>
+                      <td style="width: 40%">@Html.DisplayFor(m => m.BlanketAnmelderAdresse)</td>
+                      <td style="width: 15%">Postnr:</td>
+                      <td style="width: 20%">@Html.DisplayFor(m => m.BlanketAnmelderPostnr)</td>
+                    </tr>*@
+                <tr>
+                    <td class="rightFirstTd">Kontaktperson:</td>
+                    <td style="width: 40%">@Html.DisplayFor(m => m.BlanketAnmelderKontaktperson)</td>
+                    <td style="width: 15%">Telefon:</td>
+                    <td style="width: 20%">@Html.DisplayFor(m => m.BlanketAnmelderTelefon)</td>
+                </tr>
+            </table>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="hr"></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="leftcell">Oprindelsessted</td>
+        <td class="rigthcell">
+            <table style="width: 100%">
+                <tr>
+                    <td class="rightFirstTd">Type:</td>
+                    <td colspan="3">
+                        @if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 0)
+                        {
+                            <text>Ejendom</text>
+                        }
+                        else if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 1)
+                        {
+                            <text>Offentlig vej</text>
+                        }
+                        else if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 2)
+                        {
+                            <text>Anden oprindelse</text>
+                        }
+
+                    </td>
+                </tr>
+
+                @*<tr>
+          <td colspan="4">
+            @{
+              //Html attribut beregnes ud fra tidliger
+              var d0 = new Dictionary<string, object>();
+              d0.Add("Id", "stedTypeEjendom");
+              d0.Add("disabled", "disabled");
+              if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 0)
+              {
+                d0.Add("checked", "checked");
+              }
+
+              var d1 = new Dictionary<string, object>();
+              d1.Add("Id", "stedTypeOffentligVej");
+              d1.Add("disabled", "disabled");
+              if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 1)
+              {
+                d1.Add("checked", "checked");
+              }
+
+              var d2 = new Dictionary<string, object>();
+              d2.Add("Id", "stedTypeAndenOprindelse");
+              d2.Add("disabled", "disabled");
+              if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 2)
+              {
+                d2.Add("checked", "checked");
+              }
+            }
+            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id, "BBB062F1-641A-45AD-BEDD-B0C126FCDFE6", d0)
+            @Html.Label("rblOprindelsesstedKlas", "Ejendom", new { Class = "labelradio" })
+            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id, "295407E9-2182-4876-AE6F-50AFD00A6194", d1)
+            @Html.Label("rblOprindelsesstedKlas", "Offentlig vej", new { Class = "labelradio" })
+            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id, "480738EC-4A9D-448E-9A18-5BA481A8A3C6", d2)
+            @Html.Label("rblOprindelsesstedKlas", "Anden oprindelse", new { Class = "labelradio" })
+            <div style="clear: both"></div>
+          </td>
+        </tr>*@
+                <tr>
+                    <td class="rightFirstTd">Adresse:</td>
+                    <td colspan="3">@Html.DisplayFor(m => m.BlanketStedAdresse)</td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Matr. nr.:</td>
+                    <td colspan="3">@Html.DisplayFor(m => m.BlanketStedMatrikler)</td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Kommune:</td>
+                    <td colspan="3">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Kommune.Navn)</td>
+                </tr>
+                @* Alt andet end offentlig vej *@
+                @if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex != 1)
+                {
+                    <tr>
+                        <td class="rightFirstTd">Lokalitetens forureningsstatus:</td>
+                        <td colspan="3">
+                            @if (!Model.AnmeldelseModel.ForureningsKategoriTekster.Any())
+                            {
+                                <div style="font-size: .85em; font-weight: normal; display: inline-block;">(Der er ikke registreret oplysninger om jordforurening på arealet)</div>
+                            }
+                            else
+                            {
+                                foreach (var text in Model.AnmeldelseModel.ForureningsKategoriTekster)
+                                {
+                                    <div style="font-size: .85em; font-weight: normal; display: block;">&#x25AA; @Html.Raw(text)</div>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="hr"></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="leftcell">Oplysninger om projektet</td>
+        <td class="rigthcell">
+            <table style="width: 100%">
+                <tr>
+                    <td class="rightFirstTd" style="font-size: 14px; font-weight: bold;">Forureningkat.:</td>
+                    <td colspan="3" style="font-size: 14px; font-weight: bold;">
+                        @Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordKlassifikationType.Navn)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Jordprøver:</td>
+                    <td colspan="3">
+                        @{
+                            //var proeverJaHtmlAttributes = new Dictionary<string, object>();
+                            //proeverJaHtmlAttributes.Add("Id", "rblJordproeverJa");
+                            //proeverJaHtmlAttributes.Add("disabled", "disabled");
+                            ////proeverJaHtmlAttributes.Add("data-tooltip", "Er der fortaget jordprøver?");
+
+                            //var proeverNejHtmlAttributes = new Dictionary<string, object>();
+                            //proeverNejHtmlAttributes.Add("Id", "rblJordproeverNej");
+                            //proeverNejHtmlAttributes.Add("disabled", "disabled");
+                            ////proeverNejHtmlAttributes.Add("data-tooltip", "Er der fortaget jordprøver?");
+                            if (Model.AnmeldelseModel.Anmeldelse == null || Model.AnmeldelseModel.Anmeldelse.Jord == null || Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.HasValue == false)
+                            {
+                                <text>Er ikke udtaget</text>
+                            }
+                            else
+                            {
+
+                                if (Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.Value)
+                                {
+                                    <text>Er udtaget af </text> @Model.AnmeldelseModel.Anmeldelse.Jord.MiljoeTekniskTilsyn
+
+                                    if (Model.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer.HasValue)
+                                    {
+                                        if (Model.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer.Value)
+                                        {
+                                            <text> før opgravningen</text>
+                                        }
+                                        else
+                                        {
+                                            <text> efter opgravningen</text>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+
+                                    <text>Er ikke udtaget</text>
+                                }
+                            }
+                        }
+                        @*@Html.LabelFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Jordproever, new { style = "width:178px;" })*@
+                        @*@Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Jordproever, true, proeverJaHtmlAttributes)
+                            @Html.Label("ja", "Ja", new { style = "width:50px;" })
+                            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Jordproever, false, proeverNejHtmlAttributes)
+                            @Html.Label("nej", "Nej", new { style = "width:50px;" })*@
+
+                        @*  @{
+                              var foerHtmlAttributes = new Dictionary<string, object>();
+                              var efterHtmlAttributes = new Dictionary<string, object>();
+                              foerHtmlAttributes.Add("disabled", "disabled");
+                              efterHtmlAttributes.Add("disabled", "disabled");
+
+                              if (Model.AnmeldelseModel.Anmeldelse != null && Model.AnmeldelseModel.Anmeldelse.Jord != null && Model.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer.HasValue)
+                              {
+                                if (Model.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer.Value)
+                                {
+                                  foerHtmlAttributes.Add("checked", "checked");
+                                }
+                                else
+                                {
+                                  efterHtmlAttributes.Add("checked", "checked");
+                                }
+                              }
+
+                            }*@
+                    </td>
+                    @*<td>
+                          @{
+                            if (Model.AnmeldelseModel.Anmeldelse.Jord != null && Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.HasValue && Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.Value)
+                            {
+                            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer, true, foerHtmlAttributes)
+                            @Html.Label("foeropgravning", "Før opgravning", new { style = "width:120px;" })
+                            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer, false, efterHtmlAttributes)
+                            @Html.Label("foeropgravning", "Efter opgravning", new { style = "width:120px;" })
+                            }
+                          }
+
+                        </td>*@
+                </tr>
+                @* <tr>
+                      <td class="rightFirstTd">Klassifikation:</td>
+                      <td colspan="3">
+
+                        @if (Model.AnmeldelseModel.JordklassifikationTypeListe != null)
+                        {
+                          foreach (var c in Model.AnmeldelseModel.JordklassifikationTypeListe)
+                          {
+                          @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordKlassifikationType.Id, c.Value, new { @class = "jordklassifikationTypeRadiolist", disabled="disabled" })
+                          @Html.Label("forurening", c.Text, new { style = "width:160px" })
+                          }
+                        }
+                      </td>
+                    </tr>*@
+                <tr>
+                    <td>
+                        @*<td colspan="2" style="width: 50%">*@
+                        @Html.CheckBoxFor(x => x.AnmeldelseModel.Anmeldelse.Jord.IntaktJord, new { Id = "chkIntaktJord", disabled = "disabled" })
+                        @Html.LabelFor(x => x.AnmeldelseModel.Anmeldelse.Jord.IntaktJord, new { style = "width:178px;" })
+                    </td>
+                    <td>
+                        @*<td colspan="2" style="width: 50%">*@
+                        @{
+                            bool straksGodkendJordhaandteringsplan = Model.AnmeldelseModel.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan.HasValue && Model.AnmeldelseModel.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan.Value;
+                            bool andenDokumentation = false;
+
+                            if (Model.AnmeldelseModel.Anmeldelse.Jord != null && Model.AnmeldelseModel.Anmeldelse.Jord.Dokumentation != null && Model.AnmeldelseModel.Anmeldelse.Jord.Dokumentation.Count > 0)
+                            {
+                                andenDokumentation = true;
+                            }
+
+                        }
+                        @Html.CheckBox("chkStraksHåndteringsplan", straksGodkendJordhaandteringsplan, new { disabled = "disabled" })@Html.Label("Jordhåndteringsplan vedlagt")
+                    </td>
+                    <td colspan="2">
+                        @Html.CheckBox("chkAndenDokumentation", andenDokumentation, new { disabled = "disabled" })@Html.Label("Anden dokumentation")
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Affald: </td>
+                    <td colspan="3">
+                        @if (Model.AnmeldelseModel != null && Model.AnmeldelseModel.Anmeldelse != null && Model.AnmeldelseModel.Anmeldelse.Jord != null && Model.AnmeldelseModel.Anmeldelse.Jord.AffaldType != null)
+                        {
+                            <text>Jorden indeholder affald af typen </text>
+                            if (Model.AnmeldelseModel.Anmeldelse.Jord.AffaldType.Kode != 6 || (Model.AnmeldelseModel.Anmeldelse.Jord.AffaldType.Kode == 6 && Model.AnmeldelseModel.Anmeldelse.Jord.AndenAffaldType == ""))
+                            {
+                                @Model.AnmeldelseModel.Anmeldelse.Jord.AffaldType.Navn.ToLower()
+                            }
+                            else
+                            {
+                                @Model.AnmeldelseModel.Anmeldelse.Jord.AndenAffaldType
+                            }
+                        }
+                        else
+                        {
+                            <text>Jorden indeholder ikke affald</text>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd" style="font-size: 14px; font-weight: bold;"><b>Jordmængde (t):</b></td>
+                    <td style="width: 40%; font-size: 14px; font-weight: bold;"><b>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.ForventetJordmaengdeTon)</b></td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd" style="font-size: 14px; font-weight: bold;">Kørselsperiode:</td>
+                    <td style="font-size: 14px; font-weight: bold;">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.KoerselStart) til @Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.KoerselSlut)</td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Beskrivelse af jordarbejdet:</td>
+                    <td colspan="2">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordarbejdeBeskrivelse)</td>
+                </tr>
+
+            </table>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="hr"></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="leftcell">Transportør</td>
+        <td class="rigthcell">
+            <table style="width: 100%">
+                <tr>
+                    <td class="rightFirstTd">Navn:</td>
+                    <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Transportoer.Person.Firmaoplysninger.Firmanavn)</td>
+
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Kontaktperson:</td>
+                    <td style="width: 40%">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Transportoer.Person.Navn) @Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Transportoer.Person.Efternavn)</td>
+                    <td style="width: 15%">Telefon:</td>
+                    <td style="width: 20%">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Transportoer.Person.Telefon)</td>
+                </tr>
+
+            </table>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="hr"></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="leftcell">Modtager</td>
+        <td class="rigthcell">
+            <table style="width: 100%">
+                <tr>
+                    <td class="rightFirstTd" style="font-size: 14px; font-weight: bold;">Navn:</td>
+                    <td style="width: 40%; font-size: 14px; font-weight: bold;" colspan="3">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.ModtagerAnlaeg.Navn)</td>
+
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Telefon:</td>
+                    <td style="width: 40%">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.ModtagerAnlaeg.Jordmodtager.Telefon)</td>
+                    <td style="width: 15%"></td>
+                    <td style="width: 20%"></td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Kontaktperson:</td>
+                    <td style="width: 40%">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.ModtagerAnlaeg.KontaktpersonNavn)</td>
+                    <td style="width: 15%">Telefon:</td>
+                    <td style="width: 20%">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.ModtagerAnlaeg.KontaktpersonTlf)</td>
+                </tr>
+                <tr>
+                    <td class="rightFirstTd">Email:</td>
+                    <td style="width: 40%">@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.ModtagerAnlaeg.KontaktpersonEmail)</td>
+                    <td style="width: 15%"></td>
+                    <td style="width: 20%"></td>
+                </tr>
+
+            </table>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="hr"></div>
+        </td>
+    </tr>
+    <tr>
+        <td class="leftcell">Kommunikation</td>
+        <td class="rigthcell">
+            <table style="width: 100%">
+                <tr>
+                    <td class="rightFirstTd" style="font-size: 14px; font-weight: bold;">Status:</td>
+                    @if (Model.AnmeldelseModel.Anmeldelse != null && Model.AnmeldelseModel.Anmeldelse.AnmeldelseEffektivStatus.Afsluttet != null)
+                    {
+                        <td style="font-size: 14px; font-weight: bold;">Anmeldelsen er afsluttet</td>
+                    }
+                    else if (Model.AnmeldelseModel.Anmeldelse != null && Model.AnmeldelseModel.AnmeldelseErAktiv)
+                    {
+                    <td style="font-size: 14px; font-weight: bold;">Anmeldelsen er godkendt</td>
+                    }
+                    else if (Model.BlanketAnmeldelseAfvist != "")
+                    {
+                    <td style="font-size: 14px; font-weight: bold;">Anmeldelsen er afvist</td>
+                    }
+                    else
+                    {
+                    <td style="font-size: 14px; font-weight: bold;">Anmeldt ikke anvist</td>
+                    }
+                </tr>
+
+
+                @if (Model != null && Model.BlanketAnmeldelseAfvist != "")
+                {
+                    <tr>
+                        <td class="rightFirstTd">Årsag til afvisning:</td>
+                        <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.AarsagAfvisning)</td>
+                    </tr>
+                }
+
+                @if (Model.AnmeldelseModel.Anmeldelse.Jord != null && !string.IsNullOrEmpty(Model.AnmeldelseModel.Anmeldelse.Jord.Bemaerkning))
+                {
+                    <tr>
+                        <td class="rightFirstTd">Bemærkning til projektet:</td>
+                        <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Bemaerkning)</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.AnmeldelseModel.Anmeldelse.BemaerkningTilAnmeldelse))
+                {
+                    <tr>
+                        <td class="rightFirstTd">Bemærkning til anmeldelse:</td>
+                        <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.BemaerkningTilAnmeldelse)</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.AnmeldelseModel.Anmeldelse.BemaerkningTilJordmodtager))
+                {
+                    <tr>
+
+                        <td class="rightFirstTd">Bemærkning til jordmodtager:</td>
+                        <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.BemaerkningTilJordmodtager)</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.AnmeldelseModel.Anmeldelse.BemaerkningTilKommune))
+                {
+                    <tr>
+                        <td class="rightFirstTd">Bemærkning til kommunen:</td>
+                        <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.BemaerkningTilKommune)</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.AnmeldelseModel.Anmeldelse.Jord.TidligereErhvervsaktivitet) && Model.AnmeldelseModel.Anmeldelse.Kommune.Navn == "Syddjurs")
+                {
+                    <tr>
+                        <td class="rightFirstTd">Tidligere erhvervsaktivitet:</td>
+                        <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.TidligereErhvervsaktivitet)</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.AnmeldelseModel.Anmeldelse.Jord.JordarbejdeBeskrivelse) && Model.AnmeldelseModel.Anmeldelse.Kommune.Navn == "Syddjurs")
+                {
+                    <tr>
+                        <td class="rightFirstTd">
+                            Beskrivelse af jordarbejdet:
+                        </td>
+                        <td>@Html.DisplayFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordarbejdeBeskrivelse)</td>
+                    </tr>
+                }
+            </table>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="hr"></div>
+        </td>
+    </tr>
+        @if (Model != null && Model.BlanketAnmeldelseAfvist == "")
+        {
+        <tr>
+            <td class="leftcell">VIGTIGT!</td>
+            <td class="rigthcell">
+                <table style="width: 100%">
+                    <tr>
+                        <td>
+                            Denne godkendte anmeldelse skal medbringes af chaufføren og fremvises ved aflevering af jorden og skal mod forlangende forevises miljømyndighederne.
+
+                        </td>
+
+
+                    </tr>
+                </table>
+            </td>
+
+        </tr>
+  
+        <tr>
+            <td colspan="2">
+                <div class="hr"></div>
+            </td>
+        </tr>
+        }
+        <tr>
+            <td colspan="2" style="height: 1mm"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                @Html.Raw(Model.BlanketFooter)
+
+            </td>
+        </tr>
+    </table>
+</div>

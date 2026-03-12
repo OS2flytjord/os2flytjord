@@ -1,0 +1,275 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F4D2423F-9B3D-4495-BC62-D0C91650FB84}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Niras.Jordflytning.Infrastructure</RootNamespace>
+    <AssemblyName>Niras.Jordflytning.Infrastructure</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AJE|AnyCPU'">
+    <OutputPath>bin\AJE\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="libs">
+      <HintPath>..\Niras.Jordflytning.Libraries\Niras\PdfService\libs.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.14.0.1016.290\lib\net40\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Services3">
+      <HintPath>..\Niras.Jordflytning.Libraries\Microsoft\Microsoft.Web.Services3.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Web.Common">
+      <HintPath>..\packages\Ninject.Web.Common.3.0.0.7\lib\net45-full\Ninject.Web.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="pdfcrowd, Version=6.0.1.0, Culture=neutral, PublicKeyToken=747913b00a4ba166, processorArchitecture=MSIL">
+      <HintPath>..\packages\Pdfcrowd.Official.6.0.1\lib\net20\pdfcrowd.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfServiceConnector">
+      <HintPath>..\Niras.Jordflytning.Libraries\Niras\PdfService\PdfServiceConnector.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UsernameAssertionLibrary">
+      <HintPath>..\Niras.Jordflytning.Libraries\Niras\PdfService\UsernameAssertionLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="WebMatrix.Data">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.Data.2.0.20710.0\lib\net40\WebMatrix.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="WebMatrix.WebData, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.WebData.2.0.20710.0\lib\net40\WebMatrix.WebData.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\CertificateUtil.cs" />
+    <Compile Include="Common\DecimalUtil.cs" />
+    <Compile Include="Common\Disposable.cs" />
+    <Compile Include="Common\WebSecurityProvider.cs" />
+    <Compile Include="DataAccess\AnmeldelserRepository.cs" />
+    <Compile Include="DataAccess\AnmelderRepository.cs" />
+    <Compile Include="DataAccess\BogholderOpslagstavleRepository.cs" />
+    <Compile Include="DataAccess\BrugereRepository.cs" />
+    <Compile Include="DataAccess\AndenOprindJordTypeRepository.cs" />
+    <Compile Include="DataAccess\AffaldTypeRepository.cs" />
+    <Compile Include="DataAccess\BetalerRepository.cs" />
+    <Compile Include="DataAccess\BemyndigedeAnmeldereRepository.cs" />
+    <Compile Include="DataAccess\AdvisTypeRepository.cs" />
+    <Compile Include="DataAccess\AdvisRepository.cs" />
+    <Compile Include="DataAccess\AnalyseDokumentRepository.cs" />
+    <Compile Include="DataAccess\AlarmRepository.cs" />
+    <Compile Include="DataAccess\BeskedRepository.cs" />
+    <Compile Include="DataAccess\FaktureringRepository.cs" />
+    <Compile Include="DataAccess\GebyrTidsregistreringRepository.cs" />
+    <Compile Include="DataAccess\OpgavetypeRepository.cs" />
+    <Compile Include="DataAccess\PlansystemRepository.cs" />
+    <Compile Include="DataAccess\KulturarvRepository.cs" />
+    <Compile Include="DataAccess\InteresantRepository.cs" />
+    <Compile Include="DataAccess\FirmaoplysningerRepository.cs" />
+    <Compile Include="DataAccess\LandsdelTypeRepository.cs" />
+    <Compile Include="DataAccess\LogRepository.cs" />
+    <Compile Include="DataAccess\KommunikationRepository.cs" />
+    <Compile Include="DataAccess\LastbilRepository.cs" />
+    <Compile Include="DataAccess\MatrikelOpslagRepository.cs" />
+    <Compile Include="DataAccess\VognlaesRepository.cs" />
+    <Compile Include="DataAccess\KommuneJordklassifikationRepository.cs" />
+    <Compile Include="DataAccess\webpages_RolesRepository.cs" />
+    <Compile Include="DataAccess\JordforureningsopslagRepository.cs" />
+    <Compile Include="DataAccess\StatusStikproeveRepository.cs" />
+    <Compile Include="DataAccess\StatusStikproeveTypeRepository.cs" />
+    <Compile Include="DataAccess\PlanlagteStikproeverRepository.cs" />
+    <Compile Include="DataAccess\EnhedTypeRepository.cs" />
+    <Compile Include="DataAccess\JordanlaegTypeRepository.cs" />
+    <Compile Include="DataAccess\GraensevaerdierRepository.cs" />
+    <Compile Include="DataAccess\PdfServiceRepository.cs" />
+    <Compile Include="DataAccess\StikproeveRepository.cs" />
+    <Compile Include="DataAccess\SagsbehandlerRepository.cs" />
+    <Compile Include="DataAccess\PersonJordmodtagerRepository.cs" />
+    <Compile Include="DataAccess\PersonKommuneRepository.cs" />
+    <Compile Include="DataAccess\DokumenterRepository.cs" />
+    <Compile Include="DataAccess\ForureningskomponentRepository.cs" />
+    <Compile Include="DataAccess\StatusBetalerRepository.cs" />
+    <Compile Include="DataAccess\KonfigRepository.cs" />
+    <Compile Include="DataAccess\StatusAnmeldelseTypeRepository.cs" />
+    <Compile Include="DataAccess\StatusAnmeldelseRepository.cs" />
+    <Compile Include="DataAccess\DokumentationRepository.cs" />
+    <Compile Include="DataAccess\JordmodtagerRepository.cs" />
+    <Compile Include="DataAccess\GeoEnvironRepository.cs" />
+    <Compile Include="DataAccess\MatrikelRepository.cs" />
+    <Compile Include="DataAccess\ModtagerAnlaegRepository.cs" />
+    <Compile Include="DataAccess\TransportoerRepository.cs" />
+    <Compile Include="DataAccess\JordflytningRepository.cs" />
+    <Compile Include="DataAccess\JordKlassifikationTypeRepository.cs" />
+    <Compile Include="DataAccess\MiljoePortalRepository.cs" />
+    <Compile Include="DataAccess\OprindelsesstedKlassifikationTypeRepository.cs" />
+    <Compile Include="DataAccess\KommuneRepository.cs" />
+    <Compile Include="DataAccess\DokumentationTypeRepository.cs" />
+    <Compile Include="DataAccess\OprindelsesStedRepository.cs" />
+    <Compile Include="DataAccess\PersonRepository.cs" />
+    <Compile Include="DataAccess\RepoFactory.cs" />
+    <Compile Include="DataAccess\GenericRepository.cs" />
+    <Compile Include="Common\UnitOfWork.cs" />
+    <Compile Include="DependencyResolution\ConfigModule.cs" />
+    <Compile Include="DependencyResolution\RepositoryModule.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\GeoEnvironServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Services\ConfigService.cs" />
+    <Compile Include="GeometryUtil %28not used%29\GeometryTools.cs" />
+    <Compile Include="GeometryUtil %28not used%29\SqlWkbGeometry.cs" />
+    <Compile Include="GeometryUtil %28not used%29\WfsUtil.cs" />
+    <Compile Include="SqlServerTypes\Loader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Niras.Jordflytning.Core\Niras.Jordflytning.Core.csproj">
+      <Project>{bbaf3d72-f702-497d-bec6-0e2125db767f}</Project>
+      <Name>Niras.Jordflytning.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Niras.Jordflytning.Library\Niras.Jordflytning.Library.csproj">
+      <Project>{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}</Project>
+      <Name>Niras.Jordflytning.Library</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\GeoEnvironServiceReference\Niras.Jordflytning.Infrastructure.GeoEnvironServiceReference.CompositeType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\GeoEnvironServiceReference\Niras.Jordflytning.Infrastructure.GeoEnvironServiceReference.Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\GeoEnvironServiceReference\Service_GeoEnviron1.wsdl" />
+    <None Include="Service References\GeoEnvironServiceReference\Service_GeoEnviron3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\GeoEnvironServiceReference\Service_GeoEnviron31.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\GeoEnvironServiceReference\Service_GeoEnviron32.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\GeoEnvironServiceReference\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\GeoEnvironServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\GeoEnvironServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\GeoEnvironServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\GeoEnvironServiceReference\Service_GeoEnviron.disco" />
+    <Content Include="SqlServerTypes\readme.htm" />
+    <Content Include="SqlServerTypes\x64\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x64\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

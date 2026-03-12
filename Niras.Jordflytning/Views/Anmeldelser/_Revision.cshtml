@@ -1,0 +1,340 @@
+﻿@using Niras.Jordflytning.ViewModels.Anmeldelse
+@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+
+<div class="row">
+    <div class="column" style="margin-right: 10px; width: 495px">
+        <div class="controlsbox row" style="margin-top: 10px;">
+            <div class="cbheader">
+                <h5>Jorden</h5>
+            </div>
+            <div class="row_control">
+                <div class="row">
+
+                    @if (Model.SelectedRevisionJordklassifikationTypeNavn == null)
+                    {
+                        @Html.Label("Angiv forureningskategori", new { style = "width:350px;" })
+                    }
+                </div>
+                <div id="divJordKlassifiktionRevision">
+                    @Html.Partial("_JordJordKlassifikation", Model, new ViewDataDictionary { { "isRevisionView", true } })
+                </div>
+                <div style="clear: both"></div>
+                <div class="row_line" style="padding-top: 15px;">
+                    @Html.LabelFor(m => m.RevisionAnmeldelse.Jord.ForventetJordmaengdeTon, new { style = "width:178px !important;" })
+                    @Html.Kendo().NumericTextBoxFor(m => m.RevisionAnmeldelse.Jord.ForventetJordmaengdeTon).Spinners(false).Min(0).Decimals(0).Format("#").HtmlAttributes(new { Id = "txtForventetJordmaengdeTon_Revision", style = "width:90px !important;" })
+                </div>
+                <div style="clear: both"></div>
+                <div class="row_line">
+                    @Html.Label("koerselstidpunkt", "Kørselstidspunkt *", new { style = "width: 178px !important" })
+                    @(Html.Kendo().DatePickerFor(m => m.RevisionAnmeldelse.Jord.KoerselStart)
+                        .HtmlAttributes(new { Id = "datStart_Revision", type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv start for kørselsperioden", style = "width: 125px" })
+                        .Events(e => e.Change("startChange"))
+                        )
+                    -
+                    @(Html.Kendo().DatePickerFor(m => m.RevisionAnmeldelse.Jord.KoerselSlut)
+                        .HtmlAttributes(new { Id = "datSlut_Revision", type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv slut for kørselsperioden", style = "width: 125px" })
+                        .Events(e => e.Change("endChange"))
+                        )
+                </div>
+
+                <div class="row_line">
+                    @Html.Label("Link til godkendt anmeldelse", new { style = "width:178px;" })
+                    @Html.TextBoxFor(x => x.RevisionAnmeldelse.Jord.LinkTilGodkendtAnmeldelse, new { maxlength = 1024, data_tooltip = "Indsæt link til godkendt anmeldelse her, hvis anmeldelsen er lavet i et andet system.", style = "width:297px;", id = "txtLinkTilGodkendtAnmeldelse_Revision" })
+                </div>
+                <div style="clear: both"></div>
+                <div class="row_line">
+                    @(Html.Kendo().Grid<DokumentationModel>()
+                        .Name("GridDokumenation_Revision")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(p => p.Id).Hidden();
+                            columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter").Visible(false);
+                            columns.Bound(p => p.DisplayFilename).ClientTemplate("<div title=\"#=FilNavn#\">#=DisplayFilename#</div>").Title("Dokumenter");
+                            columns.Bound(p => p.Type).Sortable(true).Title("Type");
+                            columns.Bound(p => p.OprindelseDato).Sortable(true).Title("Dato").Format("{0:dd-MM-yyyy}");
+                            columns.Bound(p => p.Id).ClientTemplate(Html.ActionLink("Åben", "DownloadDokumentation", new { anmeldelseId = Model.RevisionAnmeldelse.Id, filnavn = "#=FilNavnUrlEncode#", target = "_blank" }).ToHtmlString()).Title("");
+                            columns.Command(c => c.Destroy().Text("Fjern"));//.Visible(!Model.LockJorden);
+                        })
+                        .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                        .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne filen?"))
+                        .AutoBind(false)
+                        .DataSource(dataSource => dataSource
+                            .Ajax() // Specify that the data source is of ajax type
+                            .Read(read => read.Action("ReadDokumentationForRevision", "Anmeldelser")) // Specify the action method and controller name
+                            .Model(model => model.Id(p => p.Id))
+                            .Destroy(des => des.Action("RemoveFileFromRevision", "Anmeldelser"))
+                        ))
+                </div>
+                <div style="clear: both"></div>
+
+                <div class="row_line">
+                    @if (!Model.LockAnmeldelse)
+                    {
+                        <input type="button" id="btnShowWinFileUpload_Revision" value="Vedhæft dokument" />
+                    }
+                </div>
+                @{
+                    var jordarbejdeBeskrivelseHeight = 150;
+                    var tidligereErhvervsaktivitetShown = false;
+                    var bemaerkningShown = false;
+                    if (!string.IsNullOrWhiteSpace(Model.RevisionAnmeldelse.Jord.TidligereErhvervsaktivitet))
+                    {
+                        jordarbejdeBeskrivelseHeight -= 50;
+                        tidligereErhvervsaktivitetShown = true;
+                    }
+                    if (!string.IsNullOrWhiteSpace(Model.RevisionAnmeldelse.Jord.Bemaerkning))
+                    {
+                        jordarbejdeBeskrivelseHeight -= 50;
+                        bemaerkningShown = true;
+                    }
+                }
+                <div style="clear: both"></div>
+                <div class="row_line">
+                    @Html.LabelFor(x => x.RevisionAnmeldelse.Jord.JordarbejdeBeskrivelse, new { style = "width:163px" })
+                    @Html.Label("*", new { style = "width: 10px;" })
+                    @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;; color:red;" })
+                    @Html.TextAreaFor(x => x.RevisionAnmeldelse.Jord.JordarbejdeBeskrivelse, new { style = "width:100%;height:" + jordarbejdeBeskrivelseHeight + "px;" })
+                </div>
+                @if (tidligereErhvervsaktivitetShown)
+                {
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.LabelFor(x => x.RevisionAnmeldelse.Jord.TidligereErhvervsaktivitet, new { style = "width:160px" })
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                        @Html.TextAreaFor(x => x.RevisionAnmeldelse.Jord.TidligereErhvervsaktivitet, new { style = "width:100%;height:50px;" })
+                    </div>
+                }
+                @if (bemaerkningShown)
+                {
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.LabelFor(x => x.RevisionAnmeldelse.Jord.Bemaerkning, new { style = "width:160px" })
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                        @Html.TextAreaFor(x => x.RevisionAnmeldelse.Jord.Bemaerkning, new { Id = "txtJordBemaerkning_Revision", style = "width:100%;height:50px;" })
+                    </div>
+                }
+                @*<div style="clear: both"></div>
+            <div class="row_line">
+                @Html.LabelFor(x => x.RevisionAnmeldelse.Jord.TidligereErhvervsaktivitet, new { style = "width:160px" })
+                @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                @Html.TextAreaFor(x => x.RevisionAnmeldelse.Jord.TidligereErhvervsaktivitet, new { style = "width:100%;height:50px;" })
+            </div>
+            <div style="clear: both"></div>
+            <div class="row_line">
+                @Html.LabelFor(x => x.RevisionAnmeldelse.Jord.JordarbejdeBeskrivelse, new { style = "width:160px" })
+                @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                @Html.TextAreaFor(x => x.RevisionAnmeldelse.Jord.JordarbejdeBeskrivelse, new { style = "width:100%;height:50px;" })
+            </div>
+            <div style="clear: both"></div>
+            <div class="row_line">
+                @Html.LabelFor(x => x.RevisionAnmeldelse.Jord.Bemaerkning, new { style = "width:160px" })
+                @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                @Html.TextAreaFor(x => x.RevisionAnmeldelse.Jord.Bemaerkning, new { Id = "txtJordBemaerkning_Revision", style = "width:100%;height:50px;" })
+        </div>
+                *@
+            </div>
+        </div>
+    </div>
+
+    <div class="column" style="margin-right: 0px; width: 498px">
+
+        <div class="controlsbox row" style="margin-top: 10px;">
+            <div class="cbheader">
+                <h5>Kommunikation</h5>
+            </div>
+            <div class="row_control">
+                @*<div class="row_line" style="display: none;">
+                    @Html.TextAreaFor(m => m.RevisionAnmeldelse.Jord.Bemaerkning, new { @readonly = "readonly", Id = "txtKommunikationJordBemaerkning_Revision", style = "height:120px; width:100%;display:none;", data_tooltip = "Bemærkningerne redigeres på Jorden." })
+                </div>*@
+                <div class="row_line">
+                    @*Html.Label("Bemærkning til kommunen", new { style = "width:100%" })*@
+                    @Html.Label("Bemærkning til kommunen", new { style = "width:170px" })
+                    @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                    @Html.TextAreaFor(m => m.RevisionAnmeldelse.BemaerkningTilKommune, new { Id = "txtSagsbehandlingBemaerkningTilKommunen_Revision", style = "height:147px; width:100%" })
+                </div>
+                <div class="row_line">
+                    @*Html.Label("Bemærkning til jordmodtager", new { style = "width:100%" })*@
+                    @Html.Label("Bemærkning til jordmodtager", new { style = "width:185px" })
+                    @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                    @Html.TextAreaFor(m => m.RevisionAnmeldelse.BemaerkningTilJordmodtager, new { Id = "txtSagsbehandlingBemaerkningTilJordmodtager_Revision", style = "height:147px; width:100%" })
+                </div>
+                <div class="row_line">
+                    @Html.Label("Sagsnummer")
+                    @Html.TextBoxFor(m => m.RevisionAnmeldelse.AnmelderSagsnummer, new { maxlength = 40, style = "margin-bottom: 10px", Id = "txtInternSagsnummer" })
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controlsbox row" style="margin-top: 10px; width: 1003px">
+
+        <div class="cbheader">
+            <h5>Transportør</h5>
+        </div>
+        <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
+            <div style="clear: both"></div>
+            <div class="row_line">
+                <p><b>Valgt transportør</b></p>
+            </div>
+            <div style="clear: both"></div>
+            <div class="row_line">
+                @(Html.Kendo().Grid(Model.SelectedTransportoer)
+                      .Name("ValgtTransportoer_Revision")
+                      .HtmlAttributes(new { style = "font-size:12px;" })
+                      .Columns(columns =>
+                      {
+                          columns.Bound(p => p.Id).Title("Id").Hidden();
+                          columns.Bound(p => p.Firma);
+                          columns.Bound(p => p.Adresse);
+                          columns.Bound(p => p.PostNr).Title("Postnr.");
+                          columns.Bound(p => p.Telefon);
+                          columns.Bound(p => p.Kontakt);
+                          columns.Bound(p => p.Mobiltelefon);
+                          columns.Bound(p => p.Email);
+                      }
+                      )
+                      .DataSource(dataSource => dataSource.Server())
+                )
+            </div>
+            <div style="clear: both"></div>
+            <p>
+                <input style="width: 175px;@(Model.LockButtonGem ? " cursor: not-allowed;" : "")" id="btnVaelgUkendtTransportoer_Revision" @(Model.LockButtonGem ? " disabled='disabled'" : "") type="button" name="command" value="Transportør ukendt" />
+                <br />
+            </p>
+            <br />
+
+            <div class="row_line">
+                <p>Vælg en transportør</p>
+                <hr>
+                <div class="filtering">
+                    @Html.RadioButtonFor(m => m.TransportoerFiltrering, "1", new { Id = "chkTransportoerTidligereAnvendte_Revision", Checked = "checked", onchange = "popTransportoer();", style = "padding-left: 0px; padding-top: 0px; padding-bottom: 0px;", data_tooltip = "Vis tidligere anvendte" })
+                    @Html.Label("lblTransportoerTidligereAnvendte", "Tidligere anvendte", new { style = "margin-top: 0px" })
+                    @Html.RadioButtonFor(m => m.TransportoerFiltrering, "2", new { Id = "chkTransportoerAlle_Revision", onchange = "popTransportoer();", style = "padding-left: 0px; padding-top: 0px; padding-bottom: 0px;", data_tooltip = "Vis alle" })
+                    @Html.Label("lblTransportoerAlle", "Alle", new { style = "margin-top: 0px" })
+                </div>
+            </div>
+
+            <div style="clear: both"></div>
+            <div class="row_line">
+                @(Html.Kendo().Grid<TransportoerModel>()//liste ind her
+                      .Name("GridTransportoere_Revision")
+                      .Pageable()
+                      .HtmlAttributes(new { style = "font-size:12px;" })
+                      .Columns(columns =>
+                      {
+                          columns.Bound(p => p.Id).Title("Id").Hidden();
+                          columns.Bound(p => p.Firma);
+                          columns.Bound(p => p.Adresse);
+                          columns.Bound(p => p.PostNr).Title("Postnr.");
+                          columns.Bound(p => p.Telefon);
+                          columns.Bound(p => p.Kontakt);
+                          columns.Bound(p => p.Mobiltelefon);
+                          columns.Bound(p => p.Email);
+                      })
+                      .Pageable(pager => pager.PageSizes(new[] { 5, 10, 20, 100 }) // Default page sizes are 5, 10 and 20
+                      )
+                      .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                      .Pageable()
+                      .Sortable()
+                      .AutoBind(false)
+                      .DataSource(dataSource => dataSource
+                          .Ajax() // Specify that the data source is of ajax type
+                          .Read(read => read.Action("ReadTransportoerer", "Anmeldelser").Data("getTransportoerFiltreringsparametreRevision")) // Specify the action method and controller name
+                          .Model(model => model.Id(p => p.Id))
+                          .PageSize(100)
+                      ).Events(e => e.Change("transportoerSelectedRevision").DataBound("gridTransportoereHover")))
+            </div>
+            <div style="clear: both"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function isModtagerTransportoerLocked() {
+        // Hvis fanen Modtager og Transportør er låst, må man ikke vælge en ny modtager eller transportør, medmindre at der er tale om en revision
+        if ($("#hflRevision").val() == "True")
+            return false;
+        if ($("#hflLockModtagerTransportoer").val() == "True")
+            return true;
+        return false;
+    }
+
+    function transportoerSelectedRevision() {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem.Id != null & !isModtagerTransportoerLocked()) {
+            var grid = $("#ValgtTransportoer_Revision").data("kendoGrid");
+            var id = $("#hflSelectedTransportoerId").val();
+            if (id != '') {
+                //Fjern eksisterende række
+                var data = grid.dataSource.at(0);
+                grid.dataSource.remove(data);
+            }
+            $("#hflSelectedTransportoerId").val(currentSelectedItem.Id);
+            //Opdater valg betaler, hvis transportør er sat til betaler.
+            window.updateValgtTransportoerBetaler();
+            //Tilføj række til øverste grid
+            grid.dataSource.add({
+                Id: currentSelectedItem.Id,
+                Email: currentSelectedItem.Email,
+                Navn: currentSelectedItem.Navn,
+                Adresse: currentSelectedItem.Adresse,
+                Firma: currentSelectedItem.Firma,
+                PostNr: currentSelectedItem.PostNr,
+                Telefon: currentSelectedItem.Telefon,
+                Kontakt: currentSelectedItem.Kontakt,
+                Mobiltelefon: currentSelectedItem.Mobiltelefon
+            });
+        }
+    }
+
+    $("#btnVaelgUkendtTransportoer_Revision").bind("click", function () {
+        if (!isModtagerTransportoerLocked()) {
+            var ukendt = @Html.Raw(Json.Encode(Model.UkendtTransportoer));
+            var grid = $("#ValgtTransportoer_Revision").data("kendoGrid");
+            var id = $("#hflSelectedTransportoerId").val();
+            if (id != '') {
+                //Fjern eksisterende række
+                var data = grid.dataSource.at(0);
+                grid.dataSource.remove(data);
+            }
+            $("#hflSelectedTransportoerId").val(ukendt.Id);
+            //Opdater valgt betaler, hvis transportør er sat til betaler.
+            window.updateValgtTransportoerBetaler();
+            //Tilføj række til øverste grid
+            grid.dataSource.add({
+                Id: ukendt.Id,
+                Email: ukendt.Email,
+                Navn: ukendt.Navn,
+                Adresse: ukendt.Adresse,
+                Firma: ukendt.Firma,
+                PostNr: ukendt.PostNr,
+                Telefon: ukendt.Telefon,
+                Kontakt: ukendt.Kontakt,
+                Mobiltelefon: ukendt.Mobiltelefon
+            });
+        }
+    });
+
+    $(document).ready(function () {
+        $("#btnVaelgUkendtTransportoer_Revision").toggle(!isModtagerTransportoerLocked());
+    });
+
+    function getTransportoerFiltreringsparametreRevision() {
+        var filteringAlle = $('#chkTransportoerAlle_Revision').is(':checked');
+        var filteringTidligere = $('#chkTransportoerTidligereAnvendte_Revision').is(':checked');
+
+        var filtrering = "1";
+
+        if (filteringAlle) {
+            filtrering = $('#chkTransportoerAlle_Revision').val();
+        } else if (filteringTidligere) {
+            filtrering = $('#chkTransportoerTidligereAnvendte_Revision').val();
+        }
+
+        return { filtreringMetode: filtrering };
+    }
+    function popTransportoer() {
+        $("#GridTransportoere_Revision").data("kendoGrid").dataSource.read();
+    }
+
+</script>

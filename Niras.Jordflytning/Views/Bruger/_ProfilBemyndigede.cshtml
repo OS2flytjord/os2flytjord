@@ -1,0 +1,146 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.ViewModels.Anmeldelse
+@model Niras.Jordflytning.ViewModels.Bruger.BrugerProfilModel
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        //Bemyndigede anmelder
+        $("#btnAnmelderSoeg").click(function () {
+            $("#grdAnmeldere").data("kendoGrid").dataSource.read();
+        });
+      
+        //TOOLTIPS
+        $("[data-tooltip]").each(function () {
+          $(this).kendoTooltip({
+            content: $(this).attr("data-tooltip"),
+            position: "top",
+          });
+        });
+    });
+          
+    function bemyndigedeAnmelderSelected() {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem.Id != null) {
+            $.post(
+                "@Url.Action("TilfoejBemyndigedeAnmeldere", "Bruger")", { anmelderId: currentSelectedItem.Id },
+                function (result) {
+                    if (result == "true") {
+                        $("#grdBemyndigedeAnmeldere").data("kendoGrid").dataSource.read();
+                    }
+                }
+            );
+        }
+    }    
+
+    function getBetalerSoegValue() {
+        return {
+            searchstring: $("#txtAnmelderSoeg").val()
+        };
+    }
+
+</script>
+
+<section id="bemyndigSection">
+    <div>
+        <div class="controlsbox" style="margin-top: 5px; height: 900px">
+            <div class="cbheader">
+                <h5>Bemyndigede anmeldere</h5>
+            </div>
+            <div class="cbcontent" style="margin-left:0px; margin-right:0px;">
+                <div class="row_control">
+                    <div class="row_line">
+                        <p>
+                            Når en anmeldelse oprettes i FlytJord, og anmelderen ikke er samme person som betaleren,
+                            skal betaleren acceptere, at vedkommende vil betale modtageanlægget for modtagelse af jorden.
+                        </p>
+                        <p>
+                            På denne fane kan du bemyndige anmeldere, så du ikke behøver at acceptere betalingen for hver eneste anmeldelse, hvis du er valgt som betaler.
+                        </p>
+                        <p>
+                            Find den relevante person ved at taste noget af deres email adresse og tryk på knappen søg. Klik på personen i listen for at tilføje personen som en bemyndiget anmelder.
+                        </p>
+                    </div>
+                    <div class="row_line">
+                        <p>Bemyndigede anmeldere:</p>
+                    </div>
+
+                    <div class="row_line">
+                        @(Html.Kendo().Grid(Model.BemydigedeAnmelderList)
+                          .HtmlAttributes(new { style = "font-size:12px;" })
+                          .Name("grdBemyndigedeAnmeldere")
+                          .Sortable()
+                          .Columns(columns =>
+                              {
+                                  columns.Bound(p => p.Id).Hidden();
+
+                                  columns.Bound(p => p.Firma).Title("Firma");
+                                  //columns.Bound(p => p.Navn).Title("Navn");
+                                  columns.Bound(p => p.Adresse).Title("Adresse");
+                                  columns.Bound(p => p.Postnr).Title("Postnr");
+                                  columns.Bound(p => p.Telefon).Title("Telefon");
+                                  columns.Bound(p => p.CVR).Title("CVR");
+                                  //columns.Bound(p => p.PNr).Title("PNr");
+                                  columns.Bound(p => p.Kontakt).Title("Kontakt");
+                                  columns.Bound(p => p.Mobil).Title("Mobil");
+                                  //columns.Bound(p => p.Email).Title("Email");
+                                  columns.Command(p => p.Destroy().Text("Fjern")).Width(40);
+                              })
+                          .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne personen?"))
+                          .DataSource(dataSource => dataSource
+                                                        .Ajax()
+                                                        .Model(model => model.Id(p => p.Id))
+                                                        //.Destroy(del => del.Action("RemoveBemyndigedeAnmeldere", "Bruger"))
+                                                        .Destroy(del => del.Action("RemoveBemyndigedeAnmeldere", "Bruger" ))
+                                                        .Read("ReadBemyndigedeAnmeldere", "Bruger")
+                                                        .PageSize(10)
+                                                        )
+                        )
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <p style="padding-top:20px;">Søg brugere:</p>
+                    </div>
+                    <div class="row_line">
+                        @Html.TextBoxFor(x => x.AnmelderSoeg, new { id = "txtAnmelderSoeg", style = "margin-top:0px",data_tooltip="Søg på email adresse" })
+                        <input type="button" value="Søg" id="btnAnmelderSoeg" style="margin-bottom: 5px" />
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        @(Html.Kendo().Grid<BetalerModel>()
+                          .Name("grdAnmeldere")
+                          .HtmlAttributes(new { style = "font-size:12px;" })
+                          .Columns(columns =>
+                              {
+                                  columns.Bound(p => p.Id).Hidden();
+                                  columns.Bound(p => p.Firma);
+                                  //columns.Bound(p => p.Navn);
+                                  columns.Bound(p => p.Adresse);
+                                  columns.Bound(p => p.Postnr);
+                                  columns.Bound(p => p.Telefon);
+                                  columns.Bound(p => p.CVR);
+                                  //columns.Bound(p => p.PNr);
+                                  columns.Bound(p => p.Kontakt);
+                                  columns.Bound(p => p.Mobil);
+                                  //columns.Bound(p => p.Email);
+                              })
+                          .Pageable()
+                          .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                          .Sortable()
+                          .DataSource(dataSource => dataSource
+                                                        .Ajax() // Specify that the data source is of ajax type
+                                                        .Read(read => read.Action("ReadBetalere", "Anmeldelser").Data("getBetalerSoegValue")) // Specify the action method and controller name
+                                                        .Model(model => model.Id(p => p.Id))
+                                                        .PageSize(10))
+                          .Events(e => e.Change("bemyndigedeAnmelderSelected"))
+                        )
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div> 
+        </div>
+    </div>
+</section>
+

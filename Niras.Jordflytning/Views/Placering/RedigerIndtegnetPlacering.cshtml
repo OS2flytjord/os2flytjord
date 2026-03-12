@@ -1,0 +1,478 @@
+﻿@model Niras.Jordflytning.ViewModels.Placering.IndtegnetPlaceringModel
+@{
+    ViewBag.Title = "Anmeldelse";
+    Layout = "~/Views/Shared/_LayoutModal.cshtml";
+}
+
+@section Scripts{
+    <script src='@(Model.KortApiUrl)' type='text/javascript'></script>
+    
+    @Scripts.Render("/bundles/proj4s")
+    @Scripts.Render("/bundles/wicket")
+}
+@section Styles
+{
+    <link href="@Url.Content("~/Content/Css/modal.css")" rel="stylesheet" type="text/css" />
+}
+@using (Html.BeginForm())
+{
+    <div>
+        <div class="row" id="divJorden">
+
+            <div class="column" style="margin-right: 10px; width: 525px;">
+                <div class="row controlsbox" style="margin-top: 10px">
+                    <div class="cbheader">
+                        <h5>Navigér til stedet og indtegn området</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row">
+
+                            <div>
+                                <div class="row_line" id="adresseopslag" style="margin-left: -3px; width: 100%; overflow: hidden;">
+                                    @Html.Partial("~/Views/Anmeldelser/_AdresseOpslag.cshtml")
+                                </div>
+                                <div class="row_line" id="matrikelopslag" style="margin-left: 0px; width: 100%; overflow: hidden;">
+                                    @Html.Partial("~/Views/Anmeldelser/_MatrikelOpslag.cshtml")
+                                </div>
+                            </div>
+                            <div class="row_line" id="">
+                                <div style="position: relative">
+                                    <input type="button" id="btnEjendomMapDigPolygon" style="margin-bottom: 5px;"
+                                        value="Start indtegning af området (Afslut med dobbeltklik)*" onclick="mapStedDigitaliser();$(this).hide();"
+                                        data-tooltip="Klik her for at starte indtegning i kortet af området, som jordflytningen vedrører"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div class="row" id="" style="height: 400px">
+                                <div style="border: solid 0 #000; height: 100%; width: 100%; position: relative;" id="divMapContainer">
+                                    <div id="divMapSted" class="kiMap" style="width: 100%; height: 100%"></div>
+                                    <img id="imgMinimise" src="/Content/images/cross.png" title="Skift til lille kort" style="position: absolute; top: 10px; right: 25px; display: none;">
+                                    <img id="imgMaximise" src="/Content/images/application_side_contract.png" title="Skift til stort kort" style="position: absolute; top: 10px; right: 25px; ">
+                                    <img id="imgSignatur" src="/Content/images/Signatur.png" title=""/>
+                                    <img id="imgSignaturForklaringExpand" src="/Content/images/Pil_ned.png" title="Udvid signaturforklaring"/>
+                                    <img id="imgSignaturForklaringColapse" src="/Content/images/Pil_op.png" title="Minimer signaturforklaring"/>
+                                    <img id="imgSignaturForklaring" src="/Content/images/Signaturforklaring_FJ_small.png" title=""/>
+                                </div>
+                                <div style="clear: both"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="column" style="width: 435px">
+                <div class="row controlsbox" id="oplysningerContainer" style="width: 100%; margin-top: 10px;">
+                    <div class="cbheader">
+                        <h5>Forhold på stedet ud fra centrale registreringer</h5>
+                    </div>
+                    <div class="row" id="oplysninger" style="padding: 10px;">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="column k-state-disabled" id="saveSection" style="width: 435px">
+                <br/>
+                <input type="submit" value="Gem" style="float: right;" />
+            </div>
+            
+        </div>
+    </div>
+
+    @Html.HiddenFor(model => model.Ejerlav, new { id = "ejerlav" })
+    @Html.HiddenFor(model => model.Ejerlavsnavn, new { id = "ejerlavsnavn" })
+    @Html.HiddenFor(model => model.Matrikelnummer, new { id = "matrikelnummer" })
+    @Html.HiddenFor(model => model.EsrEjensomsnummer, new { id = "esrejendomsnummer" })
+    @Html.HiddenFor(model => model.MapBounds.Wkt, new { id = "Wkt" })
+    @Html.HiddenFor(model => model.MapBounds.LowerX, new { id = "LowerX" })
+    @Html.HiddenFor(model => model.MapBounds.LowerY, new { id = "LowerY" })
+    @Html.HiddenFor(model => model.MapBounds.UpperX, new { id = "UpperX" })
+    @Html.HiddenFor(model => model.MapBounds.UpperY, new { id = "UpperY" })
+}
+
+<script type="text/javascript">
+
+    var fundetAdresse = null;
+    var autoSoegMatrikel = null;
+    var autoSoegAdresse = null;
+
+    @if (Model.Opdateret)
+    {
+        // Serialiser output, og send det videre til det kaldende vindue
+        <text>
+            $(document).ready(function() {
+                if (parent) {
+                    var data = @Html.Raw(Json.Encode(Model.Data));
+                    parent.postMessage({ command: "anvendMatrikelIndtegning", data: data }, "*");
+                }
+            });
+        </text>
+    }
+    else // Udfyld JS variabler til senere (Ejerlav indeholder koden, hvis det er mere brugbart)
+    {
+        if (!string.IsNullOrWhiteSpace(Model.Ejerlavsnavn) && !string.IsNullOrWhiteSpace(Model.Matrikelnummer))
+        {
+            <text>autoSoegMatrikel = '@Html.Raw(Model.Ejerlav) @Html.Raw(Model.Matrikelnummer)';</text>
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.Adresse))
+        {
+            <text>autoSoegAdresse = '@Html.Raw(Model.Adresse)';</text>
+        }
+    }
+
+    $(document).ready(function() {
+
+        $("#imgSignaturForklaringColapse").click(function() {
+            $("#imgSignaturForklaringExpand").show();
+            $("#imgSignaturForklaringColapse").hide();
+            $("#imgSignaturForklaring").addClass("hideSignaturForklaring");
+        });
+
+        $("#imgSignaturForklaringExpand").click(function() {
+            $("#imgSignaturForklaringExpand").hide();
+            $("#imgSignaturForklaringColapse").show();
+            $("#imgSignaturForklaring").removeClass("hideSignaturForklaring");
+        });
+
+        $("#imgMaximise").click(function() {
+
+            $("#divMapContainer").css({ "position": "fixed", "top": "0px", "left": "0px", "z-index": "1000" });
+
+            //Signaturforklaring placering ved max kort
+            $("#imgSignatur").addClass("maxMapSignatur");
+            $("#imgSignaturForklaring").addClass("maxMapSignaturForklaring");
+            $("#imgSignaturForklaringExpand").addClass("maxMapSignaturForklaringColapseExpand");
+            $("#imgSignaturForklaringColapse").addClass("maxMapSignaturForklaringColapseExpand");
+
+
+            $("#imgMaximise").toggle();
+            $("#imgMinimise").toggle();
+        });
+        $("#imgMinimise").click(function() {
+            $("#divMapContainer").css("position", "relative");
+
+            //Signaturforklaring placering ved min kort
+            $("#imgSignatur").removeClass("maxMapSignatur");
+            $("#imgSignaturForklaring").removeClass("maxMapSignaturForklaring");
+            $("#imgSignaturForklaringExpand").removeClass("maxMapSignaturForklaringColapseExpand");
+            $("#imgSignaturForklaringColapse").removeClass("maxMapSignaturForklaringColapseExpand");
+
+
+            $("#imgMaximise").toggle();
+            $("#imgMinimise").toggle();
+        });
+
+    });
+
+    var udfyldEjerlav = function (adresse, doneHandler) {
+        $.ajax({
+            type: "GET",
+            url: "https://dawa.aws.dk/ejerlav/" + adresse.ejerlavkode,
+            dataType: "jsonp",
+            success: function (d) {
+                adresse.ejerlav = d.navn;
+                doneHandler.apply(this, [adresse]);
+            },
+            error: function (msg) {
+                debugger;
+                alert("Fejl ved udfyldning af ejerlav");
+            }
+        });
+    };
+    
+    var udfyldMatrikel = function (adresse, doneHandler) {
+        $.ajax({
+            type: "GET",
+            url: "https://dawa.aws.dk/jordstykker/reverse",
+            dataType: "jsonp",
+            data: {
+                struktur: 'mini',
+                srid: '25832',
+                x: adresse.x,
+                y: adresse.y
+            },
+            success: function (d) {
+                adresse.matrikelnr = d.matrikelnr;
+                adresse.ejerlavkode = d.ejerlav.kode;
+                udfyldEjerlav(adresse, doneHandler);
+            },
+            error: function (msg) {
+                alert("Fejl ved udfyldning af matrikel");
+            }
+        });
+    };
+
+    var toggleSaveSection = function(enabled) {
+        $("#saveSection :input").each(function (i, e) {
+            if (enabled) {
+                $(this).removeAttr("disabled");
+            }
+            else {
+                $(this).attr("disabled", "disabled");
+            };
+        });
+        $("#saveSection").toggleClass("k-state-disabled", (!enabled));
+    }
+
+    var getStatus = function (wkt) {
+        $("#oplysninger").html("<b>Der foretages opslag i eksterne systemer. Vent venligst...</b>");
+        jQuery.ajax({
+            url: '/ModtagerAnlaeg/KonfliktSoegningMidlertidigtAnlaeg',
+            method: 'GET',
+            data: { wkt: wkt }
+        }).done(function (response) {
+            $("#btnEjendomMapDigPolygon").show();
+            if (response) {
+                $("#oplysninger").html(response);
+            }
+        }).fail(function () {
+            $("#oplysninger").html("<b>Opslag fejlede!</b>");
+        });
+
+    };
+
+    var mapSted;
+    var geoms = [];
+
+    //Redlining variable
+    var gfxLayer;
+    var gfxGeometryHighlight;
+
+    var gfxMatrikelLayer;
+    var gfxMatrikelGeometryHighlight;
+
+    function mapInitSted(site, page) {
+        mapSted = new window.KortInfo.Instance(site, page);
+        mapSted.setUrlArg('ShowOverview', '0');
+        mapSted.setUrlArg('westpanel', 'collapse');
+        mapSted.setUrlArg('gfximpl', 'incubator');
+
+        //Når kortet er klar udføres følgende
+        mapSted.setReadyListener(function () {
+            //evt zoom to eller digitaliser
+            var wkt = $("#Wkt").val();
+            if (wkt != null & wkt != '') {
+                mapStedNavigateToBbox(parseInt($("#LowerX").val()), parseInt($("#LowerY").val()), parseInt($("#UpperX").val()), parseInt($("#UpperY").val()));
+                getStatus(wkt);
+            }
+            mapStedRedlineWkt($("#Wkt").val(), true);
+
+            //Når kortet er klar, skal min/max knap og signaturforklaring vises.
+            $("#imgMaximise").show();
+            $("#imgSignatur").show();
+            $("#imgSignaturForklaring").show();
+            $("#imgSignaturForklaringColapse").show();
+
+            $("#imgSignaturForklaringExpand").show();
+            $("#imgSignaturForklaringColapse").hide();
+            $("#imgSignaturForklaring").addClass("hideSignaturForklaring");
+
+            /*
+            Virker ikke
+            if (autoSoegMatrikel) {
+                var autocomplete = $("#matrikelopslag input:text").val(autoSoegMatrikel).data("kendoAutoComplete");
+                autocomplete.search();
+
+                setTimeout(function () {
+                    var children = autocomplete.ul.children();
+                    if (children.length > 0) {
+                        autocomplete.select(children.eq(0));
+                        autocomplete.trigger('change');
+                    }
+                },1000);
+            }
+            else if (autoSoegAdresse) {
+                var autocomplete = $("#adresseopslag input:text").val(autoSoegAdresse).data("kendoAutoComplete");
+                autocomplete.search();
+                setTimeout(function() {
+                    autocomplete.select(autocomplete.ul.children().eq(1));
+                    autocomplete.trigger('change');
+                }, 1000);
+            }*/
+
+        });
+        mapSted.initializeNested(document.getElementById('divMapSted'));
+    }
+
+    function mapStedNavigateToBbox(lx, ly, ux, uy) {
+        mapSted.Map.navigateToArea(new window.KortInfo.Geometry.Rectangle2(lx, ly, ux, uy), false);
+    }
+
+    function mapStedDigitaliser() {
+        mapSted.Map.Tools.beginPolygonSelection(mapAfterDigi, null);
+    }
+
+    function mapAfterDigi(geom, kommunekode) {
+        var wkt = window.KortInfo.Ogc.Wkt.fromGeometry(geom);
+        $("#Wkt").val(wkt);
+        mapStedRedlineWkt(wkt, true);
+        getStatus(wkt);
+        toggleSaveSection(true);
+    }
+
+    function mapStedClearRedline() {
+        if (!mapSted.isReady()) {
+            return;
+        }
+
+        if (geoms.length != 0)
+            geoms = [];
+
+        if (gfxLayer == null) {
+            gfxLayer = mapSted.Map.addGraphicsLayer();
+        }
+
+        gfxLayer.beginManipulate();
+        gfxLayer.clear();
+        gfxLayer.endManipulate();
+    }
+
+    function mapStedRedlineWkt(redliningWkt, clear) {
+        if (!mapSted.isReady()) {
+            return;
+        }
+        if (redliningWkt != '') {
+            if (gfxLayer == null) {
+                gfxLayer = mapSted.Map.addGraphicsLayer();
+            }
+
+            gfxLayer.beginManipulate();
+            if (clear)
+                gfxLayer.clear();
+
+            gfxGeometryHighlight = null;
+
+            /*var color = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.55, 0.0, 1.0);
+            var interiorStyleColor = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.55, 0.0, 0.5);
+            var interiorStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidInteriorStyle(interiorStyleColor);
+            var lineStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidLineStyle(color, 2.0);
+            var radius = 5.0;*/
+            var color = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 1.0);
+            var interiorStyleColor = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 0.2);
+            var interiorStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidInteriorStyle(interiorStyleColor);
+            var lineStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidLineStyle(color, 2.0);
+            var radius = 5.0;
+            var pointSymbolStyle = new window.KortInfo.Map.GraphicsLayer.GfxCircleSymbolStyle(color, radius, color, 0);
+            var parser = new window.KortInfo.Ogc.Wkt.Parser(redliningWkt);
+            var geometry = parser.parse();
+            var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+            for (var j = 0; j < geometryArray.length; j++) {
+                var g = geometryArray[j];
+                if (g instanceof window.KortInfo.Geometry.Region2) {
+                    gfxLayer.addPolygon(g, interiorStyle, lineStyle);
+                }
+                if (g instanceof window.KortInfo.Geometry.Polyline2) {
+                    gfxLayer.addPolyline(g, lineStyle, null);
+                }
+                if (g instanceof window.KortInfo.Geometry.Vector2) {
+                    gfxLayer.addSymbol(g, pointSymbolStyle);
+                }
+            }
+            gfxLayer.endManipulate();
+        }
+    }
+
+    function mapStedRedlineMatrikelWkt(redliningWkt) {
+        if (!mapSted.isReady()) {
+            return;
+        }
+
+        if (redliningWkt != '') {
+            if (gfxMatrikelLayer == null) {
+                gfxMatrikelLayer = mapSted.Map.addGraphicsLayer();
+            }
+            gfxMatrikelLayer.beginManipulate();
+            gfxMatrikelLayer.clear();
+            gfxMatrikelGeometryHighlight = null;
+
+            var color = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 1.0);
+            var interiorStyleColor = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 0.2);
+            var interiorStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidInteriorStyle(interiorStyleColor);
+            var lineStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidLineStyle(color, 2.0);
+            var radius = 5.0;
+            var pointSymbolStyle = new window.KortInfo.Map.GraphicsLayer.GfxCircleSymbolStyle(color, radius, color, 0);
+            var parser = new window.KortInfo.Ogc.Wkt.Parser(redliningWkt);
+            var geometry = parser.parse();
+            var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+            for (var j = 0; j < geometryArray.length; j++) {
+                var g = geometryArray[j];
+                if (g instanceof window.KortInfo.Geometry.Region2) {
+                    gfxMatrikelLayer.addPolygon(g, interiorStyle, lineStyle);
+                }
+                if (g instanceof window.KortInfo.Geometry.Polyline2) {
+                    gfxMatrikelLayer.addPolyline(g, lineStyle, null);
+                }
+                if (g instanceof window.KortInfo.Geometry.Vector2) {
+                    gfxMatrikelLayer.addSymbol(g, pointSymbolStyle);
+                }
+            }
+            gfxMatrikelLayer.endManipulate();
+        }
+    }
+
+    function mapStedNavigateToWkt(wkt) {
+        var parser = new window.KortInfo.Ogc.Wkt.Parser(wkt);
+        var geometry = parser.parse();
+
+        var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+        if (geometryArray != null & geometryArray.length == 1) {
+            var g = geometryArray[0];
+            mapSted.Map.navigateToArea(g, false);
+        }
+    }
+
+    function adresseFundet(adr) {
+        if ((adr.x && adr.y) && ((!adr.matrikelnr) || (adr.matrikelnr.length === 0))) {
+            udfyldMatrikel(adr, adresseValgt);
+        }
+        else {
+            adresseValgt(adr);
+        };
+    }
+
+    function adresseValgt(adr) {
+        fundetAdresse = adr;
+
+        //Kort
+        mapSted.setReadyListener(function () {
+            if (adr.x != null) {
+                mapStedNavigateToBbox(Math.round(adr.x) - 50, Math.round(adr.y) - 50, Math.round(adr.x) + 50, Math.round(adr.y) + 50);
+
+                $("#LowerX").val(Math.round(adr.x) - 50);
+                $("#LowerY").val(Math.round(adr.y) - 50);
+                $("#UpperX").val(Math.round(adr.x) + 50);
+                $("#UpperY").val(Math.round(adr.y) + 50);
+
+                $("#Wkt").val("POINT(" + Math.round(adr.x) + " " + Math.round(adr.y) + ")");
+            }
+        });
+
+        mapStedRedlineWkt($("#Wkt").val(), true);
+        
+        $("#ejerlav").val(adr.ejerlavkode);
+        $("#ejerlavsnavn").val(adr.ejerlavnavn);
+        $("#matrikelnummer").val(adr.matrikelnr);
+        $("#esrejendomsnummer").val(adr.esrejendomsnr);
+
+
+        $("#Adresse").val(adr.vejnavn + " " + adr.husnr);
+        $("#Kommune").val(adr.kommunenavn);
+        $("#Postnummer").val(adr.postnummer);
+        $("#Postdistrikt").val(adr.postdistrikt);
+        $("#Kommunekode").val(adr.kommunekode);
+
+        $("#divStedJordforureningOpslag").show();
+        $("#divEjendomMapDigPolygon").show();
+        
+    }
+
+    //Kort - Resten af load er ikke afhængig af kortinfos hastighed
+    setTimeout('mapInitSted("@(Model.KortSite)","@(Model.KortPageSted)")', 10);
+
+</script>

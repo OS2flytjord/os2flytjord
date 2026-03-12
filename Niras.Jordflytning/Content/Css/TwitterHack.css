@@ -1,0 +1,18 @@
+﻿.timeline-Tweet * {
+    font-family: verdana !important;
+    font-size: 12px !important;
+}
+.timeline-Tweet {
+    padding: 10px 0 0 0 !important;
+}
+.timeline-Tweet:hover {
+    background-color: transparent !important;
+}
+.timeline-Tweet-author {
+    line-height: 16px !important;
+}
+.timeline-Tweet-text {
+    font-weight: normal !important;
+    line-height: 14px !important;
+    margin-bottom: 5px !important;
+}

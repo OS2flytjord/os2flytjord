@@ -1,0 +1,107 @@
+﻿@{
+    string style = "width:474px;";
+    if (ViewData["Style"] != null)
+    {
+        style = (string)ViewData["Style"];
+    }
+}
+
+<input id="matrikelOpslag" class="classiclook_kendo_workaround" style="@style background-color: #FFFFFF;" />
+
+<script>
+    
+    $(function () {
+        
+        var udfyldAdresse = function(adresse, doneHandler) {
+            // Hent adgangsadressen for koordinaterne
+            $.ajax({
+                type: "GET",
+                url: "https://dawa.aws.dk/adgangsadresser/reverse",
+                dataType: "json",
+                data: {
+                    srid: '25832',
+                    x: adresse.x,
+                    y: adresse.y
+                },
+                success: function (d) {
+                    adresse.husnr = d.husnr;
+                    adresse.vejnavn = d.vejstykke.navn;
+                    adresse.kommunekode = d.kommune.kode;
+                    adresse.kommunenavn = d.kommune.navn;
+                    adresse.postdistrikt = d.postnummer.navn;
+                    adresse.postnummer = d.postnummer.nr;
+                    if (d.jordstykke) {
+                        adresse.ejerlavkode = d.jordstykke.ejerlav.kode;
+                        adresse.ejerlavnavn = d.jordstykke.ejerlav.navn;
+                        adresse.matrikelnr = d.jordstykke.matrikelnr;
+                        adresse.esrejendomsnr = d.jordstykke.esrejendomsnr;
+                    }
+                    doneHandler.apply(this, [adresse]);
+                },
+                error: function (msg) {
+                    alert("Fejl ved hentning af adresse!");
+                }
+            });
+        };
+
+        $("#matrikelOpslag").kendoAutoComplete({
+            delay: 1000,
+            dataTextField: "tekst",
+            dataValueField: "id",
+            minLength: 3,
+            placeholder: "Ejerlav eller matrikelnummer (indtast mindst 3 karakterer)",
+            filter: "contains",
+            select: function (e) {
+                var data = this.dataItem(e.item.index());
+                $.ajax({
+                    type: "GET",
+                    url: "/Adresse/KoordinaterForMatrikel",
+                    dataType: "json",
+                    data: {
+                        ejerlav: data.ejerlav,
+                        matrikelnr: data.matrikelnr
+                    },
+                    success: function (d) {
+                        if (d) {
+                            // Minimal adresse der bliver udfyldt senere
+                            var adresse = {
+                                x: d.x,
+                                y: d.y,
+                                ejerlavkode: data.ejerlav,
+                                ejerlavnavn: data.ejerlavnavn,
+                                matrikelnr: data.matrikelnr
+                            };
+                            udfyldAdresse(adresse, adresseFundet);
+                        }
+                    },
+                    error: function (textStatus, a, b, c) {
+                        alert("Fejl ved matrikelopslag");
+                    }
+                });
+            },
+            dataSource: new kendo.data.DataSource({
+                serverFiltering: true,
+                serverPaging: true,
+                pageSize: 2,
+                transport: {
+                    read: '/Adresse/MatrikelAutoComplete',
+                    dataType: "json",
+                    parameterMap: function (data) {
+                        return { q: $("#matrikelOpslag").val() };
+                    }
+                },
+                schema: {
+                    data: "items",
+                    model: { /* To avoid slice error when editing selection */
+                        fields: {
+                            Field1: { field: "Field1", type: "string" },
+                            Field2: { field: "Field2", type: "string" }
+                        }
+                    }
+                }
+            })
+        });
+
+    });
+    
+</script>

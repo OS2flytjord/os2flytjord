@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <title id="headerUrl">FlytJord.dk ® | @ViewBag.Title</title>
+
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="@Url.Content("~/Content/Css/kendo/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Css/kendo/kendo.uniform.min.css")" rel="stylesheet" type="text/css" />
+
+    @Styles.Render("~/bundles/Content/Css/Public")
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/eventLib")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/kendo")
+    @Scripts.Render("~/bundles/noty")
+    @Scripts.Render("~/bundles/jordflytning")
+    @Scripts.Render("~/bundles/proj4s")
+
+
+
+    @RenderSection("Styles", false)
+    @RenderSection("Scripts", false)
+</head>
+<body>
+    @RenderBody() @Html.Analytics()
+
+</body>
+</html>

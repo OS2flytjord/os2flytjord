@@ -1,0 +1,146 @@
+﻿@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+
+<div id="resultatJord" class="controlsbox">
+  <div class="cbheader">
+    <h5>Resultat af opslag i eksterne systemer</h5>
+  </div>
+  <div class="row">
+    <div id="labelResultatJord"></div>
+  </div>
+  <div class="row" id="resultatJordProgress" style="display: none; padding-left: 150px;">
+    <img src="~/Content/Icons/loading.gif" width="20%" />
+  </div>
+  <div id="divResultat" style="Color: inherit; display: block; padding-left: 0px;">
+    <div class="row_control">
+        <div class="row">
+
+
+            <div id="divStedJordforureningopslagAdvarsel" style="display: none">@Model.ForureningOpslagFejlbesked</div>
+            @{
+                //if (string.IsNullOrEmpty(Model.ForureningOpslagFejlbesked))
+                //{
+                if (Model.ForureningOpslagKraeverAnmeldelse)
+                {
+                    <text><b>Det ER nødvendigt at anmelde jordflytningen til kommunen.</b><br /><br />
+                        <br /></text>
+                }
+                else
+                {
+                    <text>Ved opslag i eksterne systemer er der ingen oplysninger om jordforurening på ejendommen.
+                        <br />
+                        <b>Det er IKKE nødvendigt at anmelde jordflytningen til kommunen.</b><br /><br />
+                    </text>
+                }
+
+                if (Model.ForureningOpslagResultatList != null && Model.ForureningOpslagResultatList.Count > 0)
+                {
+                    //Gruppering efter Headertekst
+                    var groups = (from g in Model.ForureningOpslagResultatList select g.Header).Distinct().ToList();
+                    var taeller = 0;
+                    foreach (var gg in groups)
+                    {
+                        <b>@Html.Raw(gg)</b><br />
+
+                        var rr = (from r in Model.ForureningOpslagResultatList where r.Header == gg select r).ToList();
+                        foreach (var row in rr)
+                        {
+                            taeller++;
+                            @row.ShortText
+                            <br />
+                            <div style="color: blue;cursor: pointer" onclick="toogleForureningsopslagDiv(@(taeller))">Klik her for nærmere info.</div>
+                            <div id="divForureningOpslagRow@(taeller)" style="display: none;">
+                                @Html.Raw(@row.LongText)
+                            </div>
+                            <br />
+                        }
+                        <br />
+                    }
+                }
+            }
+        </div>
+
+    </div>
+  </div>
+  <div style="clear: both"></div>
+</div>
+<div class="controlsbox row" id="hvadvildunu" style="margin-top: 5px; display: none;">
+  <div class="cbheader">
+    <h5>Hvad vil du nu?</h5>
+  </div>
+  <div style="Color: inherit; display: block; margin-left: 10px;">
+    <div class="row">
+      <p>
+
+        @if (Model.OprindelsesKommuneAnvenderFlytJord)
+        {
+          <text>
+            <b>Bemærk:</b><br/>
+            @*Ny tekst fra 31-10-2013*@
+            Jordflytning til jordmodtagerfirmaer, der anvender FlytJord.dk, skal <b>ALTID</b> anmeldes/registreres i dette system. 
+            Det gælder også jordflytninger, som kommunen ikke skal godkende. 
+            En liste over disse modtager kan du se ved at klikke på ’Vælg jordmodtager..’. 
+            Det kræver dog at du er logget på systemet.
+        
+          </text>
+        }
+        else
+        {
+          <text>
+            <b>Bemærk:</b><br/>
+            @*Ny tekst fra 31-10-2013*@
+              Ejendommen ligger i en kommune, som ikke anvender FlytJord.dk til anmeldelse af jordflytning. 
+              Jordflytning til jordmodtagerfirmaer, der anvender FlytJord.dk, skal <b>ALTID</b> anmeldes/registreres i dette system. 
+              Det gælder også jordflytninger, som kommunen ikke skal godkende. En liste over disse modtager kan du se ved at klikke på ’Vælg jordmodtager..’ under fanen Modtager og transportør. 
+              Det kræver dog, at du er logget ind i systemet. 
+    
+          </text>
+        }
+
+      </p>
+    </div>
+    
+    <div class="row">
+      @if (Model.ForureningOpslagOffentligvej)
+      {
+        <text>
+          <b>Offentlig vej:</b><br/>
+          Jord fra Offentlig vej kan som udgangspunkt bortskaffes som Kategori 2 jord (Let forurenet jord)
+        </text>
+      }
+    </div>
+    <div class="row" style="margin-top: 10px">
+      <input id="btnKvittering" style="display: block; float: left; margin-bottom:5px;" type="button" value="Udskriv forureningsstatus" title="Hvis du vil have udskrevet en kvittering." />
+      <input id="btnTilJorden" type="button" value="Fortsæt anmeldelsen" title="Det kræver, at du at er logget ind." style="display: none; margin-bottom:5px;" />
+      <input id="btnTilModtager" type="button" value="Vælg en modtager, der anvender FlytJord" title="Det kræver, at du at er logget ind." style="display: none" />
+    </div>
+    <div class="row">
+      <br/>
+      Læs mere om reglerne for jordflytning på kommunens hjemmeside @Html.Raw(Model.KonfigInfoKommuneWwwVedrJordflyt)
+      <br/>
+    </div>
+    <div style="clear: both"></div>
+  </div>
+</div>
+
+@Html.HiddenFor(x => x.MatrikelWkt, new { id = "hflMatrikelWkt" })
+@Html.HiddenFor(x => x.OprindelsesKommuneAnvenderFlytJord, new { id = "hflOprindelsesKommuneAnvenderFlytJord" })
+@Html.HiddenFor(f => f.ForureningOpslagFejlbesked, new { id = "hflForureningOpslagFejlbesked" })
+
+@*Jordforureningsopslaget*@
+@Html.HiddenFor(f => f.ForureningOpslagJordklassifikationTypeId, new { id = "hflForureningOpslagJordklassifikationTypeId" })
+
+@*Den valgte forurenningskategori (radiobuttons)*@
+@*Html.HiddenFor(m => m.SelectedJordklassifikationType, new { Id = "hflJordKlassifikationType" })*@
+
+
+@Html.HiddenFor(f => f.ForureningOpslagKraeverAnmeldelse, new { id = "hflForureningOpslagKraeverAnmeldelse" })
+@Html.HiddenFor(f => f.ForureningOpslagOffentligvej, new { id = "hflForureningOpslagOffentligvej" })
+
+
+<script type="text/javascript">
+
+  function toogleForureningsopslagDiv(targetDivNr) {
+    var targetDiv = "#divForureningOpslagRow" + targetDivNr;
+    $(targetDiv).toggle();
+  }
+</script>

@@ -1,0 +1,75 @@
+﻿@model Niras.Jordflytning.ViewModels.LoginModel
+@{
+    ViewBag.Title = "FlytJord.dk ®";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+
+<div data-role="page" data-control-title="FJ startside" id="startside">
+    <div data-role="content">
+        <div style="" data-controltype="image">
+            <h1>Flytjord.dk</h1>
+            @*<img style="width: 100%;" src="~/Content/images/FlytJord_header_m_foto_reduced.png">*@  @*src="http://assets.codiqa.com/BLnmQC1XRSXda5y1qtJA_JF2_header_medbillede.jpg"*@
+        </div>
+        <div data-controltype="textblock">
+            <p><b>Her kan du bl.a. lave simple anmeldelser, som ikke kræver vedhæftning af dokumentation.</b></p>
+            <p><b>Du kan også finde QR-koden til dine godkendte anmeldelser, som skal bruges ved indvejning hos en	jordmodtager, der anvender FlytJord.dk</b></p>
+        </div>
+        <a id="btnTjekDinJord" data-role="button" href="#tjekJord">
+            Tjek ejendom
+        </a>
+        <a id="btnLogInd" data-role="button" data-ajax="false" href="/Default/MobileLoginPage/">
+            Log på
+        </a>
+        <div>
+            Viser mobil udgaven.
+            @Html.ActionLink(" Skift til normal visning", "SwitchView", "Mobile", new { mobile = false, returnUrl = Request.Url.PathAndQuery }, new { rel = "external" })
+        </div>
+    </div>
+</div>
+<div data-role="page" data-control-title="Tjek jord" id="tjekJord">
+    <div data-role="content">
+        <div class="pagename" data-role="navbar" data-iconpos="left">
+            <ul>
+                <li>
+                    <a href="#startside" data-transition="fade" data-theme="" data-icon="back">
+                        FlytJord
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <h3>
+            Tjek ejendom
+        </h3>
+
+        @Html.Partial("../Mobile/_AdresseTjek")
+
+        @*		<a id="btnVisForureningsstatus" data-role="button" href="#tjekJordSvar">
+                Vis forureningsstatus
+            </a>*@
+    </div>
+</div>
+
+<div data-role="page" data-control-title="WS Simuler tjek jord svar" id="tjekJordSvar">
+    <div data-role="content">
+        <div data-role="navbar" data-iconpos="left">
+            <ul>
+                <li>
+                    <a href="#tjekJord" data-transition="none" data-theme="" data-icon="back">
+                        FlytJord
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <h3>
+            Resultat
+        </h3>
+        <div id="tjekJordSvarPartial">
+        </div>
+        <a id="btnAnmeldJordflytning" data-role="button" data-ajax="false" href="/Default/MobileLoginPage/">Anmeld jordflytning </a>
+    </div>
+</div>
+
+
+
+

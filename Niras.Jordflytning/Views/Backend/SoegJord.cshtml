@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "SoegJord";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+@section Scripts{
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      
+      $("#soeg").click(function (e) {
+        e.preventDefault(); //stop default event (click på knap)
+        $("#soegeparametre").toggle();
+        $("#soegeresultat").toggle();
+      });
+
+      $("#nulstil").click(function (e) {
+        e.preventDefault(); //stop default event (click på knap)
+        $("#soegeparametre").toggle();
+        $("#soegeresultat").toggle();
+      });
+
+      $("#soegeresultat").click(function (e) {
+        openTab("Anmeldelse", "/Backend/Anmeldelse");
+      });
+
+    });
+
+  </script>
+  }
+
+@section TopMenu {
+  <div>
+   <input id="soeg" type="submit" value="Søg" class="toolbarButton" />
+    <input id="nulstil" type="submit" value="Nulstil" class="toolbarButton" />
+    <input type="submit" value="Luk" class="toolbarButton" />
+    <input type="submit" value="Eksporter" class="toolbarButton" />
+    <input type="submit" value="Dan fakturabilag" class="toolbarButton" />
+    
+  </div>
+}
+<img id="soegeparametre" src="~/Content/WalkingSkeleton/Jordmodtager/Soeg_Jord.png" />
+<img id="soegeresultat" src="~/Content/WalkingSkeleton/Jordmodtager/Soeg_Jord_resultat.png" style="display:none;" />

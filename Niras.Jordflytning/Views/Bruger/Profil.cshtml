@@ -1,0 +1,105 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.ViewModels.Bruger.BrugerProfilModel
+@{
+    ViewBag.Title = "Profil";
+    if (Model.BackendUser)
+    {
+        Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+    } 
+}
+
+<style type="text/css">
+    .field-validation-error{clear:left;}
+</style>
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        kendo.culture("da-DK");
+
+        if ('@ViewBag.OnloadScript' == 'true') {
+            setTimeout(function() { window.location = '/'; }, 3000);
+        }
+
+        @ViewBag.OnloadScript
+        });
+
+        $(document).ready(function () {
+            Jordflytning.val.displayValidationMarkers();
+            var firmaSpan = $("#lblFirma>span");
+            firmaSpan.hide();
+            var transSpan = $("#lblTrans>span");
+            transSpan.hide();
+        });
+
+        $(document).keydown(function (e) {
+            if (e.keyCode == 27) {
+                window.location = '/';
+            }
+        });
+
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+
+
+
+    </script>
+
+@if (Model.BackendUser)
+{
+    // need room for "Gem" knap
+    <div style="height: 35px"></div>
+}
+
+<div>
+
+  
+
+    @(Html.Kendo().TabStrip()
+          .Name("profilTabstrip")
+          .HtmlAttributes(new {@class="fj-tabs", Style="border:0px;"})
+          .Items(items =>
+              {
+                  if (Model.ShowBrugerEditFane)
+                  {
+                      items.Add().Text("Bruger").Content(Html.Partial("~/Views/Bruger/_ProfilBruger.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "tabBrugerEdit" }).Selected(true);
+                  }
+                  if (Model.ShowModtageAnlaegFane)
+                  {
+                      items.Add().Text("Modtageanlæg").Content(Html.Partial("~/Views/Bruger/_ProfilModtageAnlaeg.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "tabModtageAnlaeg" }).Selected(false);
+                  }
+                  if (Model.ShowTransportoerFane)
+                  {
+                      items.Add().Text("Transportør").Content(Html.Partial("~/Views/Bruger/_ProfilTransportoer.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "tabTransportoer" }).Selected(false);
+                  }
+                  if (Model.ShowAdviseringFane)
+                  {
+                      items.Add().Text("Advisering").Content(Html.Partial("~/Views/Bruger/_ProfilAdvisering.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "tabAdvisering" }).Selected(false);
+                  }
+                  if (Model.ShowBemyndigedeFane)
+                  {
+                      items.Add().Text("Bemyndigede").Content(Html.Partial("~/Views/Bruger/_ProfilBemyndigede.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "tabBemyndigede" }).Selected(false);
+                  }
+
+              }))
+
+</div>           
+    
+       
+        
+

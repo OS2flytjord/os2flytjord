@@ -1,0 +1,152 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.ViewModels.Bruger.BrugerProfilModel
+
+<script type="text/javascript">
+
+    function mineJordmodtagereRequestEnd(e) {
+        if (e.type === "destroy") {
+            e.sender.read();
+        }
+    }
+
+    function modtagerAnlaegSelected() {
+        var duplicateRow = false;
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem.Id != null) {
+            var grid = $("#GridMineJordmodtagere").data("kendoGrid");
+
+            $("#hflSelectedModtagerAnlaegId").val(currentSelectedItem.Id);
+
+            //Check for duplicate row
+            var data = grid.dataSource.data();
+            if (data.length > 0) {
+                for (var item in data) {
+                    if (data[item].Id == currentSelectedItem.Id) {
+                        duplicateRow = true;
+                    }
+                }
+            }
+            //Adds the row to the top grid if it is not a duplicate row.
+            if (!duplicateRow) {
+
+                grid.dataSource.add({
+                    Id: currentSelectedItem.Id,
+                    Navn: currentSelectedItem.Navn,
+                    Afstand: currentSelectedItem.Afstand,
+                    Forureningskategori: currentSelectedItem.Forureningskategori,
+                    Affald: currentSelectedItem.Affald,
+                    Kommune: currentSelectedItem.Kommune,
+                    JF: currentSelectedItem.JF,
+                    DocLink: currentSelectedItem.DocLink,
+                    www: currentSelectedItem.www
+                });
+
+                $.ajax({
+                    url: './tilfoejjordmodtager',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ obj: currentSelectedItem.JordmodtagerId }),
+                    success: function () {
+                        grid.dataSource.read();
+                    }
+                });
+            }
+        }
+    }
+    
+    function showDocModalWindow(modtageranlaegId, modtageranlaegnavn) {
+
+      var wdiv = $("#winModtagerAnlaegDokumenter").kendoWindow({
+        iframe: true,
+        content: "/ModtagerAnlaeg/Dokumenter?modtagerAnlaegId=" + modtageranlaegId,
+        type: "GET",
+        height: 600,
+        width: 900
+      });
+
+      wdiv.data("kendoWindow").title(modtageranlaegnavn);
+      wdiv.data("kendoWindow").center();
+      wdiv.data("kendoWindow").open();
+    }
+
+</script>
+
+<div>
+
+    @if (Model.ErLoggetInd)
+    {
+        <div class="controlsbox" style="margin-top: 5px;">
+            <div class="cbheader">
+                <h5>Tilknyttede modtageanlæg</h5>
+            </div>
+            @Html.HiddenFor(m => m.SelectedModtagerAnlaegId, new {id = "hflSelectedModtagerAnlaegId"})      
+        
+            <div class="row_line" style="margin-top: 30px; margin-left: 10px; width: 950px;">
+
+                <p>Mine modtageanlæg</p>
+                @(Html.Kendo().Grid(Model.MineModtagerAnlaeg)
+                      .Name("GridMineJordmodtagere")
+                      .Pageable()
+                      .Sortable()
+                      .Columns(columns =>
+                          {
+                              columns.Bound(p => p.Id).Hidden();
+                              columns.Bound(p => p.Navn).Sortable(true);
+                              columns.Bound(p => p.Forureningskategori).Sortable(true);
+                              columns.Bound(p => p.Affald).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= Affald ? checked='checked' :'' # />");
+                              columns.Bound(p => p.Kommune).Sortable(true);
+                              columns.Bound(p => p.JF).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= JF ? checked='checked' :'' # />").Title("Anvender FlytJord.dk");
+                              columns.Bound(p => p.DocLink).Sortable(false).ClientTemplate("<div style='cursor: pointer;' onclick=\"showDocModalWindow('#= Id #','#= Navn #')\">Vis</div>");
+                              columns.Bound(p => p.www).Encoded(false);
+                              columns.Command(c => c.Destroy().Text("Fjern"));
+                          })
+                      .Editable(x => x.DisplayDeleteConfirmation("Vil du fjerne jordmodtagerfirmaet?"))
+                      .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Model(model => model.Id(p => p.Id))
+                                                    .Read(read => read.Action("MineJordmodtagereRead", "Bruger"))
+                                                    .Destroy(destroy => destroy.Action("MineJordmodtagereDestroy", "Bruger"))
+                                                    .Events(events => events.RequestEnd("mineJordmodtagereRequestEnd")))
+                )
+            </div>       
+            <div style="clear: both"></div>
+
+            <div class="row_line" style="margin-top: 30px; margin-left: 10px; width: 950px;">              
+                <p>Modtageanlæg i systemet</p> 
+                                      
+                @(Html.Kendo().Grid(Model.FiltreredeModtagerAnlaeg)
+                      .Name("GridFiltredeJordmodtagere")
+                      .Pageable()
+                      .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                      .Sortable()
+                      .Columns(columns =>
+                          {
+                              columns.Bound(p => p.Id).Hidden();
+                              columns.Bound(p => p.Navn).Sortable(true);
+                              columns.Bound(p => p.Forureningskategori).Sortable(true);
+                              columns.Bound(p => p.Affald).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= Affald ? checked='checked' :'' # />");
+                              columns.Bound(p => p.Kommune).Sortable(true);
+                              columns.Bound(p => p.JF).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= JF ? checked='checked' :'' # />").Title("Anvender FlytJord.dk");
+                              columns.Bound(p => p.DocLink).Sortable(false).ClientTemplate("<div style='cursor: pointer;' onclick=\"showDocModalWindow('#= Id #','#= Navn #')\">Vis</div>");
+                              columns.Bound(p => p.www).Encoded(false);
+                              columns.Command(c => c.Custom("Tilfoej").Click("modtagerAnlaegSelected").Text("Tilføj"));
+                          })
+                      .DataSource(dataSource => dataSource
+                                                    .Ajax().Model(model => model.Id(p => p.Id))
+                                                    .Read(read => read.Action("GridFiltredeJordmodtagereRead", "Bruger")))
+                      )
+            </div>
+            <div style="clear: both"></div>
+        </div>
+    }
+</div>
+
+<div id="winModtagerAnlaegKort" style="display: none">
+  @*Modal vindue til visning af modtagerAnlaeget i kortet.*@
+
+</div>
+
+<div id="winModtagerAnlaegDokumenter" style="display: none">
+  @*Modal vindue til visning af modtagerAnlaegets dokumenter.*@
+
+</div>

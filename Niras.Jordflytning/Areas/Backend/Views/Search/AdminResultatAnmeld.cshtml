@@ -1,0 +1,170 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.Core.Models.SoegeResultat
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+
+@{
+  ViewBag.Title = "Søg";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+<script type="text/javascript">
+
+  function GridSoegeresultaterDataBound() {
+    $("#GridSoegeresultater tbody tr").hover(
+        function () {
+          $(this).toggleClass("k-state-hover");
+        });
+
+
+    //$("#GridSoegeresultater").kendoGrid({
+    //  groupable: true
+    //});
+
+  }
+
+  $(document).ready(function () {
+    $("#GridSoegeresultater tbody tr").hover(
+        function () {
+          $(this).toggleClass("k-state-hover");
+        });
+  });
+
+  function GridSoegeresultaterOnChange() {
+    $("#GridSoegeresultater tbody tr").hover(
+        function () {
+          $(this).toggleClass("k-state-hover");
+        }
+    );
+    var grid = $("#GridSoegeresultater").data("kendoGrid");
+    var id;
+    var faneNavn;
+    grid.select().each(function () {
+      var dataItem = grid.dataItem($(this));
+      id = dataItem.AnmeldelseId;
+      faneNavn = dataItem.OprindelsesSted;
+      if (parent.addTab) {
+        parent.addTab(faneNavn, "/Backend/Anmeldelser/Index?anmeldelseId=" + id);
+      }
+    });
+  }
+
+  function GridSoegeresultateronDataBinding() {
+  }
+
+    function getSearchParameters() {
+        var _soegType = $("#hflSoegType").val();
+        var _foerDato = $("#hflFoerDato").val();
+        var _efterDato = $("#hflEfterDato").val();
+        var _adresse = $("#hflAdresse").val();
+        var _loebeNr = $("#hflLoebeNr").val();
+        var _inclAfsluttede = $("#hflInclAfsluttede").val();
+        var _modtagerId = $("#hflModtagerId").val();
+        var _transportoerId = $("#hflTransportoerId").val();
+        var _anmelderId = $("#hflAnmelderId").val();
+        var _andenOprindJordTypeId = $("#hflAndenOprindJordTypeId").val();
+        var _andenOprindBeskrivelse = $("#hflAndenOprindBeskrivelse").val();
+        var _forureningskategori = $('#hflForureningskategori').val();
+
+        return { soegType: _soegType, foerDate: _foerDato, efterDate: _efterDato, adresse: _adresse, loebeNr: _loebeNr, inclAfsluttede: _inclAfsluttede, modtagerId: _modtagerId, transportoerId: _transportoerId, anmelderId: _anmelderId, andenOprindJordTypeId: _andenOprindJordTypeId, andenOprindBeskrivelse: _andenOprindBeskrivelse, forureningsKategori: _forureningskategori };
+    }
+
+</script>
+<body style="height: 90%;">
+
+    @Html.HiddenFor(m => m.SelectedSoegeType, new { id = "hflSoegType" })
+    @Html.HiddenFor(m => m.FoerDato, new { id = "hflFoerDato" })
+    @Html.HiddenFor(m => m.EfterDato, new { id = "hflEfterDato" })
+    @Html.HiddenFor(m => m.Adresse, new { id = "hflAdresse" })
+    @Html.HiddenFor(m => m.LoebeNr, new { id = "hflLoebeNr" })
+    @Html.HiddenFor(m => m.InclAfsluttede, new { id = "hflInclAfsluttede" })
+    @Html.HiddenFor(m => m.ModtagerId, new { id = "hflModtagerId" })
+    @Html.HiddenFor(m => m.TransportoerId, new { id = "hflTransportoerId" })
+    @Html.HiddenFor(m => m.AnmelderId, new { id = "hflAnmelderId" })
+    @Html.HiddenFor(m => m.AndenOprindJordTypeId, new { id = "hflAndenOprindJordTypeId" })
+    @Html.HiddenFor(m => m.AndenOprindBeskrivelse, new { id = "hflAndenOprindBeskrivelse" })
+    @Html.HiddenFor(m => m.Forureningskategori, new { id = "hflForureningskategori" })
+
+  <div class="row_line">
+    <div id="divSoegParam" class="controlsbox">
+      <div class="cbheader">
+        <h5>Søgeparametre</h5>
+      </div>
+      <div class="row_line" style="margin: 10px;">
+        @Html.DisplayFor(m => m.SoegningBeskrivelse, new { Id = "soegNote", style = "width: 99%" })
+      </div>
+      <div style="clear: both"></div>
+    </div>
+  </div>
+
+  <div class="row_line">
+    <div id="divSoegResult" class="controlsbox">
+      <div class="cbheader">
+        <h5>Søgeresultat - Anmeldelser</h5>
+      </div>
+      <div class="row_line" style="margin: 10px;">
+        <input type="button" value="Exportér til Excel" onclick="ExportToExcel('GridSoegeresultater', 'Search')" />
+      </div>
+      <div style="clear: both"></div>
+
+      <div class="row_line">
+        @(Html.Kendo().Grid<SoegeResultat>()
+                      .Name("GridSoegeresultater")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new[] { 10, 50, 100, 500 }).Messages(x => x.ItemsPerPage("Rækker pr. side")))
+                      .Sortable()
+                      .Groupable(grouper=>grouper
+                        .Messages(messager=>messager.Empty("Træk en kolonneoverskrift og slip den her for at gruppere efter denne kolonne")) //Det står også i culture filen, men den renders først efter dataene er indlæst ! Derfor sætter jeg den også her.
+                        .Enabled(true)
+                        )
+                      .HtmlAttributes(new { style = "font-size:12px; margin-left:10px; margin-top:10px; margin-right:10px;" })
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+                      .Events(events => events
+                                            .Change("GridSoegeresultaterOnChange")
+                                            .DataBound("GridSoegeresultaterDataBound")
+                                            .DataBinding("GridSoegeresultateronDataBinding"))
+                 
+
+                                            .Columns(columns =>
+                          {
+                            columns.Bound(a => a.AnmeldelseId).Hidden(true);
+                            columns.Bound(a => a.Anmelder).Hidden(true);
+                            columns.Bound(a => a.LoebeNr).Title("Løbenr.").Width(45).Groupable(false);
+                            columns.Bound(a => a.OprindelsesSted).Title("Oprindelsessted").Width(130).Encoded(false);
+                            columns.Bound(a => a.Jordmodtager).Title("Jordmodtager").Width(130).Encoded(false);
+                            columns.Bound(a => a.Koerselsperiode).Title("Kørsels-<br/>periode").Width(85).Groupable(false);
+                            columns.Bound(a => a.Transportoer).Title("Transportør").Width(115).Encoded(false);
+                            columns.Bound(a => a.Betaler).Title("Betaler").Width(115).Encoded(false);
+                            columns.Bound(a => a.KoertJordMaengde).Title("Kørt/forventet<br/>jordmængde (t)").Width(100);
+                            columns.Bound(a => a.SenesteStatus).Title("Status").Width(280).Encoded(false);
+                            columns.Bound(a => a.JordKategoriNavn).Title("Jordkategori/<br/>Klasse");
+                                //.HtmlAttributes(new { title = "#= JordKategoriNavn #", @class = "jord-kategori kategori-#= JordKategoriKode #" });
+
+
+                            //columns.Bound(a => a.AnmeldelseId).Hidden(true);
+                            //columns.Bound(a => a.Anmelder).Hidden(true);
+                            //columns.Bound(a => a.LoebeNr).Title("Løbenr.").Width(45).Groupable(false);
+                            //columns.Bound(a => a.OprindelsesSted).Title("Oprindelsessted").Width(130).Encoded(false);
+                            //columns.Bound(a => a.Jordmodtager).Title("Jordmodtager").Width(130).Encoded(false);
+                            //columns.Bound(a => a.Koerselsperiode).Title("Kørsels-<br/>periode").Width(85).Groupable(false);
+                            //columns.Bound(a => a.Transportoer).Title("Transportør").Width(115).Encoded(false);
+                            //columns.Bound(a => a.Betaler).Title("Betaler").Width(115).Encoded(false);
+                            //columns.Bound(a => a.KoertJordMaengde).Title("Kørt/forventet<br/>jordmængde (t)").Width(100);
+                            //columns.Bound(a => a.SenesteStatus).Title("Status").Width(280).Encoded(false);
+                            //columns.Bound(a => a.JordKategoriNavn).Title("Jordkategori/<br/>Klasse");
+                            //  //.HtmlAttributes(new { title = "#= JordKategoriNavn #", @class = "jord-kategori kategori-#= JordKategoriKode #" });
+                              
+                              
+                          })
+                        .AutoBind(true)
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Model(model => model.Id(m => m.AnmeldelseId))
+                                                          .ServerOperation(false)
+                                                          .Read(read => read.Action("AdminResultatAnmeldAjax", "Search", "backend").Data("getSearchParameters")) // Specify the action method and controller name
+                                                          .PageSize(100))
+                      )
+      </div>
+      <div style="clear: both"></div>
+    </div>
+  </div>
+</body>

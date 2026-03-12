@@ -1,0 +1,403 @@
+﻿@using System.Web.Script.Serialization
+@model Niras.Jordflytning.ViewModels.LoginModel
+
+@{
+    ViewBag.Title = "FlytJord.dk ®";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles {
+    <style>
+
+        #newsform {
+            scrollbar-color: #8C73BD #664A9D;
+        }
+        /* Works on Chrome, Edge, and Safari */
+        #newsform::-webkit-scrollbar {
+        }
+        #newsform::-webkit-scrollbar-track {
+            background: #664A9D;
+        }
+        #newsform::-webkit-scrollbar-thumb {
+            background-color: #8064B6;
+            border: 3px solid #664A9D;
+        }
+        .newsEntry {
+            margin-bottom: 10px;
+        }
+        .newsEntry:last-of-type {
+            margin-bottom: 0px;
+        }
+        .newsContent {
+            width: 465px;
+            display: inline-block;
+            padding: 5px;
+        }
+        .newsContentCurrent {
+            border-style: solid;
+            border-width: 3px;
+            border-color: #785bb2;
+            /*background-color: #785bb2;*/
+        }
+        .newsContentCurrent .newsTime {
+            /*font-weight: bold;*/
+        }
+        .newsContentImportant {
+            border-style: solid !important;
+            border-width: 3px !important;
+            border-color: red !important;
+        }
+        .newsTime {
+            text-align: right;
+            display: inline-block;
+            float: right;
+        }
+        .newsTitle {
+            width: 365px;
+            display: inline-block;
+            font-weight: bold;
+            float: left;
+        }
+        .newsBody {
+            clear: both;
+            padding-top: 1px;
+        }
+        .newsBody p:last-of-type {
+            margin-bottom: 0px;
+        }
+
+        .newsBody img {
+            max-width: 100%;
+            margin-top: 5px;
+        }
+        .newsLogo {
+            background-image: url("https://pbs.twimg.com/profile_images/378800000729704154/83ea3d3f007b6ac456b84aea63f1980f_normal.jpeg");
+            background-repeat: no-repeat;
+            background-position: 0px 0px;
+            background-size: 32px 32px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            float: left;
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 10px;
+        }
+
+    </style>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+
+    $(document).ready(function () {
+
+	    var msgToUser = $('#hfMsgToUser').val();
+
+	    if (msgToUser != "") {
+	        alert(msgToUser);
+	        window.location = '@Url.Action("FrontPage", "Default", new { area = "" })';
+	    }
+      //var win = Jordflytning.ui.createModalWindow("window", 300, 400, "Nulstil password", false);
+      //		$('form:first *:input[type!=hidden]:first').focus();
+      $('input:visible:enabled:first').focus();
+    });
+
+    function drpKontraktInfoSelected(e) {
+      var dataItem = this.dataItem(e.item.index());
+      if (dataItem.Value != '') {
+        $("#winKontaktInfo").html(dataItem.Value);
+        var winKontaktInfo = Jordflytning.ui.createModalWindow("winKontaktInfo", 300, 400, "", false);
+        winKontaktInfo.center();
+        winKontaktInfo.open();
+        winKontaktInfo.visible;
+      }
+    }
+
+    function openModal() {
+      //alert("trolo");
+      //var win = $("#window").data("kendoWindow");
+      var win = Jordflytning.ui.createModalWindow("window", 300, 400, "Nulstil password", false);
+      win.center();
+      win.open();
+      win.visible;
+    }
+    </script>
+    <script language="javascript">
+        $(document).ready(function () {
+            var $newsTable = $('#newsTable')
+            var $template = $('#newsTemplate');
+            $.get('/Default/MarkdownNyheder', function (data) {
+                if (data.error) {
+                    console.log(data.error);
+                } else {
+                    for (var i = 0; i < data.pages.length; i++) {
+                        var page = data.pages[i]
+                        var $entry = $template.clone().removeAttr('id');
+                        var $content = $entry.find('.newsContent');
+                        var $time = $entry.find('.newsTime');
+                        var $title = $entry.find('.newsTitle');
+                        var $body = $entry.find('.newsBody');
+
+                        var dr = /\/Date\((\d*)\)\//.exec(page.time);
+                        var date = new Date(+dr[1]);
+                        var today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        if (date.getTime() >= today.getTime()) {
+                            $content.addClass("newsContentCurrent");
+                        }
+                        if (page.important) {
+                            $content.addClass("newsContentImportant");
+                        }
+
+                        $time.html(date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear());
+                        $title.html(page.title);
+                        $body.html(page.body);
+
+                        $entry.find('a').each(function () {
+                            this.target = '_blank';
+                            this.className = 'links2';
+                        });
+                        $newsTable.prepend($entry);
+                        $entry.show();
+                    }
+                }
+            }, 'json');
+        });
+    </script>
+}
+
+@Html.HiddenFor(x => x.MessageToUser, new { id = "hfMsgToUser" })
+
+
+<div id="window" style="display:none">
+    @* @using (Html.BeginForm("Resetpassword", "Default"))
+    *@
+    @using (Html.BeginForm("Resetpassword", "Default"))
+    {
+        <div class="row">
+            <h4 style="color: black">Indtast brugernavn(*E-mail)</h4>
+        </div>
+        <div class="row">
+            @Html.ValidationMessageFor(m => m.ResetEmailAddress)
+        </div>
+        <div class="row">
+            @Html.TextBoxFor(m => m.ResetEmailAddress)
+        </div>
+        <div class="row">
+
+            <input type="submit" value="Send" />
+        </div>
+        Html.EndForm();
+    }
+
+</div>
+
+<div class="row">
+    <div id="frontpage">
+        <table>
+            <tr>
+                <td style="width: 285px">
+                    <div id="loginContainer">
+                        <section id="loginForm">
+                            <table>
+                                <tr>
+                                    <td><img src="~/Content/Icons/LoginPage/Login_64x64.png" style="border: none; width: 50px" /></td>
+                                    <td style="padding-left: 10px;"><h3 class="h3Login">Log på</h3></td>
+                                </tr>
+                            </table>
+                            <br />
+                            @*<img src="~/Content/Icons/LoginPage/Login_64x64.png" style="border: none; width: 50px" />
+                        <br />
+                        <br />
+                        <h3 class="h3Login">Log på</h3>*@
+                            @using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                                <fieldset>
+                                    <legend>Log på</legend>
+                                    <ol>
+                                        <li>
+                                            @Html.LabelFor(m => m.UserName, new { @class = "checkbox" })
+                                            <br />
+                                            @Html.TextBoxFor(m => m.UserName, new { @placeholder = "E-mail" })
+                                            @Html.ValidationMessageFor(m => m.UserName)
+                                        </li>
+                                        <li>
+                                            @Html.LabelFor(m => m.Password, new { @class = "checkbox" })
+                                            <br />
+                                            @Html.PasswordFor(m => m.Password, new { @placeholder = "Adgangskode" })
+                                            @Html.ValidationMessageFor(m => m.Password)
+                                        </li>
+                                        <li>
+                                            @Html.CheckBoxFor(m => m.RememberMe)
+                                            @Html.LabelFor(m => m.RememberMe, new { @class = "checkbox" })
+                                            <br />
+                                            <br />
+                                            <input type="submit" value="Log på" style="margin-left:59px; margin-right:0px;" />
+                                        </li>
+                                        <li>
+                                            <br />                                            
+                                            <br />
+                                            <a class="links2" href="~/Bruger/profil">Opret bruger</a> &nbsp;
+                                            <a class="links2" id="ResetPassword" href="#" title="Få en ny kode tilsendt" onclick=" openModal();return false; ">Glemt adgangskode</a>
+                                        </li>
+                                        <li>
+                                            <br />
+                                            @Html.ActionLink("Mobil visning", "SwitchView", "Mobile", new { mobile = true, returnUrl = Request.Url.PathAndQuery }, new { @class = "links2", rel = "external" })
+                                        </li>
+                                    </ol>
+                                </fieldset>
+                            }
+                        </section>
+                    </div>
+                </td>
+                <td style="width: 283px">
+                    <div id="tjekDinEjendomContainer" style="background: #964A94">
+                        <a class="links" href="~/Default/tjekejendom">
+                            <table>
+                                <tr>
+                                    <td><img src="~/Content/Icons/LoginPage/Tjek_ejendomme_64x64.png" style="border: none; width: 50px" /></td>
+                                    <td style="padding-left: 10px;"><h3 class="h3Login">Tjek ejendom</h3></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <p>Find ud af, om der er registreret forurening på en ejendom.<br /><br />Få svar på, om en jordflytning er anmeldepligtig.</p>
+                        </a>
+                        <br />
+                        <a class="links" href="http://www.digitaliseringsprisen.dk/tidligere-deltagere/" target="_blank">
+                            <img src="~/Content/images/badge_effektiviseringsprisen.png" style="border: none; width: 125px; margin-left: 57px; margin-top:35px; margin-right: 26px;" />
+                        </a>
+                    </div>
+                </td>
+                <td style="width: 50%" colspan="2">
+
+                    <div id="newsform">
+                        <table>
+                            <tr>
+                                <td><img src="~/Content/Icons/LoginPage/Nyheder_64x64.png" style="border: none; width: 50px" /></td>
+                                <td style="padding-left: 10px;"><h3 class="h3Login">Nyheder</h3></td>
+                            </tr>
+                        </table>
+                        <br />
+                        <fieldset>
+                            <legend>
+                                Nyheder
+                            </legend>
+                            <div style="height: 296px; overflow:auto;">
+                                <div id="newsTable">
+                                    @**
+                                    -----------------------------------------------------------------------------------------------------------------------------
+                                    Skabelon til nyhedsfeed på forsiden af flytjord:
+
+                                    Se "NyhederFileDir" applikations indstillingen, for at finde lokationen til nyhedsfiler. (Typisk på fildrevet under /nyheder)
+                                    Der bør være en readme.txt med instruktioner til at oprette markdown filer.
+
+                                    Eventuelle fejl skrives til JavaScript konsollen.
+                                    -----------------------------------------------------------------------------------------------------------------------------
+                                    *@
+                                    <div style="display: none;" id="newsTemplate" class="newsEntry">
+                                        <div class="newsLogo"></div>
+                                        <div class="newsContent">
+                                            <div class="newsTitle"></div>
+                                            <div class="newsTime"></div>
+                                            <div class="newsBody"></div>
+                                        </div>
+                                    </div>
+                                    @*
+                                    -----------------------------------------------------------------------------------------------------------------------------
+                                    Slut på skabelon
+                                    -----------------------------------------------------------------------------------------------------------------------------
+                                    *@
+                                </div>
+                            </div>
+                        </fieldset>
+                        <!--<img style="margin-bottom:30px; border-bottom-left-radius:50%; border-bottom-right-radius:50%; border-top-left-radius:50%; border-top-right-radius:50%" class="Avatar" alt="" src="https://pbs.twimg.com/profile_images/378800000729704154/83ea3d3f007b6ac456b84aea63f1980f_normal.jpeg">
+
+                        <div style="float:right; width:90%; margin-bottom:30px;">
+                            Lørdag den 27. oktober mellem 9 - 12 foretages en systemopdatering af http://FlytJord.dk serveren. Opdatering kan medføre kortvarige afbrydelser af systemet mens serveren genstartes. Lørdag den 27. oktober mellem 9 - 12 foretages en systemopdatering af http://FlytJord.dk serveren. Opdatering kan medføre kortvarige afbrydelser af systemet mens serveren genstartes.
+                        </div>
+
+                        <img style="margin-bottom:30px; border-bottom-left-radius:50%; border-bottom-right-radius:50%; border-top-left-radius:50%; border-top-right-radius:50%" class="Avatar" alt="" src="https://pbs.twimg.com/profile_images/378800000729704154/83ea3d3f007b6ac456b84aea63f1980f_normal.jpeg">
+                        <div style="float:right; width:90%; margin-bottom:30px;">
+                            Lørdag den 27. oktober mellem 9 - 12 foretages en systemopdatering af http://FlytJord.dk serveren. Opdatering kan medføre kortvarige afbrydelser af systemet mens serveren genstartes. Lørdag den 27. oktober mellem 9 - 12 foretages en systemopdatering af http://FlytJord.dk serveren. Opdatering kan medføre kortvarige afbrydelser af systemet mens serveren genstartes.
+                        </div>
+                            -->
+
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="width: 50%">
+
+                    <div class="coldivdouble" style="float: left; width: 512px; background:#2ead4a">
+                        <h3 class="h3Login" style="width: 100%; margin-top: 0px; font-weight: bold;">Hjælp og vejledninger</h3>
+                        <br />
+                        <div style="width: 100%; padding-bottom: 6px;"><a class="links2" href="~/content/pdf/Oprettelse af bruger og anmeldelse.pdf" target="_blank">Oprettelse af bruger og anmeldelse (vejledning)</a></div>
+                        <div style="width: 100%; padding-bottom: 6px;"><a class="links2" href="https://aakmediaservicestorage.blob.core.windows.net/asset-39ca18f8-cf6a-4a97-ac7c-f95fd8ee4b8a/MTM%20-%20FlytJord%20Brugeroprettelse_1280x720_AACAudio_301.mp4?sv=2017-04-17&sr=c&si=4cf3958b-3505-43ba-b605-556c9ecdec75&sig=jm8mdoijPg6oKMtza0OyBCRUKxdOzvtSVDcUSwIOMXM%3D&st=2019-11-29T08%3A54%3A44Z&se=2119-11-29T08%3A54%3A44Z" target="_blank">Oprettelse af brugere</a></div>
+                        <div style="width: 100%; padding-bottom: 6px;"><a class="links2" href="https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Faakmediaservicestorage.blob.core.windows.net%2Fasset-d450d4ff-4604-49ee-b7de-d5af7a6cdf5e%2FMTM%2520-%2520FlytJord%2520Anmeldelse_720x540_AACAudio_242.mp4%3Fsv%3D2017-04-17%26sr%3Dc%26si%3D6fbfd0a1-c08d-4a53-aed1-97da3d3ba39a%26sig%3DawM7WFeb%252BjPo5MNyqTKMES5wRT38oB5wTymRWwVPH40%253D%26st%3D2019-11-29T08%253A58%253A31Z%26se%3D2119-11-29T08%253A58%253A31Z&data=02%7C01%7C%7C1ce2ed142b6c460d9f2908d778a5a1e2%7C89f0873991c047aea732291b5df7a94e%7C0%7C0%7C637110525092305421&sdata=duY%2B81wP0AbuBDIPwKZDVvtU8Fix8LQpckFaavuWcLA%3D&reserved=0" target="_blank">Oprettelse af en anmeldelse</a></div>
+                        <br />
+                        <div style="width: 100%; padding-bottom: 6px;"><a class="links2" href="~/cookies.html" target="_blank">Anvendelse af persondata og cookies</a></div>
+                    </div>
+                    <div id="links_right" style="float: left; background:#2ead4a; width: 143px; margin-left:-240px; margin-top:8px; padding-top: 14px;">
+                        <a class="links" href="https://youtu.be/KLz32kjZvr0" target="_blank">
+                            <img src="~/Content/images/FJ_intro.png" style="border: none; width: 180px; margin-left: 26px; margin-top:0px; margin-right: 26px;" />
+                        </a>
+                    </div>
+
+                </td>
+                <td style="width: 25%">
+                    <div class="coldiv" style="background: #D5542A">
+                        <a class="links" href="https://aarhus.dk/virksomhed/miljoe/jord/anmeldelse-af-jordflytning/" target="_blank">
+                            <table>
+                                <tr>
+                                    <td><img src="~/Content/Icons/LoginPage/Tjek_regler_64x64.png" style="border: none; width: 50px" /></td>
+                                    <td style="padding-left: 10px;"><h3 class="h3Login">Læs regler</h3></td>
+                                </tr>
+                            </table>
+                            <br />
+                            <p>Her kan du let finde lovgrundlaget for jordforureningsområdet, herunder jordflytninger.<br /><br />Link til kommunens hjemmeside findes under ’Kontakt’.</p>
+                        </a>
+                    </div>
+                </td>
+                <td style="width: 25%">
+                    <div class="coldiv" style="background: #2EAD4A">
+                        <table>
+                            <tr>
+                                <td><img src="~/Content/Icons/LoginPage/Kontakt_64x64.png" style="border: none; width: 50px" /></td>
+                                <td style="padding-left: 10px;"><h3 class="h3Login">Kontakt</h3></td>
+                            </tr>
+                        </table>
+                        <br />
+                        <br />
+                        @Html.Kendo().DropDownList().DataValueField("Value").DataTextField("Text").OptionLabel("Vælg kommune").BindTo(Model.KommuneKontaktListe).Name("drpKontraktInfo").Events(e => { e.Select("drpKontraktInfoSelected"); })
+
+                    </div>
+                </td>
+
+            </tr>
+            <tr>
+                @*                <td colspan="2">
+                        <div class="row">
+                            Hjælpe links - roller:
+                            @Html.ActionLink("kommuneadministrator", "index", new { Controller = "backend", rolle = "kommuneadministrator" });
+                            @Html.ActionLink("sagsbehandler", "index", new { Controller = "backend", rolle = "sagsbehandler" });
+                            @Html.ActionLink("jordmodtageradministrator", "index", new { Controller = "backend", rolle = "jordmodtageradministrator" });
+                            @Html.ActionLink("miljømedarbejder", "index", new { Controller = "backend", rolle = "miljømedarbejder" });
+                            @Html.ActionLink("bogholder", "index", new { Controller = "backend", rolle = "bogholder" });
+                            @Html.ActionLink("pladsmand", "index", new { Controller = "backend", rolle = "pladsmand" });
+                            @Html.ActionLink("stikprøvetager", "index", new { Controller = "backend", rolle = "stikprøvetager" });
+                            @Html.ActionLink("laboratorie", "index", new { Controller = "backend", rolle = "laboratorie" });
+                            @Html.ActionLink("ekstern", "startside");
+                        </div>
+                    </td>*@
+            </tr>
+        </table>
+    </div>
+
+
+</div>
+<div id="winKontaktInfo" style="display: none">
+</div>

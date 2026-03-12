@@ -1,0 +1,65 @@
+﻿@model Niras.Jordflytning.Areas.Backend.ViewModels.VognlaesModel
+
+@Html.HiddenFor(model => model.TransportoerId, new { id = "hfTransportoer" })
+@Html.HiddenFor(m => m.LastbilId, new { id = "hfLastbil" })
+
+
+<div id="divVognlaesCreate">
+    <div class="editor-label">
+        @Html.Label("Transportør")
+    </div>
+    <div class="editor-field">
+        @(Html.Kendo().DropDownList()
+              .Name("transportoere")
+              .HtmlAttributes(new { style = "width:300px" })
+              .OptionLabel("Vælg transportør")
+              .DataTextField("Navn")
+              .DataValueField("Id")
+              .DataSource(source => { source
+                  .Read(read => { read.Action("GetTransportoere", "Anmeldelser", new { area = "Backend" });});})
+              )
+    </div>
+
+    <div class="editor-label">
+        @Html.Label("Lastbil")
+    </div>
+    <div class="editor-field">
+        @(Html.Kendo().DropDownList()
+              .Name("lastbiler")
+              .HtmlAttributes(new { style = "width:300px" })
+              .OptionLabel("Vælg Lastbil")
+              .DataTextField("Nummerplade")
+              .DataValueField("Id")
+              .DataSource(source => { source
+                  .Read(read => { read.Action("GetLastbiler", "Anmeldelser", new { area = "Backend" }).Data("filterTransportoere"); })
+                  .ServerFiltering(true);})
+              .Events(e => e.Change("vognlaesLastbilerSelect"))
+              .Enable(false)
+              .AutoBind(false)
+              .CascadeFrom("transportoere")
+              )
+    </div>
+ 
+</div>
+
+    <div class="editor-label">
+        @Html.Label("Jordmængde ton")
+    </div>
+
+    <div class="editor-field">
+        @Html.EditorFor(model => model.JordmaengdeTon) 
+        @Html.ValidationMessageFor(model => model.JordmaengdeTon)
+    </div>
+
+
+    <div class="editor-label">
+        @Html.Label("Jordmængde aksler")
+    </div>
+
+    <div class="editor-field">
+        @Html.EditorFor(model => model.JordmaengdeAksler) 
+        @Html.ValidationMessageFor(model => model.JordmaengdeAksler)
+    </div>
+
+
+

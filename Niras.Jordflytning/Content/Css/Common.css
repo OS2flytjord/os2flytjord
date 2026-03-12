@@ -1,0 +1,26 @@
+﻿th.gridheader {
+	/*margin: 1px;*/
+	background-color:lightgray;
+    font-size: .85em;
+    color: #808080;
+}
+
+div.gridcell {
+	display: inline;
+	/*padding: 1px;*/
+	float: left;
+	width: 150px;
+	border:solid;
+	border-width:thin;
+      color: #808080;
+}
+
+div.gridrow {
+	float: left;
+	/*padding: 1px;*/
+	width: 100%;
+	border:solid;
+      color: #808080;
+	border-width:thin;
+}
+

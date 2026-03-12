@@ -1,0 +1,499 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
+@using Niras.Jordflytning.ViewModels.Anmeldelse
+@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+
+<div>
+    <div class="row" id="divJorden">
+
+        <div class="column" style="margin-right: 10px; width: 50%">
+
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Dokumentation</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row">
+                        @if (Model.AnmeldelseModel.SelectedJordklassifikationTypeNavn == null)
+                        {
+                            @Html.Label("Angiv forureningskategori", new {style = "width:350px;"})
+                        }
+                        
+                    </div>
+                    <div id="divJordKlassifiktion">
+                        @Html.Partial("_BackendJordJordKlassifikation",Model)  
+                    </div>
+                    <div style="clear: both"></div>
+                              
+                    <div class="row_line">
+                        @{
+                            var proeverJaHtmlAttributes = new Dictionary<string, object>();
+                            proeverJaHtmlAttributes.Add("Id", "rblJordproeverJa");
+                            var proeverNejHtmlAttributes = new Dictionary<string, object>();
+                            proeverNejHtmlAttributes.Add("Id", "rblJordproeverNej");
+                            if (Model.AnmeldelseModel.Anmeldelse == null || Model.AnmeldelseModel.Anmeldelse.Jord == null || Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.HasValue == false)
+                            {
+                                proeverNejHtmlAttributes.Add("checked", "checked");
+                            }
+                            else
+                            {
+                                if (Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.Value)
+                                {
+                                    proeverJaHtmlAttributes.Add("checked", "checked");
+                                }
+                                else
+                                {
+                                    proeverNejHtmlAttributes.Add("checked", "checked");
+                                }
+                            }
+                        }
+                        @Html.LabelFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Jordproever)
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Jordproever, true, proeverJaHtmlAttributes)
+                        @Html.Label("ja", "Ja", new { style = "width:50px;" })
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Jordproever, false, proeverNejHtmlAttributes)
+                        @Html.Label("nej", "Nej", new { style = "width:50px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div id="divJordProever" style="display: @( (Model.AnmeldelseModel.Anmeldelse != null && Model.AnmeldelseModel.Anmeldelse.Jord != null && Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.HasValue && Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.Value) ? "block" : "none") ">
+                        <div class="row_line">
+                            @Html.LabelFor(m => m.AnmeldelseModel.Anmeldelse.Jord.MiljoeTekniskTilsyn)
+                            @Html.TextBoxFor(m => m.AnmeldelseModel.Anmeldelse.Jord.MiljoeTekniskTilsyn, new {maxlength=100, data_tooltip = "Angiv det firma/person som har udtaget jordprøven" })
+                        </div>
+                        <div style="clear: both"></div>
+
+                        <div class="row_line">
+                            @{
+                                var foerHtmlAttributes = new Dictionary<string, object>();
+                                var efterHtmlAttributes = new Dictionary<string, object>();
+                                if (Model.AnmeldelseModel.Anmeldelse == null || Model.AnmeldelseModel.Anmeldelse.Jord == null || Model.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer.HasValue == false)
+                                {
+                                    foerHtmlAttributes.Add("checked", "checked");
+                                }
+                                else
+                                {
+                                    if (Model.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer.Value)
+                                    {
+                                        foerHtmlAttributes.Add("checked", "checked");
+                                    }
+                                    else
+                                    {
+                                        efterHtmlAttributes.Add("checked", "checked");
+                                    }
+                                }     
+                            }
+                            @Html.LabelFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer)
+                            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer, true, foerHtmlAttributes)
+                            @Html.Label("foeropgravning", "Før opgravning", new { style = "width:120px;" })
+                            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordproeverFoer, false, efterHtmlAttributes)
+                            @Html.Label("foeropgravning", "Efter opgravning", new { style = "width:110px;" })
+                        </div>
+                        <div style="clear: both"></div>
+                    </div>
+
+                    <div class="row_line">
+                        @Html.LabelFor(m => m.AnmeldelseModel.IndeholderAffald)
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.IndeholderAffald, "true", new { id = "rbtAffaldJa", Checked = "checked" })
+                        @Html.Label("affald", "Ja", new { style = "width:50px;" })
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.IndeholderAffald, "false", new { id = "rbtAffaldNej" })
+                        @Html.Label("affald", "Nej", new { style = "width:50px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div id="affaldstype" class="row_line">
+                        @Html.LabelFor(x => Model.AnmeldelseModel.Anmeldelse.Jord.AffaldType)
+                        @(Html.Kendo().DropDownListFor(x => x.AnmeldelseModel.selectedAffaldType)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AnmeldelseModel.AffaldTypeListe)
+                              .Events(e => { e.Select("ddlAffaldTypeSelected"); })
+                              .HtmlAttributes(new { Id = "drpAffaldType" })
+                              .Enable(Model.AnmeldelseModel.IndeholderAffald)
+                              )
+                    </div>
+                    <div style="clear: both"></div>      
+                    @{
+                        var andetAffaldstypeHtmlAttributes = new Dictionary<string, object>();
+                        andetAffaldstypeHtmlAttributes.Add("id", "txtAndenAffaldType");
+                        andetAffaldstypeHtmlAttributes.Add("data_tooltip", "Beskriv hvilken affaldstype der er tale om");
+                        andetAffaldstypeHtmlAttributes.Add("maxlength", 100);
+                        if (Model.AnmeldelseModel.Anmeldelse !=null && Model.AnmeldelseModel.Anmeldelse.Jord != null && Model.AnmeldelseModel.Anmeldelse.Jord.AffaldType != null && Model.AnmeldelseModel.Anmeldelse.Jord.AffaldType.Kode != (short)EnumAffaldstype.Andet)
+                        {
+                            andetAffaldstypeHtmlAttributes.Add("readOnly", "readonly");
+                        }
+                    }
+                    <div class="row_line">
+                        @Html.LabelFor(x => x.AnmeldelseModel.Anmeldelse.Jord.AndenAffaldType)
+                        @Html.TextBoxFor(x => x.AnmeldelseModel.Anmeldelse.Jord.AndenAffaldType, andetAffaldstypeHtmlAttributes)
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line" id="divJordIntaktJord">
+                        @Html.LabelFor(x => x.AnmeldelseModel.Anmeldelse.Jord.IntaktJord)
+                        @Html.CheckBoxFor(x => x.AnmeldelseModel.Anmeldelse.Jord.IntaktJord, new { Id = "chkIntaktJord", style = "height: 27px; margin-left: 0px; padding-top: 0px; padding-bottom: 0px;", data_tooltip="Sæt en markering her, hvis der er tale om råjord der ikke tidligere er håndteret" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        @Html.Label("Link til godkendt anmeldelse")
+                        @Html.TextBoxFor(x=>x.AnmeldelseModel.Anmeldelse.Jord.LinkTilGodkendtAnmeldelse , new { maxlength=1024, data_tooltip="Indsæt link til godkendt anmeldelse her, hvis anmeldelsen er lavet i et andet system."})
+                    </div>
+                    <div style="clear: both"></div>
+
+                   
+
+                    <div class="row_line">
+                        &nbsp;
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        @(Html.Kendo().Grid<DokumentationModel>()
+                              .Name("GridDokumenation")
+                              .HtmlAttributes(new { style = "font-size:12px;" })  
+                              .Columns(columns =>
+                                  {
+                                      columns.Bound(p => p.Id).Hidden();
+                                    
+                                      columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter").Visible(false);
+                                      columns.Bound(p => p.DisplayFilename).ClientTemplate("<div title=\"#=FilNavn#\">#=DisplayFilename#</div>").Title("Dokumenter").Width(130);
+                                      columns.Bound(p => p.Type).Sortable(true).Title("Type").Width(50);
+                                      columns.Bound(p => p.OprindelseDato).Sortable(true).Title("Dato").Format("{0:dd-MM-yyyy}").Width(80);
+                                      columns.Bound(p => p.Id).ClientTemplate(Html.ActionLink("Åben", "DownloadDokumentation", new { anmeldelseId = Model.AnmeldelseModel.Anmeldelse.Id, filnavn = "#=FilNavnUrlEncode#", target = "_blank" }).ToHtmlString()).Title("");
+                                      columns.Command(c => c.Destroy().Text("Fjern")).Width(10);
+                                  })
+                              .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                              .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne filen?"))
+                              .AutoBind(false)
+                              .DataSource(dataSource => dataSource
+                                                            .Ajax() // Specify that the data source is of ajax type
+                                                            .Read(read => read.Action("ReadDokumentation", "Anmeldelser").Data("getAnmeldelseId")) // Specify the action method and controller name
+                                                            .Model(model => model.Id(p => p.Id))
+                                                            .Destroy(des => des.Action("RemoveFile", "Anmeldelser").Data("getAnmeldelseId"))
+
+                              ))
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @if (!Model.AnmeldelseModel.LockAnmeldelse)
+                        {
+                            <input type="button" id="btnShowWinFileUpload" value="Vedhæft dokument" />
+                        }
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Historiske oplysninger</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row_line">
+                        @(Html.Kendo().Grid(Model.HistoriskDokumentationListe)
+                              .Name("GridBackendHistoriskDokumentation")
+                              .Columns(columns =>
+                                  {
+                                      columns.Bound(p => p.Id).Hidden();
+                                      columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter").Visible(false);
+                                      columns.Bound(p => p.DisplayFilename).ClientTemplate("<div title=\"#=FilNavn#\">#=DisplayFilename#</div>").Title("Dokumenter");
+                                      columns.Bound(p => p.Type).Sortable(true).Title("Type");
+                                      columns.Bound(p => p.DatoData).Sortable(true).Title("Oprindelse").Format("{0:dd-MM-yyyy}");
+                                      columns.Template(p=> @Html.ActionLink("Åben", "DownloadHistoriskDokumenter", new { anmeldelseId = p.AnmeldelseId, stikproeveId = p.StikproeveId, filnavn = p.FilNavn, target = "_blank" })).Title("");
+                                  })
+                              .HtmlAttributes(new { data_tooltip = "Herunder kan du se historiske oplysninger fra tidligere jordflytningssager" }))
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="column" style="margin-right: 10px; width: 486px; margin-right: 0px;">
+      
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Oplysning om jordflytningen</h5>
+                </div>
+                <div class="row_control">       
+                    <div class="row_line">
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordflytningType.Id, Model.AnmeldelseModel.JordflytningTypeListe[0].Id, new { id = "rbtAlm", Checked = "checked", style="margin-left: 0px;"})
+                        @Html.Label("lblAlmJordflytning", Model.AnmeldelseModel.JordflytningTypeListe[0].Navn, new { style = "width:155px !important; " })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line" style="display:none">
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordflytningType.Id, Model.AnmeldelseModel.JordflytningTypeListe[1].Id, new { id = "rbtAkut", style="margin-left: 0px;" })
+                        @Html.Label("lbl" + Model.AnmeldelseModel.JordflytningTypeListe[1].Navn, Model.AnmeldelseModel.JordflytningTypeListe[1].Navn, new { style = "width:155px !important; margin-left: 0px;" })
+                        @Html.TextBoxFor(m => m.AnmeldelseModel.Anmeldelse.Jord.AkutBaggrund, new { maxlength=100, readOnly = "readonly", id = "txtAkutBaggrund", data_tooltip = "Angiv årsag til at jordflytningen er akut" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.JordflytningType.Id, Model.AnmeldelseModel.JordflytningTypeListe[2].Id, new { id = "rbtStraks", style="margin-left: 0px;" })
+                        @Html.Label("lbl" + Model.AnmeldelseModel.JordflytningTypeListe[2].Navn, Model.AnmeldelseModel.JordflytningTypeListe[2].Navn, new { style = "width:155px !important; margin-left: 0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row" id="divJordhaandteringsplan" style="height:90px; display:@((Model.AnmeldelseModel.Anmeldelse!=null &&Model.AnmeldelseModel.Anmeldelse.Jord!=null && Model.AnmeldelseModel.Anmeldelse.Jord.JordflytningType!=null && Model.AnmeldelseModel.JordflytningTypeListe!=null && Model.AnmeldelseModel.Anmeldelse.Jord.JordflytningType.Id==Model.AnmeldelseModel.JordflytningTypeListe[2].Id) ? "block" : "none") ">
+                        <div class="row_line">
+                            @{
+                                var straksJa = new Dictionary<string, object>();
+                                straksJa.Add("data-tooltip" ,"Er der indsendt en jordhåndteringsplan til kommunen?");
+                                var straksNej = new Dictionary<string, object>();
+                                straksNej.Add("data-tooltip", "Er der indsendt en jordhåndteringsplan til kommunen?");
+              
+                                if (Model.AnmeldelseModel.Anmeldelse == null || Model.AnmeldelseModel.Anmeldelse.Jord == null || Model.AnmeldelseModel.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan.HasValue == false)
+                                {
+                                    straksNej.Add("checked", "checked");
+                                }
+                                else
+                                {
+                                    if (Model.AnmeldelseModel.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan.Value)
+                                    {
+                                        straksJa.Add("checked", "checked");     
+                                    }
+                                    else
+                                    {
+                                        straksNej.Add("checked", "checked");
+                                    }
+                                }     
+                            }
+                            @Html.Label("Er der indsendt en jordhåndteringsplan til kommunen")
+                            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan, true, straksJa)
+                            @Html.Label("Affald", "Ja", new { style = "width:50px;", data_tooltip = "Er der indsendt en jordhåndteringsplan til kommunen?" })
+                            @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan, false, straksNej)
+                            @Html.Label("affald", "Nej", new { style = "width:50px;", data_tooltip = "Er der indsendt en jordhåndteringsplan til kommunen?" })
+                        </div>
+                        <div style="clear: both"></div>
+                    </div>
+                    
+                    <div class="row_line">
+                        @Html.LabelFor(m => m.AnmeldelseModel.Anmeldelse.Jord.ForventetJordmaengdeTon, new { style = "width:188px !important;" })
+                        @Html.Kendo().NumericTextBoxFor(m => m.AnmeldelseModel.Anmeldelse.Jord.ForventetJordmaengdeTon).Spinners(false).Min(0).Decimals(0).Format("#").HtmlAttributes(new { Id = "txtForventetJordmaengdeTon", Style="width:160px" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        <div id="divJordAntalProever"  style="display: @( (Model.AnmeldelseModel.Anmeldelse != null && Model.AnmeldelseModel.Anmeldelse.Jord != null && Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.HasValue && Model.AnmeldelseModel.Anmeldelse.Jord.Jordproever.Value) ? "block" : "none") ">
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.AnmeldelseModel.Anmeldelse.Jord.AntalProever,new { style = "width: 188px !important" })
+                                @Html.Kendo().NumericTextBoxFor(m => m.AnmeldelseModel.Anmeldelse.Jord.AntalProever).Spinners(false).Min(0).Max(999).Decimals(0).Format("#").HtmlAttributes(new { Id = "txtAntalProever", Style = "width:160px" })
+                            </div>
+                            <div style="clear: both"></div>
+                            <div class="row_line">
+                                @Html.Label("lblAntalproevertonsjord", "Antal tons pr. prøve", new { style = "width: 188px !important" })
+                                @Html.TextBox("lblValueAntalproevertonsjordtalberegning", "", new { readOnly = "readonly", Style = "width:99px" })
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">  
+                        @Html.Label("koerselstidpunkt", "Kørselstidspunkt *", new { style = "width: 188px !important" })
+                    </div>
+                    <div class="row_line">
+                        @(Html.Kendo().DatePickerFor(m => m.AnmeldelseModel.Anmeldelse.Jord.KoerselStart)
+                                      .HtmlAttributes(new { Id = "datStart", type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv start for kørselsperioden", style = "width: 125px" })
+                              .Events(e => e.Change("startChange")))
+                        -
+                        @(Html.Kendo().DatePickerFor(m => m.AnmeldelseModel.Anmeldelse.Jord.KoerselSlut)
+                                      .HtmlAttributes(new { Id = "datSlut", type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv slutningen for kørselsperioden", style = "width: 125px" })
+                              .Events(e => e.Change("endChange")))
+                    </div>
+                </div>
+            </div>
+
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Bemærkninger</h5>
+                </div>
+                <div class="row_control">
+
+                    @{
+                        var jordarbejdeBeskrivelseHeight = 150;
+                        var tidligereErhvervsaktivitetShown = false;
+                        var bemaerkningShown = false;
+                        if (!string.IsNullOrWhiteSpace(Model.AnmeldelseModel.Anmeldelse.Jord.TidligereErhvervsaktivitet))
+                        {
+                            jordarbejdeBeskrivelseHeight -= 50;
+                            tidligereErhvervsaktivitetShown = true;
+                        }
+                        if (!string.IsNullOrWhiteSpace(Model.AnmeldelseModel.Anmeldelse.Jord.Bemaerkning))
+                        {
+                            jordarbejdeBeskrivelseHeight -= 50;
+                            bemaerkningShown = true;
+                        }
+
+                    }
+                    <div class="row_line">
+                        @Html.LabelFor(x => x.AnmeldelseModel.Anmeldelse.Jord.JordarbejdeBeskrivelse)
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                        @Html.TextAreaFor(x => x.AnmeldelseModel.Anmeldelse.Jord.JordarbejdeBeskrivelse, new { style = "width:100%; height:" + jordarbejdeBeskrivelseHeight + "px;" })
+                    </div>
+                    @if (tidligereErhvervsaktivitetShown)
+                    {
+                        <div style="clear: both"></div>
+                        <div class="row_line">
+                            @Html.LabelFor(x => x.AnmeldelseModel.Anmeldelse.Jord.TidligereErhvervsaktivitet)
+                            @Html.Label("(der må ikke indtastes persondata)", new { style = "width:50%; color:red;" })
+                            @Html.TextAreaFor(x => x.AnmeldelseModel.Anmeldelse.Jord.TidligereErhvervsaktivitet, new { style = "width:100%; height:50px;" })
+                        </div>
+                    }
+                    @if (bemaerkningShown)
+                    {
+
+                        <div style="clear: both"></div>
+                        <div class="row_line">
+                            @Html.LabelFor(x => x.AnmeldelseModel.Anmeldelse.Jord.Bemaerkning)
+                            @Html.Label("(der må ikke indtastes persondata)", new {style = "width:50%; color:red;"})
+                            @Html.TextAreaFor(x => x.AnmeldelseModel.Anmeldelse.Jord.Bemaerkning, new {style = "width:100%; height:50px;"})
+                        </div>
+                    }
+                </div>
+            </div>
+   
+            <div class="controlsbox row" style="margin-top: 10px">          
+                <div class="cbheader">
+                    <h5>Info</h5>
+                </div>           
+                <div class="row_control">
+                    <div class="row_line">
+                        --
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+
+            </div>
+
+        </div>
+    </div>
+
+    @Html.HiddenFor(m => m.AnmeldelseModel.JordRenJordKlassifikationTypeId, new { Id = "hflJordRenJordKlassifikationTypeId" })
+    <div style="clear: both"></div>
+</div>
+
+
+<div id="uploadFilesWindow" style="display: none">
+    <div class="row_line" style="margin-left: 10px">
+        @Html.Label("lblDokumentationType", "Dokument type")
+        @(Html.Kendo().DropDownList()
+              .Name("drpDocType")
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .BindTo(Model.AnmeldelseModel.DokumentationTypeListe))
+    </div>
+    <div class="row_line" style="margin-left: 10px">
+        @Html.Label("Dokument dato")
+        @Html.Kendo().DatePicker().Name("datDocDate").Value(DateTime.Now).HtmlAttributes(new { type = "text", data_tooltip = "Angiv dato for tilblivelsen af dokumentet" })
+    </div>
+    <div class="row_line" style="margin-left: 10px">
+        @Html.Label("lbSize", "Max. filstørrelse: 50 MB")     
+        <br/>
+    </div>
+    <div class="row_line" style="margin-left: 10px">
+        @(Html.Kendo().Upload()
+              .Name("files")
+              .Messages( m => m.Select("Vælg fil..."))
+              .Async(a => a
+                              .Save("SaveFile", "Anmeldelser")
+                              .Remove("RemoveFile", "Anmeldelser")
+                              .AutoUpload(true)
+              )
+              .Events(events => events
+                                    .Success("onFileSuccess")
+                                    .Upload("onFileUpload")
+                                    .Error("onError")
+              )
+              .ShowFileList(false)
+              )
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        var winFileUpload1 = Jordflytning.ui.createModalWindow("uploadFilesWindow", 160, 410, "Vedhæft dokument", false);
+
+        $("#btnShowWinFileUpload").click(function(e) {
+            if ($("#hflLockJorden").val() != "True") {
+                e.preventDefault();
+                winFileUpload1.center();
+                winFileUpload1.open();
+            }
+        });
+        
+    });
+
+    function onError(e) {
+        // Array with information about the uploaded files
+
+        if (e.operation == "upload") {
+            alert("Filen er for stor!");
+        }
+    }
+    function onFileUpload(e) {
+        e.data = {
+            dokumentationTypeId: $("#drpDocType").val(),
+            metadataDato: $("#datDocDate").val(),
+            anmeldelseId: $("#hflAnmeldelseId").val()
+        };
+    }
+
+    function onFileSuccess() {
+        window.popFileGrid();
+        $(".k-upload-files.k-reset").find("li").remove();
+        $("#uploadFilesWindow").data("kendoWindow").close();   
+    }
+
+    function ddlAffaldTypeSelected(e) {
+        var dataItem = this.dataItem(e.item.index());
+        if (dataItem.Text == "Andet") {
+            $("#txtAndenAffaldType").removeAttr("readonly");
+        }
+        else {
+            $("#txtAndenAffaldType").val("");
+            $("#txtAndenAffaldType").attr("readonly", true);
+        }
+    };
+
+    function startChange() {
+        var endPicker = $("#datSlut").data("kendoDatePicker"),
+            startDate = this.value();
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+
+    function endChange() {
+        var startPicker = $("#datStart").data("kendoDatePicker"),
+            endDate = this.value();
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+
+    function popFileGrid() {
+        $("#GridDokumenation").data("kendoGrid").dataSource.read();
+    }
+  
+    function beregnAntalProeverPrJordmaengde() {
+        var antalProever = parseInt($("#txtAntalProever").val());
+        var jordmaengde = parseInt($("#txtForventetJordmaengdeTon").val());
+        if (antalProever > 0) {
+            $("#lblValueAntalproevertonsjordtalberegning").val(Math.floor(jordmaengde / antalProever));
+        } else {
+            $("#lblValueAntalproevertonsjordtalberegning").val("");
+        }
+    }
+  
+    function getAnmeldelseId() {
+        var a = $("#hflAnmeldelseId").val();
+        return { anmeldelseId: a };
+    }
+
+</script>
+

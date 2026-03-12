@@ -1,0 +1,25 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.ForureningskomponentModel
+
+@Html.HiddenFor(m => m.Max, new {id="hfMax"})
+@Html.HiddenFor(m => m.Id, new{id="hfId"})
+@Html.HiddenFor(m => m.Navn, new{id="hfNavn"})
+@Html.HiddenFor(m => m.Kode, new{id="hfKode"})
+@Html.HiddenFor(m => m.Enhed, new{id="hfEnhed"})
+
+@*fnavn*@
+<div class="editor-label">
+	@Html.Label("Komponent")
+</div>
+<div class="editor-field">
+    <input id="txtForureningStikAutoComplete" style="width: 300px;" class="k-autocomplete" />
+</div>
+
+@*enavn*@
+<div class="editor-label">
+	@Html.Label("Koncentration")
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Vaerdi,new{id="vaerdiEditor"})
+    @Html.Label("mg/kg")
+    @Html.ValidationMessageFor(model => model.Vaerdi)
+</div>

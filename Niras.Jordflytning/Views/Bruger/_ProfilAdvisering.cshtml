@@ -1,0 +1,115 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.ViewModels.Bruger.BrugerProfilModel
+
+<div>
+    @using (Html.BeginForm("SaveAdvis","Bruger"))
+    {
+        
+        <div id="toolbarButtonsProfil" class="toolbarButtons" >
+            <input id="btnGemBrugerAdvisering" type="submit" value="Gem" class="toolbarButton" />
+            <div style="clear: both"></div>
+        </div>
+
+        if (Model.ErJordmodtager)
+        {
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Advisering - jordmodtager</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row_line row">
+                        Når kommunen godkender en anmeldelse, hvor I er valgt som jordmodtager, sendes der et advis (e-mail) til jer. Hvis I ikke ønsker at modtage advis ved godkendelse af anmeldelse, kan denne funktion fravælges.
+                    </div>
+                    <div class="row_line row">
+                        <label style="line-height: 17px;width: auto;">Jeg ønsker ikke advis, når kommunen godkender en anmeldelse til modtageanlægget</label>
+                        @Html.CheckBoxFor(m => m.BrugerModel.Person.JordmodtagerAdvis, new { Style = "height: 16px; margin-left:10px;" })
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="controlsbox row" style="margin-top: 5px">
+            <div class="cbheader">
+                <h5>Advisering - tilkørt jordmængde</h5>
+            </div>
+            <div class="cbcontent" style="margin-left:0px; margin-right:0px;">
+                <div class="row_control">
+                    <div class="row_line">
+                        Anmelder, betaler og transportør kan vælge, om systemet skal sende et advis (e-mail), når der er kørt en bestemt mængde af den anmeldte jord. Jordmængden angives i %. Denne service forudsætter, at modtageanlægget har tilkøbt fuld adgang til FlytJord, og dermed løbende registrerer den tilkørte jordmængde.
+                        <br /><br />
+                        Hvis man på enkelte anmeldelser ønsker, at få tilsendt en advis ved andre jordmængder (%) end den angivet under brugerens profil, kan dette angives, når en anmeldelse oprettes. Jordmængde i % angives under fanen ’Kommunikation’ i forbindelse med anmeldelse af jordflytning.
+                        <br />
+                    </div>
+                    <div class="row_line row">
+                        <label>Jeg ønsker advis</label>
+                        @Html.CheckBoxFor(m => m.OenskerAlarmer, new { Id = "chkOenskerAlarm", Style = "height: 22px; margin-left:0px;" })
+                    </div>
+
+                    <div class="row_line row">
+                        <label>Jordmængde i procent</label>
+                        @Html.Kendo().NumericTextBoxFor(m => m.AlarmJordmaengdeIProcent).Spinners(false).Min(0).Max(100).Decimals(0).Format("#")
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Supplerende advisering</h5>
+            </div>
+            <div class="row_control">
+                <div class="row_line row">
+                    Når en anmeldelse om jordflytning behandles i FlytJord af de anførte parter (anmelder, kommune, transportør m.fl.), sender systemet advis (e-mail) til de involverede. Et advis kan omhandle accept/afslag af betaling (obligatorisk advis), mens andre adviser er til orientering (supplerende advis), som f.eks. når kommunen godkender en anmeldelse. Hvis du ønsker at modtage supplerende advis i forbindelse med behandlingen af en jordflytning, kan du tilvælge dette herunder.
+                    <!--Når en anmeldelse om jordflytning behandles af kommune og jordmodtager, sender FlytJord systemet advis (e-mail) til dig og andre relevante parter, for at holde jer orienteret i sagen.
+                    Disse kan ikke fravælges. 
+                    Alt efter hvilken rolle du har, kan du også tilvælge advis, jf. nedenstående skema.-->
+                </div>
+                <div class="row_line row">
+                    <label>Jeg ønsker alle advis</label>
+                    @Html.CheckBoxFor(m => m.OenskerFrivilligAdvis)
+                </div>
+                <div class="row_line row advisering">                    
+                    <!--<table cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Anmelder</th>
+                                <th>Transportør</th>
+                                <th>Betaler</th>
+                                <th>Anden part i sagen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding-left: 5px;">Når jordmodtager har accepteret modtagelse af jorden</td>
+                                <td></td>
+                                <td>x</td>
+                                <td>x</td>
+                                <td>x</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 5px;">Når betaler har accepteret betaling af jordflytningen/ændring af jordflytningen</td>
+                                <td></td>
+                                <td>x</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left: 5px;">Når jordflytningssagen afsluttes</td>
+                                <td>x</td>
+                                <td>x</td>
+                                <td>x</td>
+                                <td>x</td>
+                            </tr>
+                        </tbody>
+                    </table>-->
+                </div>
+
+            </div>
+        </div>
+      
+    
+        <div style="clear: both"></div>
+    }
+</div>

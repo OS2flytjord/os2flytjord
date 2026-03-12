@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html style="overflow-y: scroll;">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    @*CSS*@
+    @Styles.Render("~/bundles/Content/Css/Backend")
+    @Styles.Render("~/bundles/Content/Css/Common")
+    @Styles.Render("~/bundles/Content/kendo")
+
+    @*Javascripts*@
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/eventLib")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/kendo")
+		@Scripts.Render("~/bundles/jqueryval")
+	@Scripts.Render("~/bundles/iframeautoheight")
+	@Scripts.Render("~/bundles/noty")
+	@Scripts.Render("~/bundles/jordflytning")
+    @Scripts.Render("~/bundles/proj4s")
+
+    @*Sections*@
+    @RenderSection("Styles", false)
+    @RenderSection("Scripts", false)
+</head>
+    <body>
+        
+
+        <div id="container">        
+            <div id="main">
+           
+                @RenderSection("TopBarBackend", false)
+                <!-- Topbar -->
+
+
+                <div class="row">              
+                    @RenderSection("TopMenu", false)
+                </div>
+
+                <div id="body">
+                    
+                    <div class="row">
+                        <div class="column" style="width: 205px">
+                            <div id="left-sidebar">
+                                @RenderSection("LeftMenu", false)
+                            </div>
+                        </div>
+                        <div class="column" style="width: 1075px">                          
+                            <div id="content" style="width:100%">
+                                @RenderBody() @Html.Analytics()
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+	    <script id="style" type="text/javascript">
+	    	var Logger = Logger || {};
+	    	Logger.log = function (msg) {
+	    		if (typeof console != "undefined") {
+	    			console.log(msg);
+	    		}
+	    	};
+
+    		$(document).ready(function () {
+
+
+    		});
+
+
+    		/* Tab functionality */
+    		function openTab(text, url) {
+    			if (parent.addTab) {
+    				parent.addTab(text, url);
+    			}
+    		}
+            
+    		function contentFrameResized(iframeId, height) {
+    			//Logger.log("Content frame [" + iframeId + "] resized to: " + height);
+    			var windowHeight = $(window).height() - 100;
+    			//Logger.log("Window height: " + $(window).height());
+    			var iframeHeight = height + 20;
+    			if (iframeHeight < windowHeight) {
+    				iframeHeight = windowHeight;
+    			}
+    			var iframeContainerHeight = iframeHeight;
+    			//Logger.log("Iframe [" + iframeId + "] height changed to: " + iframeHeight);
+    			//Logger.log("Iframe container [" + $("iframe#" + iframeId).parent("div[id ^= 'contentTabstrip-']").attr("id") + "] height changed to: " + iframeContainerHeight);
+    			$("iframe#" + iframeId).css("height", iframeHeight);
+    			$("iframe#" + iframeId).parent("div[id ^= 'contentTabstrip-']").css("height", iframeContainerHeight);
+    			//$("iframe#" + iframeId).parent("div[id ^= 'contentTabstrip-']").css("border", "solid 1px red");
+    		}
+
+    	</script>
+    </body>
+</html>

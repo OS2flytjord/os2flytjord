@@ -1,0 +1,469 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.ViewModels.Backend
+@model FaktureringViewModel
+
+@{
+    ViewBag.Title = "Fakturering administration";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+<div class="row" style="margin-top: 10px; width: 1003px;">
+    <div style="border: 1px solid #ccc">
+        <div class="cbheader">
+            <h5>Fakturering</h5>    
+        </div>
+        <div class="row_line" style="padding:10px;">
+            @if (Model.Anmeldelser.Count > 0)
+            {
+                <b>@Model.Anmeldelser.Count anmeldelse@(Model.Anmeldelser.Count == 1 ? "" : "r") frigivet til fakturering.</b><br />
+                <br />
+                <input type="button" value="Opret eksport" id="createFaktureringUdtraek" /> <input type="button" value="Vis liste" id="toggleList" /> <input type="button" value="Genindlæs" onclick="javascript:location.reload()" id="reload" /><br />
+                <div style="clear: both"></div>
+                <div id="anmeldelserListe" style="display: none; max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                    <table style="width: 100%; border: 1px solid #ccc; font-size: 12px;" cellspacing="0" cellpadding="3">
+                        <tr style="background-color: #00ADEE; color: white;">
+                            <td style="text-align: left;">Løbenummer</td>
+                            <td style="text-align: left;">Adresse</td>
+                            <td style="text-align: left;">Modtageranlæg</td>
+                            <td style="text-align: left;">Indsendt</td>
+                            <td style="text-align: left;">Besluttet</td>
+                            <td style="text-align: left;">Frigivet</td>
+                        </tr>
+                        @foreach (var anmelselse in Model.Anmeldelser)
+                        {
+                            <tr>
+                                <td style="border-top: 1px solid #ccc; border-right: 1px solid #ccc;">@anmelselse.Nummer</td>
+                                <td style="border-top: 1px solid #ccc; border-right: 1px solid #ccc;">@anmelselse.Oprindelsessted.Adresse, @anmelselse.Oprindelsessted.Postnummer @anmelselse.Oprindelsessted.PostDistrikt</td>
+                                <td style="border-top: 1px solid #ccc; border-right: 1px solid #ccc;">@anmelselse.ModtagerAnlaeg.Navn</td>
+                                <td style="border-top: 1px solid #ccc; border-right: 1px solid #ccc;">@anmelselse.AnmeldelseEffektivStatus.Afsendt.Value.ToString("dd-MM-yyyy")</td>
+                                <td style="border-top: 1px solid #ccc; border-right: 1px solid #ccc;">@anmelselse.Gebyr.BeslutningsDato.Value.ToString("dd-MM-yyyy")</td>
+                                <td style="border-top: 1px solid #ccc; ">@anmelselse.Gebyr.FrigivetTilFaktureringDato.Value.ToString("dd-MM-yyyy")</td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            }
+            else
+            {
+                <i>Ingen anmeldelser frigivet til fakturering.</i>
+            }
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+    <div class="row_line">
+        <br />
+    </div>
+    <div class="cbheader">
+        <h5>Eksporteret</h5>
+    </div>
+    <div class="row_line">
+        @(Html.Kendo().Grid<Niras.Jordflytning.ViewModels.Backend.FaktureringUdtraekViewModel>()
+        .Name("GridGebyrUdtraek")
+        .HtmlAttributes(new { style = "font-size:12px; margin-top:-5px;" })
+        .ToolBar(toolbar =>
+        {
+            //toolbar.Custom().Text("Opret eksport").HtmlAttributes(new { id = "CreateKMDOpusExport" });//.Action("CreateKMDOpus", "Fakturering");
+        })
+        .Columns(columns =>
+        {
+            columns.Bound(x => x.Navn).Title("Navn");
+            columns.Bound(x => x.Oprettet).Format("{0:yyyy-MM-dd HH:mm:ss}").Title("Oprettet");
+            columns.Bound(x => x.OprettetAf.Navn).Title("Oprettet af");
+            columns.Bound(x => x.Overfoert).Format("{0:yyyy-MM-dd HH:mm:ss}").Title("Overført");
+            columns.Bound(x => x.OverfoertAf.Navn).Title("Overført af");
+            columns.Command(command =>
+            {
+                command.Custom("Download").Click("downloadExportFromGrid");
+                command.Custom("Rediger").Click("editFromGrid");
+                command.Custom("Marker").Click("markAsDeliveredFromGrid");
+                command.Custom("Slet").Click("deleteFromGrid");
+            }).Width(300);
+
+        })
+        .Sortable()
+        .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 20, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))
+        .Events(events => events
+            .DataBound("onGridGebyrUdtraekDataBound")
+        )
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(10)
+            .Model(model => model.Id(p => p.Navn))
+            .ServerOperation(false)
+            .Read(read => read.Action("ListFaktureringUdtraek", "Fakturering"))
+            .Create(create => create.Action("CreateFaktureringUdtraek", "Fakturering"))
+    ))
+    </div>
+</div>
+<div id="divCreateDialog" style="display: none;">
+    <div class="row_line">
+        <label>Antal anmeldelser:</label>
+        <label id="divCreateDialog_number">0</label>
+    </div>
+    <div class="row_line">
+        <label for="divCreateDialog_date">Skæringsdato:</label>
+        <input type="text" id="divCreateDialog_date" />
+    </div>
+    <div class="row_line">
+        <label for="divCreateDialog_name">Navn:</label>
+        <input type="text" maxlength="255" id="divCreateDialog_name" autocomplete="off" />
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line" style="margin-top: 15px;">
+        <button id="divCreateDialog_close">Luk</button>
+        <button id="divCreateDialog_save">Opret</button>
+    </div>
+</div>
+<div id="divEditDialog" style="display: none;">
+    <div class="row_line">
+        <label for="divEditDialog_name">Navn:</label>
+        <input type="text" maxlength="255" id="divEditDialog_name" autocomplete="off" />
+        <input type="hidden" id="divEditDialog_id" />
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line">
+        <label for="divEditDialog_rebuild">Overskriv udtræk:</label>
+        <input type="checkbox" id="divEditDialog_overwrite" />
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line" style="margin-top: 15px;">
+        <button id="divEditDialog_close">Luk</button>
+        <button id="divEditDialog_save">Gem</button>
+    </div>
+</div>
+<div id="divMarkDialog" style="display: none;">
+    <div class="row_line">
+        Bekræft at du vil markere <span id="divMarkDialog_name"></span> som overført til fakturering
+        <input type="hidden" id="divMarkDialog_id" />
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line" style="margin-top: 15px;">
+        <button id="divMarkDialog_close">Luk</button>
+        <button id="divMarkDialog_save">Marker</button>
+    </div>
+</div>
+<div id="divDeleteDialog" style="display: none;">
+    <div class="row_line">
+        Bekræft at du vil slette <span id="divDeleteDialog_name"></span>
+        Dette vil
+        <input type="hidden" id="divDeleteDialog_id" />
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line">
+        Dette vil føre anmeldelserne tilbage til listen, som igen værende frigivne til fakturering.
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line" style="margin-top: 15px;">
+        <button id="divDeleteDialog_close">Luk</button>
+        <button id="divDeleteDialog_save">Slet</button>
+    </div>
+</div>
+<div id="divProgress" style="text-align: center; display: none;">
+    <div style="text-align: center; border: 2px solid #E7E7E8; border-radius: 25px; position: absolute; top: 40%; left: 43%; background-color: whitesmoke; opacity: 0.8; z-index: 100">
+        <img src="~/Content/Icons/loading.gif" />
+    </div>
+</div>
+<script>
+
+    var gridFunctions = {
+        download: function (id) { },
+        edit: function (id, navn) { },
+        markAsDelivered: function (id, navn) { },
+        delete: function (id, navn) { },
+        dataReady: function (e) { },
+    };
+
+    $(document).ready(function () {
+        var anmeldelserListe = $("#anmeldelserListe");
+        var toggleList = $("#toggleList");
+        var grid = $("#GridGebyrUdtraek");
+
+        var btnMark = $("#MarkKMDOpusExport");
+        var btnCreate = $("#createFaktureringUdtraek");
+
+        var dialogCreate = Jordflytning.ui.createModalWindow("divCreateDialog", 160, 350, "Opret eksport", false);
+        var dialogCreateDiv = $("#divCreateDialog");
+        var dialogCreateClose = $("#divCreateDialog_close");
+        var dialogCreateSave = $("#divCreateDialog_save");
+        var dialogCreateName = $("#divCreateDialog_name");
+        var dialogCreateNumber = $("#divCreateDialog_number");
+
+        var dialogCreateDate = $("#divCreateDialog_date");
+        dialogCreateDate.kendoDatePicker({
+            format: "dd-MM-yyyy",
+            dateInput: true,
+            value: new Date(),
+            change: function () {
+                setCreateDialogCalculatedNumber();
+            }
+        });
+
+        var dialogEdit = Jordflytning.ui.createModalWindow("divEditDialog", 140, 350, "Rediger eksport", false);
+        var dialogEditDiv = $("#divEditDialog");
+        var dialogEditClose = $("#divEditDialog_close");
+        var dialogEditSave = $("#divEditDialog_save");
+        var dialogEditName = $("#divEditDialog_name");
+        var dialogEditOverwrite = $("#divEditDialog_overwrite");
+        var dialogEditId = $("#divEditDialog_id");
+
+        var dialogMark = Jordflytning.ui.createModalWindow("divMarkDialog", 100, 350, "Marker eksport", false);
+        var dialogMarkDiv = $("#divMarkDialog");
+        var dialogMarkClose = $("#divMarkDialog_close");
+        var dialogMarkSave = $("#divMarkDialog_save");
+        var dialogMarkId = $("#divMarkDialog_id");
+        var dialogMarkName = $("#divMarkDialog_name");
+
+        var dialogDelete = Jordflytning.ui.createModalWindow("divDeleteDialog", 120, 350, "Slet eksport", false);
+        var dialogDeleteDiv = $("#divDeleteDialog");
+        var dialogDeleteClose = $("#divDeleteDialog_close");
+        var dialogDeleteSave = $("#divDeleteDialog_save");
+        var dialogDeleteId = $("#divDeleteDialog_id");
+        var dialogDeleteName = $("#divDeleteDialog_name");
+
+        var itemsReady = [@Html.Raw(string.Join(", ", Model.Anmeldelser.Select(x => string.Format("{{ id: '{0}', ts: {1} }}", x.Id, new DateTimeOffset(x.Gebyr.FrigivetTilFaktureringDato.Value.Date).ToUnixTimeMilliseconds()))))];
+
+        toggleList.click(function () {
+            anmeldelserListe.toggle();
+            toggleList.val(anmeldelserListe.is(":visible") ? "Skjul liste" : "Vis liste");
+        });
+
+        var setCreateDialogCalculatedNumber = function () {
+            var date = dialogCreateDate.data("kendoDatePicker").value();
+            if (date == null)
+                dialogCreateNumber.html(0);
+            else {
+                var ts = date.getTime();
+                dialogCreateNumber.html(itemsReady.filter(x => x.ts <= ts).map(x => x.id).length);
+            }
+        };
+
+        btnCreate.click(function (e) {
+            e.preventDefault();
+            showCreateDialog();
+        });
+
+        dialogCreateClose.click(function (e) {
+            e.preventDefault();
+            dialogCreateDiv.data("kendoWindow").close();
+        });
+
+        dialogCreateSave.click(function (e) {
+            e.preventDefault();
+            createExport();
+        });
+
+        dialogEditClose.click(function (e) {
+            e.preventDefault();
+            dialogEditDiv.data("kendoWindow").close();
+        });
+
+        dialogEditSave.click(function (e) {
+            e.preventDefault();
+            editExport();
+        });
+
+        dialogMarkClose.click(function (e) {
+            e.preventDefault();
+            dialogMarkDiv.data("kendoWindow").close();
+        });
+
+        dialogMarkSave.click(function (e) {
+            e.preventDefault();
+            markAsDelivered()
+        });
+
+        dialogDeleteClose.click(function (e) {
+            e.preventDefault();
+            dialogDeleteDiv.data("kendoWindow").close();
+        });
+
+        dialogDeleteSave.click(function (e) {
+            e.preventDefault();
+            deleteExport()
+        });
+
+        var showCreateDialog = function () {
+            dialogCreateDiv.data("kendoWindow").center();
+            dialogCreateDiv.data("kendoWindow").open();
+            setCreateDialogCalculatedNumber();
+        };
+
+        var showEditDialog = function () {
+            dialogEditDiv.data("kendoWindow").center();
+            dialogEditDiv.data("kendoWindow").open();
+        };
+
+        var showMarkDialog = function () {
+            dialogMarkDiv.data("kendoWindow").center();
+            dialogMarkDiv.data("kendoWindow").open();
+        };
+
+        var showDeleteDialog = function () {
+            dialogDeleteDiv.data("kendoWindow").center();
+            dialogDeleteDiv.data("kendoWindow").open();
+        };
+
+        var createExport = function () {
+            var date = dialogCreateDate.data("kendoDatePicker").value();
+            if (date == null)
+                return;
+
+            $("#divProgress").show();
+            var ts = date.getTime();
+            var matchedIds = itemsReady.filter(x => x.ts <= ts).map(x => x.id);
+            setTimeout(function () {
+                $.ajax({
+                type: 'POST',
+                    url: '../Fakturering/CreateFaktureringUdtraek',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        Ids: matchedIds,
+                        Navn: dialogCreateName.val(),
+                        Skaeringsdato: date
+                    }),
+                    success: function (data) {
+                        $("#divProgress").hide();
+                        grid.data("kendoGrid").dataSource.read();
+                        dialogCreateDiv.data("kendoWindow").close();
+                        location.reload();
+                    },
+                    error: function (error) {
+                        $("#divProgress").hide();
+                    }
+                });
+
+            }, 10);
+        };
+
+        var editExport = function () {
+            $("#divProgress").show();
+            setTimeout(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '../Fakturering/EditFaktureringUdtraek',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        Id: dialogEditId.val(),
+                        Navn: dialogEditName.val(), 
+                        Overskriv: dialogEditOverwrite.is(":checked")
+                    }),
+                    success: function (data) {
+                        $("#divProgress").hide();
+                        grid.data("kendoGrid").dataSource.read();
+                        dialogEditDiv.data("kendoWindow").close();
+                    },
+                    error: function (error) {
+                        $("#divProgress").hide();
+                    }
+                });
+
+            }, 10);
+        };
+
+        var markAsDelivered = function () {
+            $.ajax({
+            type: 'POST',
+                url: '../Fakturering/MarkAsDelivered',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({ Id: dialogMarkId.val()}),
+                success: function (data) {
+                    if (data.Success)
+                        location.reload();
+                    $("#divProgress").hide();
+                },
+                error: function (error) {
+                    $("#divProgress").hide();
+                }
+            });
+        };
+
+        var deleteExport = function () {
+            $.ajax({
+                type: 'POST',
+                url: '../Fakturering/Delete',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({ Id: dialogDeleteId.val() }),
+                success: function (data) {
+                    if (data.Success)
+                        location.reload();
+                    $("#divProgress").hide();
+                },
+                error: function (error) {
+                    $("#divProgress").hide();
+                }
+            });
+        };
+
+        var downloadExport = function (id) {
+            location.href = "../Fakturering/DownloadFaktureringUdtraekKMDOpus/" + id;
+        };
+
+        var dataReady = function () {
+        };
+
+        // Export functions for the grid:
+        gridFunctions.download = downloadExport;
+        gridFunctions.edit = function (id, navn) {
+            dialogEditId.val(id);
+            dialogEditName.val(navn);
+            showEditDialog();
+        };
+        gridFunctions.markAsDelivered = function (id, navn) {
+            dialogMarkId.val(id);
+            dialogMarkName.html(navn);
+            showMarkDialog();
+        };
+        gridFunctions.delete = function (id, navn) {
+            dialogDeleteId.val(id);
+            dialogDeleteName.html(navn);
+            showDeleteDialog();
+        };
+        gridFunctions.dataReady = dataReady;
+
+    });
+    // The grid needs this exposed
+    var downloadExportFromGrid = function (e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        gridFunctions.download(dataItem.Id);
+    };
+    var editFromGrid = function (e) {
+        e.preventDefault();
+        if ($(e.currentTarget).hasClass("k-state-disabled"))
+            return;
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        gridFunctions.edit(dataItem.Id, dataItem.Navn);
+    };
+    var markAsDeliveredFromGrid = function (e) {
+        e.preventDefault();
+        if ($(e.currentTarget).hasClass("k-state-disabled"))
+            return;
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        gridFunctions.markAsDelivered(dataItem.Id, dataItem.Navn);
+    };
+    var deleteFromGrid = function (e) {
+        e.preventDefault();
+        if ($(e.currentTarget).hasClass("k-state-disabled"))
+            return;
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        gridFunctions.delete(dataItem.Id, dataItem.Navn);
+    };
+    var onGridGebyrUdtraekDataBound = function (e) {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function (index) {
+            var model = grid.dataItem(this);
+            if (model.Overfoert != null) {
+                $(this).find(".k-grid-Rediger").addClass("k-state-disabled");
+                $(this).find(".k-grid-Marker").addClass("k-state-disabled");
+                $(this).find(".k-grid-Slet").addClass("k-state-disabled");
+            } else if (index > 0) {
+                $(this).find(".k-grid-Slet").addClass("k-state-disabled");
+            }
+
+        });
+        gridFunctions.dataReady(e);
+    };
+</script>

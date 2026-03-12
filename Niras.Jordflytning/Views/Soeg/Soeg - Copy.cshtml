@@ -1,0 +1,255 @@
+﻿@using Niras.Jordflytning.ViewModels.Backend
+@model Niras.Jordflytning.ViewModels.Anmeldelse.SoegModel
+
+@{
+  ViewBag.Title = "Søg";
+  Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+@section BreadCrumb{
+- SØG 
+}
+
+@section TopMenu {}
+
+
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            //Validering af dansk datoformat
+            $.validator.methods.date = function (value, element) {
+                return this.optional(element) || (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}(\s\d{2}:\d{2}(:\d{2})?)?$/.test(value)
+                    && !/Invalid|NaN/.test(new Date(value.replace("/", "-").split("-")[2], value.replace("/", "-").split("-")[1], value.replace("/", "-").split("-")[0])));
+            };
+            kendo.culture("da-DK");
+
+            $("#GridSoegeresultater tbody tr").hover(function() {
+                $(this).toggleClass("k-state-hover");
+            });
+        });
+
+    function GridSoegeresultaterDataBound() {
+        $("#GridSoegeresultater tbody tr").hover(function () {
+            $(this).toggleClass("k-state-hover");
+        });
+    }
+    
+    function GridSoegeresultaterOnChange(event) {
+
+        var eventTarget = (event.target) ? $(event.target) : $(event.srcElement);
+        eventTarget.html("<h1>ghg</h1>");
+        
+
+        var grid = $("#GridSoegeresultater").data("kendoGrid");
+        var id;
+        grid.select().each(function () {
+            var dataItem = grid.dataItem($(this));
+            id = dataItem.AnmeldelseId;
+        });
+        window.location.href = "@Url.Action("Rediger", "Anmeldelser")" + "?anmeldelseId=" + id;
+    }
+
+    function onSelectedAnmelder(e) {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem != null) {
+            var dataItem = this.dataItem(e.item.index());
+            $("#hfAnmelderId").val(dataItem.Value);
+        }
+    }
+
+    function onSelectedTransportoer(e) {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem != null) {
+            var dataItem = this.dataItem(e.item.index());
+            $("#hftransportoerId").val(dataItem.Value);
+        }
+    }
+
+    function onSelectedModtager(e) {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem != null) {
+            var dataItem = this.dataItem(e.item.index());
+            $("#hfModtagerId").val(dataItem.Value);
+        }
+    }
+
+    function onSelectedSoegning(e) {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem != null) {
+            var dataItem = this.dataItem(e.item.index());
+            $("#hfSoegning").val(dataItem.Value);
+            $("#frmSoeg").submit();
+        }
+    }
+   
+</script>
+
+<div id="createVognLaessWindow" style="display: none">
+   <h1>Vognlæs</h1>
+</div>
+
+
+
+@using (Html.BeginForm("Soeg", "Soeg", FormMethod.Post, new { id = "frmSoeg" }))
+{
+  @Html.HiddenFor(m => m.SelectedSoegeType, new { id = "hfSoegning" })
+  @Html.HiddenFor(m => m.AnmelderId, new { id = "hfAnmelderId" })
+  @Html.HiddenFor(m => m.TransportoerId, new { id = "hftransportoerId" })
+  @Html.HiddenFor(m => m.ModtagerId, new { id = "hfModtagerId" })
+    
+  @Html.ValidationSummary(true)
+    
+    <section id="soegForm">
+
+        <div class="toolbarButtons">
+            <input id="btnSoeg" name="command" type="submit" value="Søg" class="toolbarButton" />
+            <input id="btnNulstilSoegning" name="command" type="submit" value="Ny søgning" class="toolbarButton" />
+            &nbsp;&nbsp;&nbsp;
+                            @(Html.Kendo().DropDownListFor(m => m.SelectedSoegeType)
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .BindTo(Model.SoegeTyper)
+                                  .Events(e => e.Select("onSelectedSoegning"))
+                                  .HtmlAttributes(new { style = "width:240px;heigth:25px" })
+                                  )  
+
+        </div>
+
+        <div class="controlsbox" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Søgeparametre</h5>
+            </div>
+            <div class="row_control">
+                <div class="row">
+                    <div class="column">
+                        <div class="row_line" style="height:31px;">
+                            @Html.Label("Løbenummer", new { id = "lblLoebenr" })
+                            @Html.TextBoxFor(m => m.LoebeNr, new { Id = "loebeNr", style = "width: 253px; " })
+                        </div>
+                        <div style="clear: both"></div>
+                        <div class="row_line" style="height:31px;">
+                            @Html.Label("Oprindelsessted", new { id = "lblOprindelsessted" })
+                            @Html.TextBoxFor(m => m.Adresse, new { Id = "adresse", style = "width: 253px;" })
+                        </div>
+                        <div class="row_line">
+                            <label>Oprettelsesdato</label>
+                                @(Html.Kendo().DatePickerFor(m => m.EfterDato)
+                                        .HtmlAttributes(new { style = "width:120px", Class="classiclook_kendo_workaround" }))
+                                <img src="~/Content/Icons/arrow_right.png" alt="til" title="til" height="20" width="20" style="vertical-align: middle"/>
+                                @(Html.Kendo().DatePickerFor(m => m.FoerDato)
+                                        .HtmlAttributes(new { style = "width:120px", Class="classiclook_kendo_workaround"  }))
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="row_line">
+                            <label>Modtager</label>
+                            @(Html.Kendo().DropDownListFor(m => m.ModtagerId)
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .BindTo(Model.AnvendteModtagerList)
+                                  .Events(e => e.Select("onSelectedModtager"))
+                                  .HtmlAttributes(new { style = "width:240px" })
+                                  )
+                        </div>
+                        <div class="row_line">
+                            <label>Transportør</label>
+                            @(Html.Kendo().DropDownListFor(m => m.TransportoerId)
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .BindTo(Model.AnvendteTransportoerList)
+                                  .Events(e => e.Select("onSelectedTransportoer"))
+                                  .HtmlAttributes(new { style = "width:240px" })
+                                  )
+                        </div>
+                        <div class="row_line">
+                            <label>Anmelder</label>
+                            @(Html.Kendo().DropDownListFor(m => m.AnmelderId)
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .BindTo(Model.AnvendteAnmelderList)
+                                  .Events(e => e.Select("onSelectedAnmelder"))
+                                  .HtmlAttributes(new { style = "width:240px" })
+                                  )
+                        </div>
+                        <div class="row_line">
+                            <label>Søg kun i mine</label>
+                            <label>@Html.CheckBoxFor(jm => jm.IsKunMine, new { style = "height: 22px;" })&nbsp;</label>
+                        </div>      
+                        <div style="clear: both"></div>                
+                        <div class="row_line">
+                            <label>Inkl. afsluttede</label>
+                            <label>@Html.CheckBoxFor(jm => jm.InclAfsluttede, new { style = "height: 22px;" })&nbsp;</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="clear: both"></div>
+        </div>
+
+
+        <div id="divSoegResult" class="controlsbox" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Søgeresultat</h5>
+            </div>
+            <div class="row_line">
+                @Html.TextBoxFor(m => m.SoegningBeskrivelse, new { Id = "soegDesc", Class="desc_textbox", Readonly ="True", Style="width:99%"})
+            </div>           
+            <div class="row_line">                
+                @(Html.Kendo().Grid(Model.SoegeResultatList)
+                      .Name("GridSoegeresultater")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new[] { 10, 20, 100, 500 }).Messages(x => x.ItemsPerPage("Rækker pr. side")))
+                      .HtmlAttributes(new { style = "font-size:12px;" })
+                      .Groupable()
+                      .Sortable()
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.AnmeldelseId).Hidden(true);
+                              columns.Bound(a => a.LoebeNr).Title("Løbenr.").Width(20);
+                              columns.Bound(a => a.OprindelsesSted).Title("Oprindelsessted").Width(220).Encoded(false);
+                              columns.Bound(a => a.Koerselsperiode).Title("Kørselsperiode").Width(90);
+                              columns.Bound(a => a.Transportoer).Title("Transportør").Encoded(false);
+                              columns.Bound(a => a.Betaler).Title("Betaler").Encoded(false);
+                              columns.Bound(a => a.KoertJordMaengde).Title("Kørt/forventet<br/>jordmængde");
+                              columns.Bound(a => a.SenesteStatus).Title("Status").Encoded(false).Width(280);
+
+                              columns.Bound(p => p.EksternVognlaesLink).Title("").Encoded(false);
+                              columns.Bound(p => p.TilknytVognLaesLink).Title("").Encoded(false);
+                              columns.Command(command => command.Custom("Nyt vognlæs").Click("showDetails").HtmlAttributes(new { @class = "Action" }));      
+                                                                    
+                            
+                              //Jira JF-444. Tilføj en kolonne med et brev icon. 
+                          })
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Model(model => model.Id(m => m.AnmeldelseId))
+                                                          .ServerOperation(false)
+                                                          .PageSize(100))
+
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+
+                      .Events(events => events
+                                            .Change("GridSoegeresultaterOnChange")
+                                            .DataBound("GridSoegeresultaterDataBound"))
+                      )
+            </div>
+            <div style="clear: both"></div>
+            
+            <script type="text/javascript">
+            
+
+                function showDetails(e) {
+                  
+               
+
+                 alert(1);
+                return false;
+            }
+            </script>
+
+
+           
+        </div>
+    </section>
+
+}

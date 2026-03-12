@@ -1,0 +1,31 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.StikproeveModel
+
+
+<div style="clear: both"></div>
+
+<div class="controlsbox">
+	<div class="cbheader">
+		<h5>Historik</h5>
+	</div>
+  <div class="row_control">
+	@(Html.Kendo().Grid(Model.StatusStikproeve)
+          .Name("GridStikproeveHistorik")
+          .Pageable()
+          .Columns(columns =>
+          {
+              columns.Bound(p => p.Tid).Title("Tidspunkt").Width(250).Format("{0:dd-MM-yyyy H:mm:ss}");
+              columns.Bound(p => p.StatusStikproeveType.Navn).Title("Handling").Width(250);
+              columns.Bound(p => p.PersonNavn).Title("Person");
+          })
+          .Selectable()
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .ServerOperation(false)
+              .Model(model =>{model.Id(p => p.Id);})
+              .Read(read => read.Action("GridStikproeveHistorik_Read", "Stikproeve").Data("additionalInfo"))
+              )
+          )
+    </div>
+</div>
+<div style="clear: both"></div>

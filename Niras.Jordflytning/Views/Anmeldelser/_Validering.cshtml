@@ -1,0 +1,48 @@
+﻿@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+<div id="divValideringListe">
+    @if (Model.ValideringList != null && Model.ValideringList.Count > 0)
+    {
+        @:<p>
+            string mes = "";
+            foreach (var ss in Model.ValideringList)
+            {
+                @Html.Raw(ss) @:<br />
+            }
+
+        @:</p>
+    }
+</div>
+<div id="divValideringJordforureningopslagAdvarsel"></div>
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <script type="text/javascript">
+    displayMessage('@ViewBag.Message');
+    </script>
+}
+
+
+@*//Disse Hiddenfields er her i dette partial view, da det er dette partial view som bliver opdateret ved ajax gem*@
+<input id="hflAnmeldelseId" name="Anmeldelse.Id" type="hidden" value="@Model.Anmeldelse.Id.ToString()" />@* HiddenFor renderer af mystiske årsager Guid.Empty *@
+
+@if (Model.Anmeldelse != null && Model.Anmeldelse.Oprindelsessted != null && Model.Anmeldelse.Oprindelsessted.Id != Guid.Empty)
+{
+    @Html.HiddenFor(m => m.Anmeldelse.Oprindelsessted.Id, new { Id = "hflOprindelsesstedId" })
+}
+@Html.HiddenFor(m => m.Anmeldelse.Anmelder.Id, new { Id = "hflAnmelderId" })
+@Html.HiddenFor(m => m.EditModeEksternBruger)
+@Html.HiddenFor(m => m.LockSted, new { Id = "hflLockSted" })
+@Html.HiddenFor(m => m.LockJorden, new { Id = "hflLockJorden" })
+@Html.HiddenFor(m => m.LockModtagerTransportoer, new { Id = "hflLockModtagerTransportoer" })
+@Html.HiddenFor(m => m.LockBetaler, new { Id = "hflLockBetaler" })
+@Html.HiddenFor(m => m.LockKommunikation, new { Id = "hflLockKommunikation" })
+@Html.HiddenFor(m => m.LockButtonGem, new { Id = "hflLockButtonGem" })
+@Html.HiddenFor(m => m.LockButtonSendTilRaadgiver, new { Id = "hflLockButtonSendTilRaadgiver" })
+@Html.HiddenFor(m => m.LockButtonIndsend, new { Id = "hflLockButtonIndsend" })
+@Html.HiddenFor(m => m.LockButtonReviderAnmeldelse, new { Id = "hflLockButtonReviderAnmeldelse" })
+@Html.HiddenFor(m => m.LockButtonAfslut, new { Id = "hflLockButtonAfslut" })
+@Html.HiddenFor(m => m.Anmeldelse.Anmelder.Id, new { Id = "hflAnmelderId" })
+@Html.HiddenFor(m => m.IndeholderVognlaes, new { Id = "hflIndeholderVognlaes" })
+@Html.HiddenFor(m => m.SelectedJordklassifikationType, new { Id = "hflJordKlassifikationType" })
+@Html.HiddenFor(m => m.Revision, new { Id = "hflRevision" })
+@Html.HiddenFor(m => m.Anmeldelse.RevisionAfAnmeldelse)
+@Html.HiddenFor(m => m.Anmeldelse.Jord.JordKlassifikationTypeId)

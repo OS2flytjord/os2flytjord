@@ -1,0 +1,439 @@
+﻿@model Niras.Jordflytning.ViewModels.Bruger.BrugerProfilModel
+
+<style type="text/css">
+    .field-validation-error{clear:left}
+
+    #textContainer h1 {
+        color: #676767;
+        margin: 0 0 20px 0;
+    }
+
+    .radiobt {
+        clear: right;
+        float: left;
+        margin-left: 10px;
+    }
+
+    .radiobtlbl {
+        clear: right;
+        float: left;
+        margin-left: 10px;
+        width:350px !important;
+    }
+
+    .infotext {
+        margin-left: 40px;
+    }
+
+    .centered {
+       z-index:100000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+}
+       
+</style>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var declineGdpr = true;
+        $("#info_trans").hide();
+        $("#infobox").hide();
+        $("#info_anden").hide();
+
+        /* Preload GDPR page */
+        $("#gdprInfo").load("/cookies.html #textContainer");
+        var winGdpr = Jordflytning.ui.createModalWindow("winGdpr", 600, 800, "Cookie og persondata politik", false);
+        var winBrugerprofil = Jordflytning.ui.createModalWindow("winBrugerprofil", 450, 400, "Opret bruger", false);
+    
+        $("#btnGdprDecline").click(function () {
+            declineGdpr = true;
+            winGdpr.close();
+        });
+        $("#btnGdprAccept").click(function () {
+            declineGdpr = false;
+            winGdpr.close();
+        });
+
+        $("#chkBoxFirma").attr('disabled', true);
+        $("#chkBoxFirma_row").hide();
+        $("#BrugerModel_Transportoer").attr('disabled', true);
+        $("#BrugerModel_Transportoer_row").hide();
+        $("#spinner").hide();
+         
+        if ($('#BrugerModel_Person_Email').val() == '') {
+            winGdpr.bind("close", function (e) {
+                if (declineGdpr === true) {
+                    $("#spinner").show();
+                    location.href = '/Default/startside';
+                } else {
+                    winBrugerprofil.center();
+                    winBrugerprofil.open();
+                };
+            });
+            winGdpr.center();
+            winGdpr.open();
+        }
+
+    setFirmaGroupDisplay();
+    $("#chkBoxFirma").click(function () {
+      setFirmaGroupDisplay();
+    });
+
+        $('#btnGemBruger').click(function() {
+            $("#chkBoxFirma").attr('disabled', false);
+            //$("#chkBoxFirma_row").show();
+            $("#BrugerModel_Transportoer").attr('disabled', false);
+            $("#BrugerModel_Transportoer_row").show();
+            $("#spinner").show();
+
+        });
+
+        $('#btnBrugerType').click(function () {
+
+            if ($('#ingenvalgt').prop('checked') == true) {
+                alert('Vælg en bruger type for at fortsætte!');
+                return false;
+            }
+
+            winBrugerprofil.close();
+            return true;
+        });
+
+        $("#winBrugerprofil").closest(".k-window").find('.k-i-close').on('click', function () {
+            winBrugerprofil.close();
+            $("#spinner").show();
+            location.href = '/Default/startside';
+        });
+
+
+        //$('.k-i-close').on('click', function () {
+        //    winBrugerprofil.close();
+        //    $("#spinner").show();
+        //    location.href = '/Default/startside';
+        //});
+
+        $(document).keyup(function(e) {
+            if (e.keyCode == '27') {
+                winBrugerprofil.close();
+                $("#spinner").show();
+                location.href = '/Default/startside';
+            }
+        });
+
+
+        
+
+    $(".radiobt").change(function () {
+        if (this.id == 'ingenvalgt') {
+            $("#chkBoxFirma").prop("checked", false);
+            $("#chkBoxFirma_row").hide();
+            $("#BrugerModel_Transportoer").prop("checked", false);
+            $("#BrugerModel_Transportoer_row").hide();
+            $("#firmaGroup").hide();
+        }
+        else if (this.id == 'almindeligbruger') {
+            $("#chkBoxFirma").prop("checked", false);
+            $("#chkBoxFirma_row").hide();
+            $("#BrugerModel_Transportoer").prop("checked", false);
+            $("#BrugerModel_Transportoer_row").hide();
+            $("#firmaGroup").hide();
+            $("#infobox").hide();
+        }
+        else if (this.id == 'transportør') {
+            $("#chkBoxFirma").prop("checked", true);
+            //$("#chkBoxFirma_row").show();
+            $("#BrugerModel_Transportoer").prop("checked", true);
+            $("#BrugerModel_Transportoer_row").show();
+            $("#firmaGroup").show();
+            $("#info_trans").show();
+            $("#info_privat").hide();
+            $("#info_anden").hide();
+            $("#infobox").show();
+        }
+        else if (this.id == 'jordmodtager') {
+            $("#chkBoxFirma").prop("checked", true);
+            //$("#chkBoxFirma_row").show();
+            $("#BrugerModel_Transportoer").prop("checked", false);
+            $("#BrugerModel_Transportoer_row").hide();
+            $("#firmaGroup").show();
+            $("#info_trans").hide();
+            $("#info_privat").hide();
+            $("#info_anden").show();
+            $("#infobox").show();
+        }
+    });
+
+    });
+
+
+
+  function setFirmaGroupDisplay() {
+    var firma = document.getElementById('chkBoxFirma');
+    if (firma.checked) {
+      $("#firmaGroup").show();
+    } else {
+      $("#firmaGroup").hide();
+    }
+  }
+
+</script>
+<div>
+
+    <div id="winGdpr" style="display: none">
+        <p class="infotext" id="gdprInfo">Cookie og persondata politik (Denne tekst udskiftes runtime)</p>
+        <div style="text-align:center;">
+            <input type="button" id="btnGdprDecline" value="Annuller" class="toolbarButton" style="float:none;" />
+            <input type="button" id="btnGdprAccept" value="Fortsæt" class="toolbarButton" style="float:none;" />
+            <br />
+            <br />
+        </div>
+    </div>
+
+    <div id="winBrugerprofil" style="display: none">
+
+        <div class="row">
+            <input type="radio" name="brugertype" id="ingenvalgt" checked="checked" style="display: none; position: absolute">
+        </div>
+
+        <div class="row" style="width: 360px;">
+            <br />
+            <label for="almindeligbruger" class="radiobtlbl"><input type="radio" name="brugertype" id="almindeligbruger" class="radiobt">Privat</label>
+            <a id="info-brugeroprettelse" style="float: right; height: 16px; width: 16px; border: 0; margin-top: -22px; margin-left: -7px; margin-right: 10px; cursor: pointer;" href="https://youtu.be/weqb7dz6EQg" target="_blank">
+                <img src="/Content/Icons/info_button.png" style="height: 16px; width: 16px; border: 0px; margin-right: 10px;" />
+            </a>
+            <br />
+            <p class="infotext">Hvis du som privatperson vil kunne oprette anmeldelser, skal du oprette dig som Privat bruger.</p>
+            <br />
+
+            <label for="transportør" class="radiobtlbl"><input type="radio" name="brugertype" id="transportør" class="radiobt">Transportør</label>
+            <br />
+            <p class="infotext">Hvert transportørfirma skal oprette én og kun én transportør-bruger. Denne bruger vil repræsentere firmaet i FlytJord.dk og vil f.eks. modtage e-mails om godkendte jordflytninger. Øvrige transportør-medarbejdere i samme firma oprettes som Virksomhed.</p>
+            <br />
+
+            <label for="jordmodtager" class="radiobtlbl"><input type="radio" name="brugertype" id="jordmodtager" class="radiobt">Virksomhed</label>
+            <br />
+            <p class="infotext">Som jordmodtager, øvrig transportør-medarbejder, rådgiver, prøvetager, miljøteknisk firma eller anden virksomhed skal man oprette sig som Virksomhed.</p>
+        </div>
+        <div style="text-align: center;">
+            <input type="button" id="btnBrugerType" value="Forsæt" class="toolbarButton" style="margin-top: 20px; float: none;" />
+        </div>
+    </div>
+
+    <div class="k-loading-mask centered" id="spinner">
+        <span class="k-loading-text">Gemmer...</span>
+        <div class="k-loading-image">
+            <div class="k-loading-color"></div>
+        </div>
+    </div>
+
+    @using (Html.BeginForm())
+    {
+        @Html.ValidationSummary(true)
+
+        @Html.HiddenFor(m => m.ShowAdviseringFane)
+        @Html.HiddenFor(m => m.ShowBemyndigedeFane)
+        @Html.HiddenFor(m => m.ShowBrugerEditFane)
+        @Html.HiddenFor(m => m.ShowModtageAnlaegFane)
+        @Html.HiddenFor(m => m.ShowTransportoerFane)
+        <div id="toolbarButtonsProfil" class="toolbarButtons">
+            <input id="btnGemBruger" type="submit" value="Gem" class="toolbarButton" style="margin-left: 0px;" />
+            <div style="clear: both"></div>
+        </div>
+
+        <div class="controlsbox" style="margin-top: 5px; height: auto">
+            <div class="cbheader">
+                <h5>Bruger</h5>
+            </div>
+            <div class="cbcontent" style="margin-left: 0px;">
+                <div class="row_control">
+                    <div class="column">
+
+                        @Html.HiddenFor(m => m.BrugerModel.Person.Id)
+                        @Html.HiddenFor(m => m.BrugerModel.Person.BrugerId)
+                        @Html.HiddenFor(m => m.LastbilIdToPrint, new { id = "hflLastbilIdToPrint" })
+
+                        @if (Model.ErLoggetInd)
+                        {
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.Person.Email)
+                                @Html.TextBoxFor(m => m.BrugerModel.Person.Email, new { @readonly = "readonly", style = "width: 265px;" })
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.Person.Email)
+                                @Html.TextBoxFor(m => m.BrugerModel.Person.Email, new { style = "width:265px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.Person.Email)
+                            </div>
+                        }
+                        <div style="clear: both"></div>
+                        @if (Model.ErLoggetInd)
+                        {
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.CurrentPassword)
+                                @Html.PasswordFor(m => m.BrugerModel.CurrentPassword, new { style = "width:265px;" })
+                            </div>
+                        }
+                        @if (Model.ErLoggetInd)
+                        {
+                            <div class="row_line">
+                                @Html.Label("Ny adgangskode")
+                                @Html.PasswordFor(m => m.BrugerModel.Password, new { style = "width:265px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.Password)
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.Password)
+                                @Html.PasswordFor(m => m.BrugerModel.Password, new { style = "width:265px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.Password)
+                            </div>
+                        }
+
+                        <div class="row_line" style="margin-bottom: 25px">
+                            @Html.LabelFor(m => m.BrugerModel.RetypePassword)
+                            @Html.PasswordFor(m => m.BrugerModel.RetypePassword, new { style = "width:265px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.RetypePassword)
+                        </div>
+
+                        <div class="row_line">
+                            @Html.LabelFor(m => m.BrugerModel.Person.Navn)
+                            @Html.TextBoxFor(m => m.BrugerModel.Person.Navn, new { style = "width:265px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.Person.Navn)
+                        </div>
+                        <div class="row_line">
+                            @Html.LabelFor(m => m.BrugerModel.Person.Efternavn)
+                            @Html.TextBoxFor(m => m.BrugerModel.Person.Efternavn, new { style = "width:265px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.Person.Efternavn)
+                        </div>
+                        <div class="row_line">
+                            @Html.LabelFor(m => m.BrugerModel.Person.Adresse)
+                            @Html.TextBoxFor(m => m.BrugerModel.Person.Adresse, new { style = "width: 265px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.Person.Adresse)
+                        </div>
+                        <div class="row_line">
+                            @Html.Label("Postnummer og by*")
+                            @Html.TextBoxFor(m => m.BrugerModel.Person.Postnummer, new { style = "width:45px;margin-right:5px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.Person.Postnummer)
+
+                            @Html.TextBoxFor(m => m.BrugerModel.Person.Postdistrikt, new { style = "width:211px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.Person.Postdistrikt)
+                        </div>
+                        <div class="row_line">
+                            @Html.LabelFor(m => m.BrugerModel.Person.Telefon)
+                            @Html.TextBoxFor(m => m.BrugerModel.Person.Telefon, new { style = "width:265px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.Person.Telefon)
+                        </div>
+                        <div class="row_line">
+                            @Html.LabelFor(m => m.BrugerModel.Person.Mobiltelefon)
+                            @Html.TextBoxFor(m => m.BrugerModel.Person.Mobiltelefon, new { style = "width:265px;" })
+                            @Html.ValidationMessageFor(m => m.BrugerModel.Person.Mobiltelefon)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row_control">
+                    <div class="column" style="display: block;">
+                        <div id="chkBoxFirma_row" class="row_line" style="margin-right: 10px; display: none;">
+                            @Html.Label("Firma", new { id = "lblFirma" })
+                            @Html.CheckBoxFor(m => m.BrugerModel.Company, new { id = "chkBoxFirma" })
+                        </div>
+                        <div style="clear: both"></div>
+                        <div id="firmaGroup">
+                            <div class="row_line" style="display: block">
+                                @Html.LabelFor(m => m.BrugerModel.Firmanavn)
+                                @Html.TextBoxFor(m => m.BrugerModel.Firmanavn, new { style = "width:265px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.Firmanavn)
+                            </div>
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.Adresse)
+                                @Html.TextBoxFor(m => m.BrugerModel.Adresse, new { style = "width:265px;" })
+                            </div>
+                            <div class="row_line">
+                                @Html.Label("Postnummer og by")
+                                @*  @Html.TextBoxFor(m => m.BrugerModel.Firmaoplysninger.Postnummer, new { style = "width:35px;margin-right:5px;" })
+                                    @Html.TextBoxFor(m => m.BrugerModel.Firmaoplysninger.Postdistikt, new { style = "width:149px;" })*@
+                                @Html.TextBoxFor(m => m.BrugerModel.FirmaPostnummer, new { style = "width:45px;margin-right:5px;" })
+                                @Html.TextBoxFor(m => m.BrugerModel.FirmaPostdistrikt, new { style = "width:211px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.FirmaPostnummer)
+                                @Html.ValidationMessageFor(m => m.BrugerModel.FirmaPostdistrikt)
+                            </div>
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.CVR)
+                                @Html.TextBoxFor(m => m.BrugerModel.CVR, new { @class = "non-zero-num", style = "width:265px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.CVR)
+                            </div>
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.PNummer)
+                                @Html.TextBoxFor(m => m.BrugerModel.PNummer, new { style = "width:265px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.PNummer)
+                            </div>
+                            <div class="row_line">
+                                @Html.LabelFor(m => m.BrugerModel.EAN)
+                                @Html.TextBoxFor(m => m.BrugerModel.EAN, new { style = "width:265px;" })
+                                @Html.ValidationMessageFor(m => m.BrugerModel.EAN)
+                            </div>
+
+                            @*@Html.ValidationMessageFor(m => m.BrugerModel.Firmanavn)
+                                @Html.ValidationMessageFor(m => m.BrugerModel.Adresse)
+                                @Html.ValidationMessageFor(m => m.BrugerModel.Firmaoplysninger.Postnummer)
+                                @Html.ValidationMessageFor(m => m.BrugerModel.Firmaoplysninger.Postdistikt)
+                                @Html.ValidationMessageFor(m => m.BrugerModel.CVR)
+                                @Html.ValidationMessageFor(m => m.BrugerModel.PNummer)
+                                @Html.ValidationMessageFor(m => m.BrugerModel.EAN)*@
+                        </div>
+                        <div id="BrugerModel_Transportoer_row" class="row_line">
+                            @Html.LabelFor(m => m.BrugerModel.Transportoer, new { id = "lblTrans" })
+                            @Html.CheckBoxFor(m => m.BrugerModel.Transportoer)
+                        </div>
+                        <div class="row_line">
+                            &nbsp;
+                        </div>
+                        <div id="infobox" class="row_line">
+
+                            <div class="controlsbox" style="width: 425px; margin-top: 5px; height: auto">
+                                <div class="cbheader">
+                                    <h5>Info</h5>
+                                </div>
+                                <div id="info_trans" class="row_line" style="margin-left: 10px;">
+                                    <p>Som transportør skal du udfylde felterne under både ’Bruger’ og ’Firma’.</p>
+                                    <p>Oplysninger om firma og bruger vil fremgå på transportøroversigten og kan ses i forbindelse med anmeldelse af jordflytninger i FlytJord.dk.</p>
+                                    <p>Som transportør vil du f.eks. modtage advisering (e-mail) når kommunen har godkendt en anmeldelse.</p>
+                                </div>
+                                <div id="info_privat" class="row_line" style="margin-left: 10px;">
+                                    Som privat bruger skal du udfylde felterne under 'Bruger'.
+                                </div>
+                                <div id="info_anden" class="row_line" style="margin-left: 10px;">
+                                    <p>Som jordmodtager, prøvetager, miljøteknisk firma eller anden virksomhed skal du udfylde felterne under både 'Bruger' og Firma'. </p>
+                                    <p>Oprettelse af jordmodtager i FlytJord.dk.</p>
+
+                                    <p>
+                                        Ud over oplysninger om firma og bruger, skal kommune oprette anlægget i FlytJord.dk. Send oplysninger om typen af jordforurening der kan modtages, miljøgodkendelse, sammen med den angivne brugers kontaktoplysninger, firmaet cvr. nr. mv. til kommunen.
+
+                                        Når jordmodtageren er oprettet af begge parter, sender FlytJord.dk en advisering (mail) til anlæggets kontaktperson hver gang kommunen godkender en anmeldelse.
+
+                                        Advisering kan fravælges under brugerens profil.
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+            </div>
+            <div style="clear: both"></div>
+        </div>
+    }
+</div>
+
+

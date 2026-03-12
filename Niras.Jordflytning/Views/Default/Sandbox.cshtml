@@ -1,0 +1,199 @@
+﻿@* This is a view for proof of concept and is not part of the real application *@
+@model Niras.Jordflytning.ViewModels.SandboxViewModel
+@{
+	ViewBag.Title = "Sandbox";
+	Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+@section Styles
+{
+	<style type="text/css">
+		h1, h2 {
+			color: #000 !important;
+		}
+
+		h2 {
+			font-size: 1.0em !important;
+		}
+	</style>
+}
+<h1>Sandbox</h1>
+<h2>Validation</h2>
+@using (@Html.BeginForm())
+{
+	@Html.ValidationSummary(true)
+	@Html.LabelFor(m => m.Name)
+	@Html.TextBoxFor(m => m.Name)
+	@Html.ValidationMessageFor(m => m.Name)
+	<br />
+	@Html.LabelFor(m => m.BirthDate)
+	@Html.TextBoxFor(m => m.BirthDate)
+	@Html.ValidationMessageFor(m => m.BirthDate)
+	<br />
+	@Html.LabelFor(m => m.Vip)
+	@Html.CheckBoxFor(m => m.Vip)
+	@Html.ValidationMessageFor(m => m.Vip)
+	<br />
+	@Html.LabelFor(m => m.VipNumber)
+	@Html.TextBoxFor(m => m.VipNumber)
+	@Html.ValidationMessageFor(m => m.VipNumber)
+	<br />
+	@Html.LabelFor(m => m.Amount)
+	@Html.TextBoxFor(m => m.Amount)
+	@Html.ValidationMessageFor(m => m.Amount)
+	<br />
+	<input type="submit" value="Gem"/>
+}
+
+<h2>AJAX partial update 1</h2>
+@using (Ajax.BeginForm("SandboxPartialUpdate", "Sandbox", new AjaxOptions { UpdateTargetId = "partialView" }, new { id = "ajaxForm" }))
+{ 
+	@Html.ValidationSummary(true)
+	@Html.LabelFor(m => m.Name)
+	@Html.TextBoxFor(m => m.Name, new { id = "txtName" }
+		)
+	@Html.ValidationMessageFor(m => m.Name)
+
+	<div id="partialView">
+		@{ Html.RenderPartial("_SandboxPartial", Model); }
+	</div>
+	
+	<input type="submit" value="Opdatér"/>
+}
+
+
+<br /><br />
+<a id="submitLink" style="color:#000; cursor: pointer;">Ved at klikke her submittes formen</a>
+<br /><br />
+<a id="partialLink" style="color:#000; cursor: pointer;">Ved at klikke her opdateres partial view</a>
+
+<h2>File upload</h2>
+<a id="uploadLink" style="color:#000; cursor: pointer;">Klik her for at uploade fil...</a>
+
+<div id="winFileUpload" style="display: none">
+	<div class="row">
+		@Html.Label("Dokument oprindelse")
+		@Html.Kendo().DatePicker().Name("datDocDate").Value(DateTime.Now)
+	</div>
+	<div class="row">
+		@Html.Label("Vælg fil")
+		<input name="attachments" id="attachments" type="file" value="Vedhæft fil" />
+	</div>
+	<div class="row" id="divFilprogress" style="display: none">
+		<img src="~/Content/Icons/Hourglass_icon.gif" alt="Upload progress..." />
+	</div>
+</div>
+
+<h2>Style tests</h2>
+@Html.LabelFor(model => model.Name)
+@Html.PasswordFor(model => model.Name, new { @class = "k-textbox"}) 
+
+@Html.LabelFor(model => model.Value)
+@Html.TextBoxFor(model => model.Value) 
+
+    
+<script type="text/javascript">
+	var Logger = Logger || {};
+	Logger.log = function(msg) {
+		if (typeof console != "undefined") {
+			console.log(msg);
+		}
+	};
+	
+	var winFileUpload = null;
+	$(document).ready(function () {
+		$.validator.methods.date = function(value, element) {
+			return this.optional(element) || (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}(\s\d{2}:\d{2}(:\d{2})?)?$/.test(value)
+				&& !/Invalid|NaN/.test(new Date(value.replace("/", "-").split("-")[2], value.replace("/", "-").split("-")[1], value.replace("/", "-").split("-")[0])));
+		};
+		
+		Jordflytning.val.displayValidationMarkers();
+
+		$("#submitLink").click(function (e) {
+			e.preventDefault();
+			updateForm();
+		});
+		
+		$("#partialLink").click(function (e) {
+			e.preventDefault();
+			updatePartial();
+		});
+		
+		/* init upload */
+		winFileUpload = Jordflytning.ui.createModalWindow("winFileUpload", 300, 400, "Upload fil", false);
+		
+		$("#uploadLink").click(function (e) {
+			e.preventDefault();
+			winFileUpload.center();
+			winFileUpload.open();
+			
+			$("#attachments").closest(".k-upload").find("span").text("Find");
+		});
+		
+		$("#attachments").kendoUpload({
+			async: {
+				saveUrl: '@Url.Action("SaveFile", "Anmeldelser")',
+				removeUrl: '@Url.Action("RemoveFile", "Anmeldelser")',
+				autoUpload: true,
+			},
+			showFileList: false,
+			success: onFileSuccess,
+			upload: onFileUpload,
+			close: onFileClose
+		});
+	});
+	
+	function updateForm() {
+		$("#txtName").val("Mit navn");
+		$("#ajaxForm").submit();
+	}
+	
+	function updatePartial() {
+		var model = $('#ajaxForm').serialize();
+		var jsonString = JSON.stringify(model);
+		$.post("@Url.Action("SandboxPartialUpdate","Default")", $("#ajaxForm").serialize(), function (data) {
+			$("#partialView").html(data);
+		});
+						@*$.ajax({
+			type: "POST",
+			url: "@Url.Action("SandboxPartialUpdate","Default")",
+			cache: false,
+			traditional: true,
+			contentType: 'application/json; charset=utf-8',
+			dataType: 'json',
+			data: JSON.stringify(model),
+			success: function (data) {
+				$("#partialView").html(data);
+			}
+		});*@
+	}
+	
+	function onFileClose() {
+		$("#divFilprogress").hide();
+	}
+
+	function onFileUpload(e) {
+		//alert('onFileUpload');
+		e.data = { dokumentationTypeId: "@Guid.Empty", metadataDato: "@DateTime.Now" };
+		$("#divFilprogress").show();
+	}
+
+	function onFileSuccess(e) {
+		Logger.log("FileSuccess");
+		$("#divFilprogress").hide();
+		$("#winFileUpload").data("kendoWindow").close();
+		alert(e);
+		//popFileGrid();
+
+		//displayMessage("Filen er vedhæftet.");
+
+		// Array with information about the uploaded files
+		//var files = e.files;
+
+		//if (e.operation == "upload") {
+		//  alert("Successfully uploaded " + files.length + " files");
+		//}
+
+
+	}
+
+</script>

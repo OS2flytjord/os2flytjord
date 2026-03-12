@@ -1,0 +1,357 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.ViewModels.Backend.BrugerAdministrationModel
+@{
+    ViewBag.Title = "Administration af brugere";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+
+        var button;
+        
+        $(document).ready(function () {
+            
+            $("#tilfoejBrugerTilOrganisation").click(function () {
+                email = $("#soeg").val();
+                var findesBruger = !isEmailUnique(email);
+                if (findesBruger == false) {
+                    alert("Email ikke oprettet i systemet");
+                    return;
+                }
+                var orgid = $("#ddlOrganisationsvalg").val();
+                if (orgid == "") {
+                    alert("Du skal vælge en organisation");
+                    return;
+                }
+	            
+                if (!canAddUserToOrganisation(email, orgid)) {
+                	alert("Brugeren kan ikke tilknyttes organisationen");
+	                return;
+                }
+
+
+                if (email != "") { // indsæt eventuelt noget ordentlig email validering
+                    $.ajax({
+                        url: './tilfoejbrugertilorganisation',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ email: email, organisationsid: orgid }),
+                        success:
+							function () {
+							    $("#BrugerGrid").data("kendoGrid").dataSource.read();
+							},
+                        error: function () {
+                            alert("Der skete en fejl, prøv igen");
+                        }
+                    }
+					);
+                } else {
+                    alert("Tast en email adresse ind");
+                }
+            });
+        });
+
+        function isUserInOrganisation(email) {
+            $.ajax({
+                // This is key, otherwise request will be made asynchronously and you won't get your response from the server when needed
+                async: false,
+                type: 'GET',
+                url: '@Url.Action("IsUserInOrganisation", "Validation", new { area = "" })',
+				data: { Email: email }
+			})
+				// My action is a JsonResult that returns either true or false (no quotes, etc.)
+				.done(function (data) {
+				    isValid = data;
+				})
+				.fail(function (request, status, error) {
+				    isValid = false;
+				});
+            return isValid;
+        }
+
+        function isEmailUnique(email) {
+            $.ajax({
+                // This is key, otherwise request will be made asynchronously and you won't get your response from the server when needed
+                async: false,
+                type: 'GET',
+                url: '@Url.Action("IsUserIdAvailable", "Validation", new { area = "" })',
+				data: { Email: email }
+			})
+				// My action is a JsonResult that returns either true or false (no quotes, etc.)
+				.done(function (data) {
+				    isValid = data;
+				})
+				.fail(function () {
+				    isValid = false;
+				});
+            return isValid;
+        }
+
+
+    	function canAddUserToOrganisation(email, orgId) {
+    		$.ajax({
+    			// This is key, otherwise request will be made asynchronously and you won't get your response from the server when needed
+    			async: false,
+    			type: 'GET',
+    			url: '@Url.Action("CanAddToOrganisation", "Validation", new { area = "" })',
+    			data: { Email: email, organisationsId: orgId }
+            })
+				// My action is a JsonResult that returns either true or false (no quotes, etc.)
+				.done(function (data) {
+					isValid = data;
+				})
+				.fail(function () {
+					isValid = false;
+				});
+							return isValid;
+						}
+
+
+        function remoteValidateName() {
+            var isValid = true;
+            var value = $("#Email").val();
+
+            if (value.length > 3) {
+                isValid = isEmailUnique(value);
+
+
+                if (!isValid) {
+                    $("#Email_validationMessage").value = "Email er i brug.";
+                    $("#Email_validationMessage").css("display", "block");
+                    $("#kendoOKbutton").removeClass("k-grid-update").addClass("k-state-disabled k-grid-update-temp");
+                } else {
+                    $("#kendoOKbutton").removeClass("k-grid-update-temp k-state-disabled").addClass("k-grid-update");
+                }
+            }
+            return isValid;
+        }
+
+        function editForm(e) {
+            $(e.container).find("#kommuneRollerDiv").hide();
+            $(e.container).find("#jordmodtagerRollerDiv").hide();
+            var title = $(e.container).parent().find(".k-window-title");
+            var button = $(e.container).parent().find(".k-grid-update");
+            e.model.ValgtOrganisation = "";
+            if (e.model.BrugerId != 0) {
+                //Opdatering
+                $(title).text('Rediger bruger');
+                $(button).html('<span class="k-icon k-update">Gem</span>Gem');
+                $("#passwordDiv").hide();
+                $(e.container).find("input[name='PasswordClearText']").attr("disabled", "disabled");
+                $(e.container).find("input[name='ValgtOrganisation']").attr("disabled", "disabled");
+                $(e.container).find("input[name='Email']").attr("disabled", "disabled");
+
+                $("#organisationDiv").hide();
+                if (!e.model.KanSkifteRoller) {
+                    $(e.container)
+						.find("input[name='KommuneAdmin']")
+						.attr("disabled", "disabled");
+
+                    $(e.container)
+						.find("input[name='Sagsbehandler']")
+						.attr("disabled", "disabled");
+                    $(e.container)
+						.find("input[name='JordmodtagerAdmin']")
+						.attr("disabled", "disabled");
+                    $(e.container)
+						.find("input[name='Bogholder']")
+						.attr("disabled", "disabled");
+                    $(e.container)
+						.find("input[name='Pladsmand']")
+						.attr("disabled", "disabled");
+                    $(e.container)
+						.find("input[name='Miljoemedarbejder']")
+						.attr("disabled", "disabled");
+                    $(e.container)
+						.find("input[name='Proevetager']")
+						.attr("disabled", "disabled");
+                    $(e.container)
+						.find("input[name='Laboratorie']")
+						.attr("disabled", "disabled");
+                }
+            } else {
+                // get a reference to the dropdown list
+                var dropdownlist = $("#ValgtOrganisation").data("kendoDropDownList");
+                // selects by index
+                dropdownlist.select(1);
+                // første argument til metoden er navnet på den værdi på modellen der skal sættes, næste argument er værdien den skal sættes til.
+                e.model.set("ValgtOrganisation", $("#ValgtOrganisation").val()); 
+
+                $(title).text('Opret bruger');
+                e.container.find("#Email").change(remoteValidateName);
+                button = e.container.find("a.k-grid-update");
+                button.removeClass("k-grid-update").addClass("k-state-disabled k-grid-update-temp");
+                button.attr("id", "kendoOKbutton");
+                button.attr("name", "kendoOKbutton");
+            }
+            var viskmr = $('#hfVisKommuneroller').val() == 'True';
+            var visjmr = $('#hfVisJordmodtagerroller').val() == 'True';
+            if (viskmr == true) {
+                $(e.container).find("#kommuneRollerDiv").show();
+            }
+            if (visjmr == true) {
+                $(e.container).find("#jordmodtagerRollerDiv").show();
+            }
+
+            $("#PasswordClearText").attr("type", "password");
+            $("#PasswordClearText").removeAttr("class");
+            $("#PasswordClearText").attr("class", "text-box single-line");
+        }
+
+        function brugerGridRequestEnd(e) {
+            if (e.type === "create") {
+                if (!e.response.Errors) {
+                    e.sender.read();
+                } else {
+                    alert("Brugeren blev ikke oprettet");
+                }
+            }
+            if (e.type == "update") {
+                if (!e.response.Errors) {
+                    e.sender.read();
+                } else {
+                    alert("Brugeren blev ikke opdateret");
+                }
+            }
+            if (e.type == "destroy") {
+                e.sender.read();
+            }
+        }
+
+        function gridRemove(e) {
+            if ($("#ddlOrganisationsvalg").val() == "") {
+                e.preventDefault();
+                alert("Vælg en organisation");
+            }
+        }
+
+        function gridRemoveUser(e) {
+            if ($("#ddlOrganisationsvalg").val() == "") {
+                e.preventDefault();
+                alert("Vælg en organisation");
+                var grid = $("#BrugerGrid").data("kendoGrid");
+                // cancel changes
+                grid.cancelChanges();
+            } else {
+                e.model.set("ValgtOrganisation", $("#ddlOrganisationsvalg").val());
+            }
+        }
+
+        function brugerGridError() {
+            var grid = $("#BrugerGrid").data("kendoGrid");
+            grid.cancelChanges();
+        }
+
+        function organisationsvalgSelect() {
+            $("#BrugerGrid").data("kendoGrid").dataSource.read();
+        }
+
+        function getSelectedOrganisation() {
+            return {
+                organisationsId: $("#ddlOrganisationsvalg").val()
+            };
+        }
+
+    </script>
+}
+<div class="row">
+    <div class="column" style="margin-right: 10px; width: 99%; float: none" >
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Rediger brugere</h5>
+            </div>
+            <div class="row_control">
+                <div class="row_line">
+
+                    @Html.HiddenFor(m => m.VisKommuneRoller, new { id = "hfVisKommuneroller" })
+                    @Html.HiddenFor(m => m.VisJordmodtagerRoller, new { id = "hfVisJordmodtagerroller" })	 
+                    @Html.ValidationSummary(true)
+
+                    <div >
+                        @Html.Label("Organisation")
+                        @(Html.Kendo().DropDownList()
+                              .DataValueField("Value")
+                              .DataTextField("Text")
+                              .OptionLabel("Vælg organisation")
+                              .BindTo((IEnumerable<SelectListItem>)ViewData["organisationer"])
+                              .Name("ddlOrganisationsvalg")
+                              .Events(e => e.Change("organisationsvalgSelect"))
+                              .HtmlAttributes(new { style = "width:300px;font-size:12px;" }))
+                    </div> 
+                </div>
+
+                <div class="row_line">
+                    @(Html.Kendo().Grid(Model.Brugere)
+                          .Name("BrugerGrid")
+                          .Pageable()
+                          .Sortable()
+                          .Selectable()
+                          .HtmlAttributes(new { style = "font-size:12px;" })
+                          .Events(e => e.Edit("editForm"))
+                          .Events(events => events.Remove("gridRemoveUser"))
+                          .Columns(columns =>
+                              {
+                                  columns.Bound(bruger => bruger.BrugerId).Hidden(true);
+                                  columns.Bound(bruger => bruger.Id).Hidden(true);
+                                  columns.Bound(bruger => bruger.FullName).Title("Navn").Width(200);
+                                  columns.Bound(bruger => bruger.BrugerNavn).Title("E-mail").Width(250);
+                                  columns.Bound(bruger => bruger.DisplayRoles).Title("Roller");
+                                  columns.Bound(bruger => bruger.Aktiv)
+                                    .Title("Aktiv")
+                                    .ClientTemplate("<input disabled='disabled' type='checkbox' #= Aktiv ? checked='checked' :'' # />");
+                                  columns.Command(c =>
+                                      {
+                                          c.Edit().Text("Rediger").UpdateText("OK").CancelText("Annuller"); 
+                                          c.Destroy().Text("Fjern");
+                                      });
+                              })
+                          .ToolBar(toolbar => 
+                              { 
+                                  toolbar.Create().Text("Opret ny bruger");
+                                  toolbar.Custom().Text("Tilføj eksisterende bruger").Name("Tilfoej");
+                                  toolbar.Template( 
+                                      @<text>
+                                           <div class="toolbar row" style="margin-top: 5px;">
+                                               <a class="k-button k-button-icontext k-grid-add" style="float: left" href="\\\#">
+                                                   <span class="k-icon k-add"></span>Opret ny bruger</a>
+                                               <label class="category-label" for="soeg" style="float: left; margin-left: 20px; margin-top: 0px">
+                                                   Tilknyt eksisterende bruger:
+                                               </label>
+                                               @(Html.TextBoxFor(m => m.Brugersoegning, new { @placeholder = "Indtast brugerens e-mail", id = "soeg", style = "width:150px; margin-right: 4px; margin-top: 0px;" }))
+                                               <a class="k-button" id="tilfoejBrugerTilOrganisation" style="float: left">
+                                                   <span class="k-icon k-add"></span>Tilknyt bruger
+                                               </a>
+                                           </div>
+                                       </text>);
+                              })
+            
+                          .Editable(editable => editable
+                                                    .Mode(GridEditMode.PopUp)
+                                                    .Window(w => w.Title("Rediger bruger").Scrollable(true).Height(530).Draggable(true).Width(410).Resizable(a => a.Enabled(true)))
+                                                    .TemplateName("AdminBrugereCustomPopupEditor")
+                                                    .DisplayDeleteConfirmation("Er du sikker på at du vil fjerne brugeren fra den valgte organisation?"))
+            
+                          .DataSource(dataSource => dataSource
+                                                        .Ajax()
+                                                        .ServerOperation(false)
+                                                        .Model(model =>
+                                                            {
+                                                                model.Id(p => p.BrugerId);
+                                                                model.Field(p => p.BrugerId).DefaultValue(0);
+                                                                model.Field(p => p.Id).DefaultValue(new Guid());
+                                                            })
+                                                        .Sort(sort => sort.Add(bruger => bruger.FullName).Ascending())
+                                                        .Read(read => read.Action("BrugeradministrationsGridRead", "Administration").Data("getSelectedOrganisation"))
+                                                        .Create(create => create.Action("BrugeradministrationsGridCreate", "Administration"))
+                                                        .Update(update => update.Action("BrugeradministrationsGridUpdate", "Administration"))
+                                                        .Destroy(destroy => destroy.Action("BrugeradministrationsGridDestroy", "Administration"))
+                                                        .Events(events => events.RequestEnd("brugerGridRequestEnd").Error("brugerGridError")))
+                          )                       
+                </div>               
+            </div>
+        </div>
+            
+    </div>      
+</div>
+
+

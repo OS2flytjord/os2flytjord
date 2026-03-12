@@ -1,0 +1,45 @@
+﻿@model Niras.Jordflytning.ViewModels.Mobile.MobilePreviewAnmeldelseModel
+
+@{
+	Layout = null;
+}
+
+	<h3>Vis anmeldelse
+		</h3>
+		<h4></h4>
+		<div data-controltype="textblock">
+			<p>
+				<b>Anmeldelse af jordflytning
+				</b>
+			</p>
+			<p>
+				<b>Anmelder:
+				</b>
+				<b>@Model.Anmelder @*Bybo Pedersen, Nygade 1 8000 Aarhus. Tlfnr. 12 34 56 78. Email bybo.pedersen2gmail.com*@
+				</b>
+			</p>
+			<p>
+				<b>Sted: @Model.Sted @*Nygade 1, 8000 Aarhus*@
+				</b>
+			</p>
+			<p>
+				<b>Jorden: @Model.Jorden @*Ren jord*@
+				</b>
+			</p>
+			<p>
+				<b>Transportør: @Model.Transportoer @*Den bette vognmand*@
+				</b>
+			</p>
+			<p>
+				<b>Modtager: @Model.Modtager @*Aarhus Havn*@
+				</b>
+			</p>
+			<p>
+				<b>
+				Betaler:					
+							@Model.Betaler @*Bybo Pedersen, Nygade 1 8000 Aarhus. Tlfnr. 12 34 56 78. Email bybo.pedersen@gmail.com*@
+						
+				</b>
+			</p>
+		</div>
+		<a data-role="button" id="btnKvittering" href="#">Godkend</a>

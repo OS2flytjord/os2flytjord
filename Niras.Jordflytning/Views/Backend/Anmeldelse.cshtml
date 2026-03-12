@@ -1,0 +1,55 @@
+﻿@{
+	ViewBag.Title = "Anmeldelse";
+	Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section TopMenu {
+	<div class="toolbarclass">
+		<input type="submit" value="Gem" class="toolbarButton" />
+		<input type="submit" value="Luk" class="toolbarButton" />
+		<input type="submit" value="Accepter jord (Miljømedarb.)" class="toolbarButton" />
+		<input type="submit" value="Afvis jord (Miljømedarb.)" class="toolbarButton" />
+		<input type="submit" value="Tildel mig (Sagsbehandler)" class="toolbarButton" />
+		<input type="submit" value="Tilføj bemærkning (Sagsbehandler)" class="toolbarButton" />
+		<input type="submit" value="Søg ekstern webservice(Sagsbehandler)" class="toolbarButton" />
+		<input type="submit" value="Tilføj vognlæs (Jordmodtager)" class="toolbarButton" />
+		<input id="stikproeveknap" type="submit" value="Planlæg stikprøve (Sagsbeh. + Miljømedarb.)" class="toolbarButton" />
+		<input type="submit" value="Adviser (Sagsbeh. + Miljømedarb.)" class="toolbarButton" />
+    <input type="submit" value="Opret alarm" class="toolbarButton" />
+
+	</div> 
+}
+
+@section Scripts{
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+
+			$("#stikproeve").click(function (e) {
+				openTab("Stikprøve", "/Backend/Stikproeve");
+			});
+
+			$("#stikproeveknap").click(function (e) {
+				e.preventDefault(); //stop default event (click på knap)
+				openTab("Stikprøve", "/Backend/Stikproeve");
+			});
+
+		});
+
+	</script>
+}
+
+<img src="~/Content/WalkingSkeleton/Kommune/Anmeldelse_header.png" />
+<hr />
+@(Html.Kendo().TabStrip()
+							.Name("contentTabstrip")
+							.Items(items =>
+											{
+												items.Add().Text("Anmeldelse").Content(@<img src="~/Content/WalkingSkeleton/Kommune/Anmeldelse_Anmeldelse.png" />).Selected(true);
+												items.Add().Text("Sagsbehandling").Content(@<img src="~/Content/WalkingSkeleton/Kommune/Anmeldelse_Sagsbehandling.png" />);
+												items.Add().Text("Tilkørt jord").Content(@<img src="~/Content/WalkingSkeleton/Kommune/Anmeldelse_Jord.png" />);
+												items.Add().Text("Stikprøvekontrol").Content(@<img id="stikproeve" src="~/Content/WalkingSkeleton/Kommune/Anmeldelse_Stikproevkontrol.png" />);
+												items.Add().Text("Historik og kommunikation").Content(@<img src="~/Content/WalkingSkeleton/Kommune/Anmeldelse_Kommunikation.png" />);
+
+											})
+											)

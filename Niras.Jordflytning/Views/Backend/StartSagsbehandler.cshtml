@@ -1,0 +1,140 @@
+﻿@{
+	ViewBag.Title = "StartSagsbehandler";
+	Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+@section Scripts{
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+
+			//$("#soeg").click(function (e) {
+			//  e.preventDefault(); //stop default event (click på knap)
+			//  $("#soegeparametre").toggle();
+			//  $("#soegeresultat").toggle();
+			//});
+
+			//$("#nulstil").click(function (e) {
+			//  e.preventDefault(); //stop default event (click på knap)
+			//  $("#soegeparametre").toggle();
+			//  $("#soegeresultat").toggle();
+			//});
+
+			$("td", "#anmeldelser").click(function () {
+				openTab("Anmeldelse", "/Backend/Anmeldelse");
+			});
+			
+			$("td", "#alarmer").click(function () {
+				openTab("Anmeldelse", "/Backend/Anmeldelse");
+			});
+		});	
+
+	</script>
+}
+
+@section TopMenu {
+	<div>
+		<input id="genindlaes" type="submit" value="Genindlæs" class="toolbarButton" />
+	</div>
+}
+
+<div class="row">
+	<h4>Mine anmeldelser</h4>
+</div>
+<div class="row">
+	<table id="anmeldelser" border="1" cellpadding="3">
+		<tr>
+			<th class="gridheader">Anmeldelse</th>
+			<th class="gridheader">Oprindelsessted</th>
+			<th class="gridheader">Sagsbehandler</th>
+			<th class="gridheader">Jordmodtager</th>
+			<th class="gridheader">Kørselsperiode</th>
+			<th class="gridheader">Anmelder</th>
+			<th class="gridheader">Status</th>
+		</tr>
+		<tr>
+			<td>1245-2013</td>
+			<td>Kærvej 9, 9000 Aalborg</td>
+			<td>Mads Andersen</td>
+			<td>RGS 90</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>Under behandling</td>
+		</tr>
+				<tr>
+			<td>1244-2013</td>
+			<td>Kærvej 8, 9000 Aalborg</td>
+			<td>Mads Andersen</td>
+			<td>Århus østhavn</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>Under behandling</td>
+		</tr>
+				<tr>
+			<td>1243-2013</td>
+			<td>Kærvej 7, 9000 Aalborg</td>
+			<td>Mads Andersen</td>
+			<td>Århus oliehavn</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>Under behandling</td>
+		</tr>
+	</table>
+</div>
+
+
+<div class="row">
+	<h4>Kræver handling</h4>
+</div>
+<div class="row">
+	<table id="alarmer" border="1" cellpadding="3">
+		<tr>
+			<th class="gridheader">Anmeldelse</th>
+			<th class="gridheader">Oprindelsessted</th>
+			<th class="gridheader">Sagsbehandler</th>
+			<th class="gridheader">Jordmodtager</th>
+			<th class="gridheader">Kørselsperiode</th>
+			<th class="gridheader">Anmelder</th>
+			<th class="gridheader">Status</th>
+		</tr>
+		<tr>
+			<td>1245-2013</td>
+			<td>Kærvej 9, 9000 Aalborg</td>
+			<td>Mads Andersen</td>
+			<td>RGS 90</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>Kørselsperiode overskredet</td>
+		</tr>
+				<tr>
+			<td>1244-2013</td>
+			<td>Kærvej 8, 9000 Aalborg</td>
+			<td>Mette Højmark</td>
+			<td>Århus østhavn</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>Alarm</td>
+		</tr>
+				<tr>
+			<td>1243-2013</td>
+			<td>Kærvej 7, 9000 Aalborg</td>
+			<td>-</td>
+			<td>Århus oliehavn</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>Ny anmeldelse</td>
+		</tr>
+						<tr>
+			<td>1244-2013</td>
+			<td>Kærvej 9, 9000 Aalborg</td>
+			<td>Bo Utoft</td>
+			<td>RGS 90</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>Jordmængde overskredet</td>
+		</tr>
+	</table>
+</div>
+
+@*<img src="~/Content/WalkingSkeleton/Kommune/ForsideSagsbehandler.png" />
+<div>TODO WS LINK til Anmeldelse</div>*@
+

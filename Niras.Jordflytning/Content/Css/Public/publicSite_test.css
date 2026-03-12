@@ -1,0 +1,20 @@
+﻿
+div#topBar
+{
+    background-image: url("/content/images/testudgave.png");
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+div#topBarBackend {
+    background-image: url("/content/images/testudgave.png");
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+div#main header
+{
+    background-image: url("/content/images/testudgave.png");
+    background-repeat:no-repeat;
+    background-position:center;
+}

@@ -1,0 +1,359 @@
+﻿@model SagsbehandlingModel
+@using Kendo.Mvc.UI
+@using Niras.Jordflytning.ViewModels.Backend
+
+
+@{
+    var frigivet = Model.AnmeldelseModel.Gebyr.FrigivetTilFakturering == true;
+    var overfoert = Model.AnmeldelseModel.Gebyr.OverfoertTilFaktureringDato != null;
+    var anmeldelseIkkeGodkendt = Model.AnmeldelseModel.Anmeldelse.AnmeldelseEffektivStatus.Godkendt == null;
+    var anmeldelseIkkeAfsluttet = Model.AnmeldelseModel.Anmeldelse.AnmeldelseEffektivStatus.Afsluttet == null;
+    var sagsbehandlerListe = Model.SagsbehandlerListe
+        .Select(x => new Niras.Jordflytning.ViewModels.Anmeldelse.SagsbehandlerViewModel
+        {
+            Id = (x.Value.Length == 36 ? Guid.Parse(x.Value) : Guid.Empty),
+            Navn = x.Text
+        }).ToArray();
+}
+
+@Html.HiddenFor(model => model.AnmeldelseModel.Gebyr.Id)
+<div id="">
+
+    <div class="row" style="margin-right: 10px;">
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Gebyrpligt</h5>
+            </div>
+            <div class="row_control">
+                <div class="row_line">
+                    <div class="column" style="margin-right: 2%; width: 30%;">
+                        <div class="row">
+                            @Html.Label("Gebyrpligtig", new { style = "width: 100px" })
+                            @Html.RadioButtonFor(model => model.AnmeldelseModel.Gebyr.Gebyrpligtig, true, (frigivet) ? new { id = "AnmeldelseModel_Gebyr_Gebyrpligtig_Ja", disabled = true } : (object)new { onchange = "onGebyrStateChanged()" }) @Html.Label("Ja", new { style = "width: 25px" })                            
+                            @Html.RadioButtonFor(model => model.AnmeldelseModel.Gebyr.Gebyrpligtig, false, (frigivet) ? new { id = "AnmeldelseModel_Gebyr_Gebyrpligtig_Nej", disabled = true } : (object)new { onchange = "onGebyrStateChanged()" })@Html.Label("Nej", new { style = "width: auto" })
+
+                            @Html.Label("Beslutningsdato")
+                            @(Html.Kendo().DatePickerFor(model => model.AnmeldelseModel.Gebyr.BeslutningsDato)
+                                .HtmlAttributes(new { type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv beslutningsdato", style = "width: 125px", id = "dpBeslutningsdato" }).Enable(!frigivet)
+                            )
+                            <br />
+                            @Html.Label("Sagsbehandler")
+                            @(Html.Kendo().DropDownListFor(model => model.AnmeldelseModel.Gebyr.SagsbehandlerId)
+                            .DataTextField("Navn")
+                            .DataValueField("Id")
+                            .BindTo(sagsbehandlerListe)
+                            .OptionLabel("Vælg sagsbehandler")
+                            .HtmlAttributes(new { Style = "width:100%; min-width: 100px;", id = "ddlGebyrBeslutningSagsbehandler" }).Enable(!frigivet))
+                        </div>
+                    </div>
+                    <div class="column" style="width: 68%;">
+                        <div class="row">
+                            @Html.Label("Intern bemærkning")
+                            @if (frigivet)
+                            {
+                                @Html.TextAreaFor(model => model.AnmeldelseModel.Gebyr.Bemaerkning, new { style = "height: 84px; width: 100%;", disabled = true })
+                            }
+                            else
+                            {
+                                @Html.TextAreaFor(model => model.AnmeldelseModel.Gebyr.Bemaerkning, new { style = "height: 84px; width: 100%;" })
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+            </div>
+        </div>
+    </div>
+    <div style="clear: both"></div>
+    <div class="row" style="margin-right: 10px;">
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Gebyr- og tidsregistrering</h5>
+            </div>
+            <div class="row_control">
+                <div class="row_line">
+                    <div class="row">
+                        @(Html.Kendo().Grid(Model.AnmeldelseModel.Gebyr.GebyrTidsregistrering.OrderBy(x => x.Dato).ThenBy(x => x.Opgavetype.Sortering))
+                              .Name("GridGebyr")
+                              .HtmlAttributes(new { style = "font-size:12px;" })
+                              .ToolBar(toolbar =>
+                              {
+                                  if (!frigivet)
+                                      toolbar.Create().Text("Tilføj");
+                              })
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(x => x.Id).Hidden();
+                                  columns.Bound(x => x.Dato).Sortable(true).Format("{0:dd-MM-yyyy}");
+                                  columns.Bound(x => x.Medarbejder.Id).Hidden();
+                                  columns.Bound(x => x.Medarbejder.Navn).Sortable(true);
+                                  columns.Bound(x => x.Opgavetype.Id).Hidden();
+                                  columns.Bound(x => x.Opgavetype.Navn).Sortable(true).Title("Opgavetype");
+                                  columns.Bound(x => x.Beskrivelse).Width(200).Title("Beskrivelse");
+                                  columns.Bound(x => x.ForbrugtTid).ClientTemplate("#= kendo.format('{0:00}:{1:00}', ForbrugtTid.Hours, ForbrugtTid.Minutes) #").Title("Forbrugt tid");
+                                  columns.Command(x => {
+                                      x.Edit().Text("Redigér").UpdateText("OK").CancelText("Annuller");
+                                      x.Destroy().Text("Fjern");
+                                  }).Title("Redigér/Slet").Width(165).Hidden(frigivet);
+                              })
+                              //.Pageable(pager => pager.PageSizes(new[] { 5, 10, 20, 100 })) // Default page sizes are 5, 10 and 20
+                              .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                              .Sortable()
+                              .Editable(editable => editable.Mode(GridEditMode.PopUp)
+                                .CreateAt(GridInsertRowPosition.Bottom)
+                                .TemplateName("GebyrTidsregistreringCustomPopupEditor")
+                                .DisplayDeleteConfirmation("Vil du slette tidsregistreringen?")
+                                .Window(w => w.Title("Opret/redigér tidsregistrering")))
+                              //.AutoBind(true)
+                              .DataSource(dataSource => dataSource
+                                  .Ajax()
+                                  .Read(read => read.Action("ReadGebyrTidsregistrering", "Anmeldelser", new { area = "", Id = Model.AnmeldelseModel.Anmeldelse.Id }))
+                                  .Create(create => create.Action("EditGebyrTidsregistrering", "Anmeldelser", new { area = "" }))
+                                  .Update(u => u.Action("EditGebyrTidsregistrering", "Anmeldelser", new { area = "" }))
+                                  .Destroy(destroy => destroy.Action("RemoveGebyrTidsregistrering", "Anmeldelser", new { area = "" }))
+                                  .Events(events => events.Error("onGebyrTidsregistreringError").Change("onGebyrTidsregistreringChanged")) // Add the error handler to the DataSource.
+                                  .Model(model => {
+                                      model.Id(x => x.Id);
+                                      model.Field(x => x.AnmeldelseId).DefaultValue(Model.AnmeldelseModel.Anmeldelse.Id);
+                                      model.Field(x => x.Medarbejder).DefaultValue(new Niras.Jordflytning.ViewModels.Anmeldelse.SagsbehandlerViewModel { Navn = "" });
+                                      model.Field(x => x.Opgavetype).DefaultValue(new Niras.Jordflytning.ViewModels.Anmeldelse.OpgavetypeViewModel { Navn = "" });
+                                      model.Field(x => x.ForbrugtTid).DefaultValue(TimeSpan.Zero);
+                                      model.Field(x => x.OpgavetyperListe).DefaultValue(Model.OpgavetyperListe);
+                                      model.Field(x => x.SagsbehandlerListe).DefaultValue(sagsbehandlerListe);
+                                      model.Field(x => x.Medarbejder).DefaultValue(Model.AnmeldelseModel.AktuelSagsbehandler);
+                                      model.Field(x => x.Dato).DefaultValue(DateTime.Today);
+                                  })
+                          ))
+                        @*<div style="clear: both"></div>*@
+                    </div>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+        <div style="clear: both"></div>
+        <div class="row" style="margin-right: 10px;">
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Fakturering</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row_line">
+                        <div class="column" style="width: auto;">
+                            <div class="row" style="white-space: nowrap; padding-right: 10px;">
+
+                                @Html.Label("Frigivet til fakturering", new { style = "width: 135px" })
+                                @if (overfoert || anmeldelseIkkeGodkendt)
+                                {
+                                    @Html.RadioButtonFor(model => model.AnmeldelseModel.Gebyr.FrigivetTilFakturering, true, new { disabled = true, id = "AnmeldelseModel_Gebyr_Gebyrpligtig_Ja" })@Html.Label("Ja", new { style = "width: 20px" })
+                                    @Html.RadioButtonFor(model => model.AnmeldelseModel.Gebyr.FrigivetTilFakturering, false, new { disabled = true, id = "AnmeldelseModel_Gebyr_Gebyrpligtig_Nej" })@Html.Label("Nej", new { style = "width: auto" })
+                                }
+                                else
+                                {
+                                    @Html.RadioButtonFor(model => model.AnmeldelseModel.Gebyr.FrigivetTilFakturering, true, new { onchange = "onFrigivetStateChanged()", id= "AnmeldelseModel_Gebyr_Gebyrpligtig_Ja" })@Html.Label("Ja", new { style = "width: 20px" })
+                                    @Html.RadioButtonFor(model => model.AnmeldelseModel.Gebyr.FrigivetTilFakturering, false, new { onchange = "onFrigivetStateChanged()", id = "AnmeldelseModel_Gebyr_Gebyrpligtig_Nej" })@Html.Label("Nej", new { style = "width: auto" })
+                                }
+                            </div>
+                        </div>
+                        <div class="column" style="width: auto;">
+                            <div class="row" style="white-space: nowrap;">
+                                @(Html.Kendo().DatePickerFor(model => model.AnmeldelseModel.Gebyr.FrigivetTilFaktureringDato)
+                                  .HtmlAttributes(new { type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv dato", style = "width: 125px", id = "dpFrigivetDato" }).Enable(!overfoert && !anmeldelseIkkeGodkendt)
+                            )
+                            </div>
+                        </div>
+                        <div class="column" style="width: auto;">
+                            <div class="row" style="white-space: nowrap;">
+                                <span>af&nbsp;</span>
+                                @(Html.Kendo().DropDownListFor(model => model.AnmeldelseModel.Gebyr.FrigivetAfSagsbehandlerId)
+                                .DataTextField("Navn")
+                                .DataValueField("Id")
+                                .BindTo(sagsbehandlerListe)
+                                .OptionLabel("Vælg sagsbehandler")
+                                .HtmlAttributes(new { Style = "width:100%; min-width: 100px", id = "ddlFrigivetAf" })
+                                .Enable(!overfoert && !anmeldelseIkkeGodkendt))
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        <div class="column" style="margin-right: 2%; width: 30%;">
+                            <div class="row">
+                                @Html.Label("Status", new { style = "font-weight: bold;" })
+                                <div style="clear: both"></div>
+                                @if (overfoert)
+                                {
+                                <span>Overført til fakturering d. @(Model.AnmeldelseModel.Gebyr.OverfoertTilFaktureringDato.Value.ToString("dd-MM-yyyy H:mm:ss")) <br />af @(Model.AnmeldelseModel.Gebyr.OverfoertTilFaktureringAf)</span>
+                                } 
+                                else if (frigivet)
+                                {
+                                <span>Frigivet til fakturering.</span>
+                                }
+                                else
+                                {
+                                <span>Redigérbar</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="column" style="width: 68%;">
+                            <div class="row">
+                                @Html.Label("Intern bemærkning")
+                                @Html.TextAreaFor(model => model.AnmeldelseModel.Gebyr.FaktureringBemaerkning, new { style = "height: 84px; width: 100%;" })
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+    @if (!overfoert && !anmeldelseIkkeAfsluttet)
+    {
+    <div class="row">
+        <input type="button" value="Gem gebyrer og tidsregistreringer" style="margin-bottom: 10px;"  onclick="onGemGebyrTidsregistreringer(this)" />
+        <div style="position: absolute; left: 50%; top: 35%; display: none;"><img src="/Content/Icons/loading.gif" /></div>
+    </div>
+    <div style="clear: both"></div>
+    }
+</div>
+<script>
+
+    var forudfyldSagsbehandlerId = '';
+
+    document.addEventListener(
+        "onSagsbehandlingSagsbehandlerSelected",
+        (e) => {
+            //e.detail.id,
+            //e.detail.name,
+            //e.detail.hasSelection
+            forudfyldSagsbehandlerId = e.detail.id;
+        },
+        false,
+    );
+
+    var opgavetyperListe = @Html.Raw(Json.Encode(Model.OpgavetyperListe));
+    function onOpenOpgavetyperListe(e) {
+        var getTimeFromJson = function(jsonDate) {
+            jsonDate = jsonDate.replace("/Date(", " ")
+            jsonDate = jsonDate.replace(")/", " ")
+            return parseInt(jsonDate);
+        }
+        var dato = $("#dpOpgaveDato").data("kendoDatePicker").value().getTime();
+        var list = [opgavetyperListe[0]];
+        for (var i = 1; i < opgavetyperListe.length; i++) {
+            var item = opgavetyperListe[i];
+            if (getTimeFromJson(item.FraDato) <= dato && (item.TilDato == null || getTimeFromJson(item.TilDato) >= dato)) {
+                list.push(item);
+            }
+        }
+        var dataSource = new kendo.data.DataSource({
+            data: list
+        });
+        this.setDataSource(dataSource);
+    }
+    function onChangeOpgavetyperListe(e) {
+        var kraeverTid = opgavetyperListe[this.selectedIndex].KraeverTidsregistrering;
+        $("#divTidsregistrering").toggle(kraeverTid);
+    }
+    function onGebyrTidsregistreringError(args) {
+        var errors = args.errors;
+        if (errors) {
+            var grid = $("#GridGebyr").data("kendoGrid");
+            grid.one("dataBinding", function (e) {
+                e.preventDefault();
+                $.each(errors, function (key, value) {
+                    var message = "";
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                    // As long as the key matches the field name, this line of code will be displayed as validation message in the popup.
+                    grid.editable.element.find("[data-valmsg-for='" + key + "']").replaceWith('<div class="k-widget k-tooltip k-tooltip-error" style="margin:0.5em"><span class="k-icon k-i-exclamation-circle"> </span>' + message + '<div class="k-callout k-callout-n"></div></div>').show();
+                });
+            });
+        }
+    }
+
+    function onGebyrTidsregistreringChanged(e) {
+        var hasItems = e.items.length > 0;
+        var laast = @((overfoert || anmeldelseIkkeGodkendt) ? "true" : "false");
+        //var cb = $("#AnmeldelseModel_Gebyr_FrigivetTilFakturering");
+        var cb = $('input[name="AnmeldelseModel.Gebyr.FrigivetTilFakturering"]');
+        if (!laast && hasItems)
+            cb.removeAttr("disabled");
+        else
+            cb.attr("disabled", "disabled");
+    }
+
+    function onGebyrStateChanged() {
+        var datepicker = $("#dpBeslutningsdato").data("kendoDatePicker");
+        var ddl = $("#ddlGebyrBeslutningSagsbehandler").data("kendoDropDownList");
+        datepicker.value(new Date());
+        ddl.value(forudfyldSagsbehandlerId);
+        datepicker.trigger("change");
+        ddl.trigger("change");
+    }
+
+    function onFrigivetStateChanged() {
+        //var isChecked = $("#AnmeldelseModel_Gebyr_FrigivetTilFakturering:checked").val() == "True";
+        var isChecked = $('input[name="AnmeldelseModel.Gebyr.FrigivetTilFakturering"]:checked').val() == "True";
+        var datepicker = $("#dpFrigivetDato").data("kendoDatePicker");
+        var ddl = $("#ddlFrigivetAf").data("kendoDropDownList");
+        if (isChecked) {
+            //datepicker.value(new Date());
+            //ddl.value(forudfyldSagsbehandlerId);
+            var erGebyrpligtigt = $('input[name="AnmeldelseModel.Gebyr.Gebyrpligtig"]:checked').val() == "True";
+            if (!erGebyrpligtigt) {
+                var gpCb = $('input[name="AnmeldelseModel.Gebyr.Gebyrpligtig"]').first().prop('checked', true);
+                var gpDdl = $("#ddlGebyrBeslutningSagsbehandler").data("kendoDropDownList");
+                if (gpDdl.value() == '')
+                    gpDdl.value(forudfyldSagsbehandlerId);
+                var gpDp = $("#dpBeslutningsdato").data("kendoDatePicker");
+                if (gpDp.value() == null)
+                    gpDp.value(new Date());
+            }
+
+        } else {
+            //    datepicker.value(null);
+            //    ddl.value(null);
+        }
+        datepicker.value(new Date());
+        ddl.value(forudfyldSagsbehandlerId);
+        datepicker.trigger("change");
+        ddl.trigger("change");
+    }
+
+    function onGemGebyrTidsregistreringer(sender) {
+
+        // Workaround, da værdier for diabled kontroller ikke kommer med i Post
+        var erGebyrpligtigt = $('input[name="AnmeldelseModel.Gebyr.Gebyrpligtig"]:checked').val() == "True";
+        if (erGebyrpligtigt) {
+            document.getElementById("AnmeldelseModel_Gebyr_Gebyrpligtig_Ja").disabled = false;
+            document.getElementById("dpBeslutningsdato").disabled = false;
+            document.getElementById("AnmeldelseModel_Gebyr_Bemaerkning").disabled = false;
+        }
+        else {
+            radiobtnNej = document.getElementById("AnmeldelseModel_Gebyr_Gebyrpligtig_Nej").disabled = false;
+            document.getElementById("AnmeldelseModel_Gebyr_Bemaerkning").disabled = false;
+        }
+
+        var button = $(sender);
+        var gif = button.next();
+        var form = button.closest("form");
+        button.hide();
+        gif.show();
+        var s = form.serialize();
+        $.post("GemGebyrTidsregistrering", s, function (data, status) {
+            displayMessage(data.message);
+            if (data.success) {
+                window.location.search += '&tab=tabGebyrOgTidsregistrering';
+            } else {
+                button.show();
+            };
+            gif.hide();
+        });
+    }
+
+</script>

@@ -1,0 +1,224 @@
+﻿@model Niras.Jordflytning.ViewModels.LoginModel
+
+@{
+	ViewBag.Title = "ContentPage";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+	@Styles.Render("~/Content/Css/content")
+}
+@*
+@section LeftMenu {
+	@(Html.Kendo().PanelBar()
+							.Name("panelbar")
+							.ExpandMode(PanelBarExpandMode.Single)
+							.HtmlAttributes(new { style = "width:200px;height:100%;min-height:100%;" })
+							.Events(events => events
+							.Select("selectMenuItem")
+							)
+							.Items(panelbar =>
+							{
+								panelbar.Add().Text("Anmeldelser")
+										.Items(anmeldelser =>
+										{
+											anmeldelser.Add().Text("Opret anmeldelse").Url("/Anmeldelser/Opret");
+										});
+
+								panelbar.Add().Text("Test")
+										.Items(programs =>
+										{
+											programs.Add().Text("Monday");
+											programs.Add().Text("Tuesday");
+											programs.Add().Text("Wednesday");
+											programs.Add().Text("Thursday");
+											programs.Add().Text("Friday");
+										});
+
+								panelbar.Add().Text("Communication").Enabled(false);
+							})
+		)
+} 
+
+
+@(Html.Kendo().PanelBar()
+            .Name("panelbar-Years")
+            .ExpandAll(true)
+            .Items(panelbar =>
+            {
+                panelbar.Add().Text("Years")
+                    .Items(africa => {
+                        foreach (var item in Model.Years)
+                        {
+                            africa.Add().Text(item.Title);
+                        }
+                    });
+            })
+        )
+
+*@
+
+@*@section LeftMenu {
+	@(Html.Kendo().PanelBar()
+							.Name("panelbar")
+							.ExpandMode(PanelBarExpandMode.Single)
+							.HtmlAttributes(new { style = "width:200px;height:100%;min-height:100%;" })
+							.Events(events => events
+							.Select("selectMenuItem")
+							)
+							.Items(panelbar =>
+							{ 
+								foreach(var menuItem in Model.Menu.MenuItems)
+								{
+								panelbar.Add().Text(menuItem.Text).Items(subitems => 
+									{
+									foreach(var subItem in menuItem.SubItems)
+									{
+										subitems.Add().Text(subItem.Text).Url(subItem.Url);
+									}
+									});
+										}})
+										)
+								
+		
+		
+		
+
+}*@
+ 
+@*
+@section LeftMenu {
+	@(Html.Kendo().PanelBar()
+		.Name("panelBar")
+		.ExpandMode(PanelBarExpandMode.Single)
+		.HtmlAttributes(new { style = "width:200px;height:100%;min-height:100%;" })
+		.Events(events => events.Select("selectMenuItem"))
+		.BindTo(Model.Model, mapping => 
+		{
+			mapping.For<MenuItem>(binding => binding // The "child" items will be bound to the the "Orders" property
+			.ItemDataBound((item, c)  => 
+			{ item.Text = c.Text;}) // Map "Customer" properties to PanelBarItem properties
+		 .Children(c => c.SubItems));
+			
+		mapping.For<MenuItem> (binding => binding // "Orders" do not have child objects so return "null"
+		.ItemDataBound((item, o) 
+		 => { item.Text = o.Text; })); // Map "Order" properties to PanelBarItem properties
+		})
+			)
+}
+@*
+@(Html.Kendo().PanelBar()
+      .Name("panelbar") //The name of the panelbar is mandatory. It specifies the "id" attribute of the widget.
+      .BindTo(Model, mappings =>
+       {
+           mappings.For<category> (binding => binding //define first level of panelbar
+               .ItemDataBound((item, category) => //define mapping between panelbar item properties and the model properties
+                   {item.Text = category.CategoryName;})
+									 
+               .Children(category => category.Products)); //define which property of the model contains the children
+           mappings.For<product>(binding => binding
+               .ItemDataBound((item, product) =>
+                   { item.Text = product.ProductName;}));
+       })
+)
+*@
+
+
+<div id="contentTabs">
+	@(Html.Kendo().TabStrip()
+							.Name("contentTabstrip")
+							.Items(items =>
+											{
+												items.Add().Text("Forside").Selected(false).Visible(false);
+											})
+)
+</div>
+<script type="text/javascript">
+	var tabStrip;
+
+	function selectMenuItem(e) {
+		var link = $(e.item).find("> .k-link");
+		if (link != null && link.attr("href") != null) {
+			e.preventDefault();
+			addTab(link.text(), link.attr("href"));
+		}
+	}
+
+	function addTab(text, url) {
+		//var tabStrip = $("#contentTabstrip").data("kendoTabStrip");
+		var tabHeader = "<span>" + text + "</span><span class=\"closeTabIcon\" onclick='tabStrip.remove($(this).closest(\"li\"));selectTab()'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>"
+		tabStrip.append(
+				[/*{
+					text: "Item 1",
+					url: "http://www.kendoui.com"               // Link URL if navigation is needed, optional.
+				},
+				{
+					text: "<b>Item 2</b>",
+					encoded: false,                             // Allows use of HTML for item text
+					content: "text"                             // Content for the content element
+				},*/
+				{
+					text: tabHeader,
+					encoded: false,
+					//contentUrl: url,
+					//selected: true
+					content: "<iframe src=\"" + url + "\" width=\"100%\" height=\"100%\" border=\"0\" style=\"border:none\"></iframe>"
+				}/*,
+				{
+					text: "Item 4",
+					imageUrl: "http://www.kendoui.com/test.jpg" // Item image URL, optional.
+				},
+				{
+					text: "Item 5",
+					spriteCssClass: "imageClass3"               // Item image sprite CSS class, optional.
+				}*/]
+		);
+
+		setTabContentHeight();
+
+		// select the tab
+		selectTab();
+		//attachTabCloseHandlers();
+	}
+
+	function setTabContentHeight() {
+		var tabContentHeight = $("#contentTabs").outerHeight();
+		$("div[id^='contentTabstrip-']").each(function (index) {
+			$(this).css("height", tabContentHeight - 50);
+		});
+	}
+
+	function attachTabCloseHandlers() {
+		$(".closeTabIcon").each(function (i, obj) {
+			$(obj).off("click");
+			$(obj).click(function (obj) {
+				alert($(obj).html);
+				//var tabStrip = $("#contentTabstrip").data("kendoTabStrip");
+				alert("Idx to close: " + $(obj).closest("li").index());
+				tabStrip.remove($(obj).closest("li").index());
+				//selectTab();
+			});
+		});
+	}
+
+	function selectTab(index) {
+		//var tabStrip = $("#contentTabstrip").data("kendoTabStrip");
+		if (!index) { // no index specified -> select last tab
+			index = tabStrip.tabGroup.children("li").length - 1;
+		}
+
+		if (index >= 0) {
+			tab = tabStrip.tabGroup.children("li").eq(index);
+			if (tab) {
+				tabStrip.select(tab);
+			}
+		}
+	}
+
+	$(document).ready(function () {
+		tabStrip = $("#contentTabstrip").data("kendoTabStrip");
+	});
+
+
+
+</script>

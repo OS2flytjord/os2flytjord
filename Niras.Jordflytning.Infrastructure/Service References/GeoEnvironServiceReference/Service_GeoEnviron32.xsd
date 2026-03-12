@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/WsNetForvaltning" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/WsNetForvaltning" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://netforvaltning.aarhus.geoenviron.dk/Service_GeoEnviron.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="CompositeType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BoolValue" type="xs:boolean" />
+      <xs:element minOccurs="0" name="StringValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CompositeType" nillable="true" type="tns:CompositeType" />
+  <xs:complexType name="Response">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Punkter" nillable="true" type="tns:Punkter" />
+      <xs:element minOccurs="0" name="ResponseHeader" nillable="true" type="tns:ResponseHeader" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Response" nillable="true" type="tns:Response" />
+  <xs:complexType name="Punkter">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Punkt04" nillable="true" type="tns:Punkt04" />
+      <xs:element minOccurs="0" name="Punkt08" nillable="true" type="tns:Punkt08" />
+      <xs:element minOccurs="0" name="Punkt09" nillable="true" type="tns:Punkt09" />
+      <xs:element minOccurs="0" name="Punkt10" nillable="true" type="tns:Punkt10" />
+      <xs:element minOccurs="0" name="Punkt11" nillable="true" type="tns:Punkt11" />
+      <xs:element minOccurs="0" name="Punkt12" nillable="true" type="tns:Punkt12" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkter" nillable="true" type="tns:Punkter" />
+  <xs:complexType name="Punkt04">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P04" type="xs:boolean" />
+      <xs:element minOccurs="0" name="P04A" type="tns:Marker" />
+      <xs:element minOccurs="0" name="P04B" type="tns:Marker" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt04" nillable="true" type="tns:Punkt04" />
+  <xs:simpleType name="Marker">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ingen">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Nej">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Ja">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Marker" nillable="true" type="tns:Marker" />
+  <xs:complexType name="Punkt08">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P08" type="xs:boolean" />
+      <xs:element minOccurs="0" name="P08Struktur" nillable="true" type="tns:ArrayOfPunkt08Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt08" nillable="true" type="tns:Punkt08" />
+  <xs:complexType name="ArrayOfPunkt08Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Punkt08Struktur" nillable="true" type="tns:Punkt08Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPunkt08Struktur" nillable="true" type="tns:ArrayOfPunkt08Struktur" />
+  <xs:complexType name="Punkt08Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P08A" type="tns:Marker" />
+      <xs:element minOccurs="0" name="P08B" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="P08C" type="tns:Marker" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt08Struktur" nillable="true" type="tns:Punkt08Struktur" />
+  <xs:complexType name="Punkt09">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P09" type="xs:boolean" />
+      <xs:element minOccurs="0" name="P09Struktur" nillable="true" type="tns:ArrayOfPunkt09Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt09" nillable="true" type="tns:Punkt09" />
+  <xs:complexType name="ArrayOfPunkt09Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Punkt09Struktur" nillable="true" type="tns:Punkt09Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPunkt09Struktur" nillable="true" type="tns:ArrayOfPunkt09Struktur" />
+  <xs:complexType name="Punkt09Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P09A" type="tns:Marker" />
+      <xs:element minOccurs="0" name="P09B" type="tns:Ejer" />
+      <xs:element minOccurs="0" name="P09C" type="tns:Anlæg" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt09Struktur" nillable="true" type="tns:Punkt09Struktur" />
+  <xs:simpleType name="Ejer">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ingen">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Offentlig">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Privat">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Ejer" nillable="true" type="tns:Ejer" />
+  <xs:simpleType name="Anlæg">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ingen">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Enkeltindvindingsanlæg">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="IkkeAlmentVandforsyningsanlæg">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Anlæg" nillable="true" type="tns:Anlæg" />
+  <xs:complexType name="Punkt10">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P10" type="xs:boolean" />
+      <xs:element minOccurs="0" name="P10Struktur" nillable="true" type="tns:ArrayOfPunkt10Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt10" nillable="true" type="tns:Punkt10" />
+  <xs:complexType name="ArrayOfPunkt10Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Punkt10Struktur" nillable="true" type="tns:Punkt10Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPunkt10Struktur" nillable="true" type="tns:ArrayOfPunkt10Struktur" />
+  <xs:complexType name="Punkt10Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P10A" type="tns:Marker" />
+      <xs:element minOccurs="0" name="P10C" type="tns:Tank" />
+      <xs:element minOccurs="0" name="P10D" type="tns:Nedsivning" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt10Struktur" nillable="true" type="tns:Punkt10Struktur" />
+  <xs:simpleType name="Tank">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ingen">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="SeptiktankTrixtank">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Samletank">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Tank" nillable="true" type="tns:Tank" />
+  <xs:simpleType name="Nedsivning">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ingen">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Nedsivningsanlæg">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Nedsivning" nillable="true" type="tns:Nedsivning" />
+  <xs:complexType name="Punkt11">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P11" type="xs:boolean" />
+      <xs:element minOccurs="0" name="P11Struktur" nillable="true" type="tns:ArrayOfPunkt11Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt11" nillable="true" type="tns:Punkt11" />
+  <xs:complexType name="ArrayOfPunkt11Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Punkt11Struktur" nillable="true" type="tns:Punkt11Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPunkt11Struktur" nillable="true" type="tns:ArrayOfPunkt11Struktur" />
+  <xs:complexType name="Punkt11Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Comment" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="P11A" type="tns:Marker" />
+      <xs:element minOccurs="0" name="P11B" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="P11C" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="P11D" type="tns:Nuancering" />
+      <xs:element minOccurs="0" name="SiteId" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt11Struktur" nillable="true" type="tns:Punkt11Struktur" />
+  <xs:simpleType name="Nuancering">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ingen">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="F0">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="F1">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="F2">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">8</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="IkkeNuanceretEndnu">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">16</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Nuancering" nillable="true" type="tns:Nuancering" />
+  <xs:complexType name="Punkt12">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P12" type="xs:boolean" />
+      <xs:element minOccurs="0" name="P12Struktur" nillable="true" type="tns:ArrayOfPunkt12Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt12" nillable="true" type="tns:Punkt12" />
+  <xs:complexType name="ArrayOfPunkt12Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Punkt12Struktur" nillable="true" type="tns:Punkt12Struktur" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPunkt12Struktur" nillable="true" type="tns:ArrayOfPunkt12Struktur" />
+  <xs:complexType name="Punkt12Struktur">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="P12A" type="tns:Marker" />
+      <xs:element minOccurs="0" name="P12B" type="tns:Marker" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Punkt12Struktur" nillable="true" type="tns:Punkt12Struktur" />
+  <xs:complexType name="ResponseHeader">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DebugText" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StatusCode" type="xs:int" />
+      <xs:element minOccurs="0" name="StatusText" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ResponseHeader" nillable="true" type="tns:ResponseHeader" />
+</xs:schema>

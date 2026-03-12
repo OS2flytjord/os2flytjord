@@ -1,0 +1,31 @@
+﻿/* FFS CSS! */
+html {
+    height: auto !important;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+body
+{
+    background-color: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow-y: visible !important;
+    background: none !important;
+    height: auto !important;
+}
+
+div#body {
+    width: 100% !important;
+    padding: 10px !important;
+    margin: 0 !important;
+}
+div#container {
+    width: 100% !important;
+    min-height: 100px !important;
+}

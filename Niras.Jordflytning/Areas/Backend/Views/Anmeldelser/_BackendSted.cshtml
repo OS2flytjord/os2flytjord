@@ -1,0 +1,349 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+<div>
+    <div id="divSted" class="row" style="margin-top: 10px">
+
+        <div class="column" id="divStedLeft" style="width: 49%">
+
+            <div id="oprindelsessted" class="controlsbox row">
+                <div class="cbheader">
+                    <h5>Oprindelsessted</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row_line">
+                        @{
+                            //Html attribut beregnes ud fra tidliger
+                            var d0 = new Dictionary<string, object>();
+                            d0.Add("Id", "stedTypeEjendom");
+                            if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 0)
+                            {
+                                d0.Add("checked", "checked");
+                            }
+                            var d1 = new Dictionary<string, object>();
+                            d1.Add("Id", "stedTypeOffentligVej");
+                            if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 1)
+                            {
+                                d1.Add("checked", "checked");
+                            }
+                            var d2 = new Dictionary<string, object>();
+                            d2.Add("Id", "stedTypeAndenOprindelse");
+                            if (Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 2)
+                            {
+                                d2.Add("checked", "checked");
+                            }
+                        }
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id, "BBB062F1-641A-45AD-BEDD-B0C126FCDFE6", d0)
+                        @Html.Label("rblOprindelsesstedKlas", "Ejendom", new { Class = "labelradio", Style = "width:125px;" })
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id, "295407E9-2182-4876-AE6F-50AFD00A6194", d1)
+                        @Html.Label("rblOprindelsesstedKlas", "Offentlig vej", new { Class = "labelradio" })
+                        @Html.RadioButtonFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id, "480738EC-4A9D-448E-9A18-5BA481A8A3C6", d2)
+                        @Html.Label("rblOprindelsesstedKlas", "Anden oprindelse", new { Class = "labelradio" })
+                        <div style="clear: both"></div>
+                    </div>
+
+                    <div class="row" style="display: block">
+                        <div id="divEjendom" style="display: @(Model.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id == Guid.Parse("BBB062F1-641A-45AD-BEDD-B0C126FCDFE6") ? "block" : "none") ">
+                            <div id="divEjendomAdresseEdit">
+                                <div class="row_line">
+                                    @Html.Label("Materiale-/jordtype", new { style = "width:149px" })
+                                    @(Html.Kendo().DropDownListFor(x => x.AnmeldelseModel.SelectedEjendomMaterialeTypeID)
+                                                    .HtmlAttributes(new { @id = "EjendomListe", @style = "width:315px" })
+                                                            .OptionLabel("Vælg, hvis aktuelt")
+                                                    .DataTextField("Text")
+                                                    .DataValueField("Value")
+                                                            .BindTo(Model.AnmeldelseModel.EjendomJordTypeListe)
+                                    )
+                                </div>
+                                <div class="row_line" id="divEjendomAdresseOpslagEdit" style="display: @(Model.AnmeldelseModel.AdresseOpslagViewMode == false ? "block" : "none") ">
+                                    @Html.Partial("~/Views/Anmeldelser/_AdresseOpslag.cshtml", new ViewDataDictionary() { { "Style", "width:449px;" } })
+                                </div>
+                                <div style="clear: both"></div>
+                            </div>
+                            <div class="row_line" id="divEjendomMapDigPolygon" style="display: none">
+                                <label>Udpeg i kort</label>
+                                <input type="button" id="btnEjendomMapDigPolygon" value="Tegn" onclick="mapStedDigitaliser()" data-tooltip="Indtegn området, som jordflytningen vedrører i kortet" />
+                            </div>
+                            <div style="clear: both"></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div id="divOffentligVej" style="display: @(Model.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id == Guid.Parse("295407E9-2182-4876-AE6F-50AFD00A6194") ? "block" : "none") ">
+                            <div id="divOffvejAdresseEdit">
+                                <div class="row_line" id="divOffvejAdresseOpslagEdit" style="display: @(Model.AnmeldelseModel.AdresseOpslagViewMode == false ? "block" : "none") ">
+                                    @Html.Partial("~/Views/Anmeldelser/_VejOpslag.cshtml", new ViewDataDictionary() { { "Style", "width:465px;" } })
+                                </div>
+                                <div class="row_line">
+                                    @Html.Label("Materiale-/jordtype", new { style = "width:149px" })
+                                    @(Html.Kendo().DropDownListFor(x => x.AnmeldelseModel.SelectedOffentligVejMaterialeTypeID)
+                                                      .HtmlAttributes(new { @id = "VejListe", @style = "width:315px" })
+                                                              .OptionLabel("Vælg, hvis aktuelt")
+                                                      .DataTextField("Text")
+                                                      .DataValueField("Value")
+                                                              .BindTo(Model.AnmeldelseModel.VejJordTypeListe)
+                                    )
+                                </div>
+                            </div>
+                            <div class="row_line" id="divOffVejMapDigPolygon" style="display: none">
+                                <label style="width:143px;" ">Indtegn i kort *</label>
+                                <input type="button" id="btnOffVejMapDigPolygon" value="Tegn" onclick="mapStedDigitaliserVej()" data-tooltip="Indtegn området som jordflytningen vedrører i kortet" />
+                            </div>
+                            <div style="clear: both"></div>
+
+                        </div>
+                    </div>
+                    <div style="display: @(Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex != 2 ? "block" : "none") " class="row">
+                        <div id="divAdresseView" style="display: @(Model.AnmeldelseModel.AdresseOpslagViewMode ? "block" : "none") ">
+
+                            <div id="divStedVejLinkTilEksternSystem" class="row_line row" style="display: @(Model.AnmeldelseModel.OprindelsesstedKlassifikationTypeSelectedIndex == 1 ? "block" : "none") ">
+                                @Html.Label("Link til ekstern system", new { style = "width:149px" })
+                                @Html.TextBoxFor(t => t.AnmeldelseModel.Anmeldelse.Oprindelsessted.OffvejUrl, new { maxlength = 500, Style = "width:293px;" })
+                            </div>
+
+                            <div class="row_line row">
+                                @Html.Label("Adresse", new { style = "width:143px" })
+                                @Html.TextBoxFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.Adresse, new { Id = "txtAdresse", @class = "readonly", @readonly = true })
+                            </div>
+                            <div class="row_line row">
+                                @Html.Label("Postnummer", new { style = "width:143px" })
+                                @Html.TextBoxFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.Postnummer, new { Id = "txtPostnummer", @class = "readonly", @readonly = true, @style = "width:40px;margin-right:10px;" })
+                                @Html.TextBoxFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.PostDistrikt, new { Id = "txtPostDistrikt", @class = "readonly", @readonly = true, @style = "width:154px" })
+                            </div>
+                            <div class="row_line row">
+                                @Html.Label("Kommune", new { style = "width:143px" })
+                                @Html.TextBoxFor(x => x.AnmeldelseModel.Anmeldelse.Kommune.Navn, new { id = "txtKommune", @class = "readonly", @readonly = true })
+                            </div>
+                            <div class="row">
+                                <input type="button" value="Nyt sted" id="btnStedNyEjendom" data-tooltip="Vælg nyt oprindelsessted" style="margin-right:31px;" />
+                                <input type="button" value="Hent aktuel forureningsstatus" id="btnStedSoegEksterneSystemer" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row_line">
+                        <div id="divAndenOprindelse" style="display: @(Model.AnmeldelseModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id == Guid.Parse("480738EC-4A9D-448E-9A18-5BA481A8A3C6") ? "block" : "none") ">
+                            <div class="row_line">
+                                @Html.Label("Kommune", new { style = "width:149px" })
+                                @(Html.Kendo().DropDownListFor(x => x.AnmeldelseModel.selectedAndenOprindelsesstedKommune)
+                                                      .OptionLabel("Vælg")
+                                                      .DataTextField("Text") //Specifies which property of the Product to be used by the dropdownlist as a text.
+                                                      .DataValueField("Value") //Specifies which property of the Product to be used by the dropdownlist as a value.
+                                                      .BindTo(Model.AnmeldelseModel.StedKommuneListe)   //Pass the list of Products to the dropdownlist.
+                                )
+                            </div>
+                            <div style="clear: both"></div>
+                            <div class="row_line">
+                                @Html.Label("Materiale-/jordtype", new { style = "width:149px" })
+                                @(Html.Kendo().DropDownListFor(x => x.AnmeldelseModel.SelectedAndenOprindJordTypeID)
+                                                  .OptionLabel("Vælg")
+                                                  .HtmlAttributes(new { @style = "width:315px" })
+                                                  .DataTextField("Text")
+                                                  .DataValueField("Value")
+                                                  .BindTo(Model.AnmeldelseModel.AndenOprindJordTypeListe))
+                            </div>
+                            <div style="clear: both"></div>
+                            <div class="row_line">
+                                @*Html.LabelFor(x => x.AnmeldelseModel.Anmeldelse.Oprindelsessted.Beskrivelse, new { style="width:149px" })*@
+                                <label style="width:149px"><span>Beskrivelse </span><span style="color:red; font-size:11px; line-height:11px; display: block;">(der må ikke indtastes persondata)</span></label>
+                                @Html.TextBoxFor(x => x.AnmeldelseModel.Anmeldelse.Oprindelsessted.Beskrivelse, new { maxlength = 500, style = "height:80px" })
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+            </div>
+
+
+            <div id="divStedJordforureningOpslag" class="row" style="margin-top: 10px; display: none">
+                @*Vi genbruger den offentlig partial view*@
+                @Html.Partial("~/Views/Anmeldelser/_stedJordforuningopslag.cshtml", Model.AnmeldelseModel)
+            </div>
+        </div>
+
+
+        <div id="divStedRight" class="column" style="width: 50%; margin-left: 9px">
+
+            <div class="row" id="stedRight" style="height: 447px">
+                <div style="border: solid 0 #000; height: 100%; width: 100%;" id="divMapContainer">
+
+                    <div class="row">
+                        <div id="divMapSted" style="width: 100%; height: 450px"></div>
+                        <img id="imgMinimise" src="/Content/images/cross.png" alt="Skift til lille kort" style="display: none;">
+                        <img id="imgMaximise" src="/Content/images/application_side_contract.png" alt="Skift til stort kort" style="display: none;">
+                        <img id="imgSignatur" src="/Content/images/Signatur.png" title="" />
+                        <img id="imgSignaturForklaringExpand" src="/Content/images/Pil_ned.png" title="Udvid signaturforklaring" />
+                        <img id="imgSignaturForklaringColapse" src="/Content/images/Pil_op.png" title="Minimer signaturforklaring" />
+                        <img id="imgSignaturForklaring" src="/Content/images/Signaturforklaring_FJ_small.png" title="" />
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+            </div>
+
+            <div id="divStedHelpMap" class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Hjælp til søgning i kortet</h5>
+                </div>
+                <div class="row_control">
+                    <p>Arealet for den valgte adresse er indtegnet i kortet. </p>
+                    <p>Skal jordflytningen ske fra et andet areal, eller et mindre område på det valgte areal, skal du indtegne det aktuelle areal i kortet ved at aktivere knappen 'Tegn' i venstre boks. Herrefter vil de eksterne forureningsdata for dette areal blive hentet automatisk.</p>
+                    <p>Ligger det indtegnede areal på en anden adresse, er det VIGTGT, at du noterer denne adresse som oprindelsesadressen.</p>
+                </div>
+                <div style="clear: both"></div>
+            </div>
+
+        </div>
+    </div>
+    <div style="clear: both"></div>
+
+    @Html.HiddenFor(x => x.AnmeldelseModel.OprindelsesstedWkt, new { id = "hflOprindelsesstedWkt" })
+    @Html.HiddenFor(x => x.AnmeldelseModel.Anmeldelse.Oprindelsessted.Postnummer, new { id = "hflPostnummer" })
+    @Html.HiddenFor(x => x.AnmeldelseModel.Anmeldelse.Oprindelsessted.PostDistrikt, new { id = "hflPostDistrikt" })
+    @Html.HiddenFor(x => x.AnmeldelseModel.Anmeldelse.Oprindelsessted.Adresse, new { id = "hflAdresse" })
+
+    @Html.HiddenFor(x => x.AnmeldelseModel.MapStedLx, new { id = "MapStedLx" })
+    @Html.HiddenFor(x => x.AnmeldelseModel.MapStedLy, new { id = "MapStedLy" })
+    @Html.HiddenFor(x => x.AnmeldelseModel.MapStedUx, new { id = "MapStedUx" })
+    @Html.HiddenFor(x => x.AnmeldelseModel.MapStedUy, new { id = "MapStedUy" })
+</div>
+
+
+<script type="text/javascript">
+
+  function maxMap() {
+    var winMaxMap = $("#divMapContainer").kendoWindow({
+      height: "80%",
+      width: "80%",
+      modal: true
+    }).data("kendoWindow");
+
+    winMaxMap.open();
+    winMaxMap.maximize();
+    $("#divMapSted").height('700px');
+  }
+
+  function adresseFundet(adr) {
+    $("#divEjendomAdresseOpslagEdit").hide();
+    $("#divOffvejAdresseOpslagEdit").hide();
+    $("#divAdresseView").show();
+
+    //Kort
+    mapSted.setReadyListener(function () {
+      if (adr.x != null) {
+        mapStedNavigateToBbox(Math.round(adr.x) - 50, Math.round(adr.y) - 50, Math.round(adr.x) + 50, Math.round(adr.y) + 50);
+
+        $("#MapStedLx").val(Math.round(adr.x) - 50);
+        $("#MapStedLy").val(Math.round(adr.y) - 50);
+        $("#MapStedUx").val(Math.round(adr.x) + 50);
+        $("#MapStedUy").val(Math.round(adr.y) + 50);
+
+        $("#hflOprindelsesstedWkt").val("POINT(" + Math.round(adr.x) + " " + Math.round(adr.y) + ")");
+      }
+    });
+    mapStedRedlineWkt($("#hflOprindelsesstedWkt").val());
+
+    $("#hflAdresse").val(adr.vejnavn + " " + adr.husnr);
+    $("#txtAdresse").val(adr.vejnavn + " " + adr.husnr);
+    $("#txtKommune").val(adr.kommunenavn);
+    $("#hflPostDistrikt").val(adr.postdistrikt);
+    $("#hflPostnummer").val(adr.postnummer);
+    $("#txtPostDistrikt").val(adr.postdistrikt);
+    $("#txtPostnummer").val(adr.postnummer);
+
+    getJordForurening();
+
+    $("#divStedJordforureningOpslag").show();
+    $("#divEjendomMapDigPolygon").show();
+  }
+
+  function getJordForurening() {
+    //Nulstil resultat
+    $("#labelResultatJord").empty();
+    $("#divResultat").empty();
+    $("#labelResultatJord").html("Der foretages opslag i eksterne systemer. Vent venligst.");
+    $("#resultatJordProgress").show();
+    $("#btnKvittering").hide();
+    $("#hvadvildunu").hide();
+
+    //Henter forureningskategorierne for kommunen. getJordForurening() kaldes efter der er blevet lavet et adresse eller vej opslag.
+    $.post("@Url.Action("GetJordKlassifikationerForKommune", "Anmeldelser")", $("#formOpretAnmeldelse").serialize(), function (resultJordKlassifikation) {
+      if (resultJordKlassifikation) {
+        $("#divJordKlassifiktion").html(resultJordKlassifikation); //Erstatter alt inde for div'en med det partial view som man ved GetJordForurening
+
+        //Laver opslag i eksterne datakilder for at finde jordforureningen
+        $.post("@Url.Action("GetJordForurening", "Anmeldelser")", $("#formOpretAnmeldelse").serialize(), function (result) {
+          if (result) {
+            $("#divStedJordforureningOpslag").html(result); //Erstatter alt inde for div'en med det partial view som man ved GetJordForurening
+
+            //Advarsel i forbindelse med jordforureningsopslaget tilføjes _validering partial viewet
+            var jfMessage = $("#divStedJordforureningopslagAdvarsel").html();
+            $("#divValideringJordforureningopslagAdvarsel").html(jfMessage);
+            //if (jfMessage != '') {
+            //  $("#divValidering").show();
+            //}
+            //else { $("#divValidering").hide(); }
+
+            $("#resultatJordProgress").hide();
+            $("#labelResultatJord").empty();
+            $("#divResultatPrint").empty();
+            $("#btnKvittering").show();
+            $("#hvadvildunu").show();
+
+            var forureningOpslagFejlbesked = $("#hflForureningOpslagFejlbesked").val();
+            var forureningOpslagJordklassifikationTypeId = $("#hflForureningOpslagJordklassifikationTypeId").val();
+            var forureningOpslagResultat = $("#hflForureningOpslagResultatList").val();
+
+            $("#hflJordKlassifikationType").val(forureningOpslagJordklassifikationTypeId); //selected jordklassifikationstype sættes til værdien fra jordforurningsopslaget.
+
+            //Fejl
+            if (forureningOpslagFejlbesked != "") {
+                alert(forureningOpslagFejlbesked);
+            }
+            else {
+              //Resultat af opslaget
+              $("#labelResultatJord").html(forureningOpslagResultat);
+              $("#divResultatPrint").html(forureningOpslagResultat);
+
+              $("#btnKvittering").click(function (e) {
+                e.preventDefault();
+                window.open("/default/Kvittering", "_blank");
+              });
+
+              //Sætter jordklassifikation
+              $(".jordklassifikationTypeRadiolist").each(function () {
+                if ($(this).val() == forureningOpslagJordklassifikationTypeId) {
+                  $(this).prop('checked', true);
+                } else {
+                  $(this).removeAttr('checked');
+                }
+              });
+              //Redliner matriklerne
+              //mapStedRedlineMatrikelWkt($("#hflMatrikelWkt").val());
+
+              //Indlæser modtagerne igen nu med jordklassificering som filtreringsparameter
+              window.popModtagerAnlaeg();
+
+              //Indlæser jordforureningsopslaget på sagsbehandlerfanen
+              $("#grdJordforureningopslag").data("kendoGrid").dataSource.read();
+            }
+          }
+        });
+      }
+    });
+  }
+
+  function adresseNulstil() {
+    $("#resultatJord").hide();
+    $("#hvadvildunu").hide();
+    $("#tab_2").attr("disabled", "disabled");
+    $("#tab_3").attr("disabled", "disabled");
+    $("#tab_4").attr("disabled", "disabled");
+    $("#tab_5").attr("disabled", "disabled");
+  }
+
+  function printKvittering() {
+    window.print();
+    return true;
+  }
+
+</script>
+

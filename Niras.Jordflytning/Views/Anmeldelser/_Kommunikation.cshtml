@@ -1,0 +1,212 @@
+﻿@using Niras.Jordflytning.ViewModels.Anmeldelse
+@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+<div class="column" style="margin-right: 10px; width: 495px;">
+  <div class="controlsbox row" style="margin-top: 10px">
+    <div class="cbheader">
+      <h5>Bemærkninger</h5>
+    </div>
+      <div class="row_control">
+          @if (!string.IsNullOrWhiteSpace(Model.Anmeldelse.Jord.Bemaerkning))
+          {
+              <div class="row_line">
+                  @Html.Label("Bemærkning til projektet", new {style = "width:160px; for=Anmeldelse_Jord_Bemaerkning"})
+                  @Html.Label("(der må ikke indtastes persondata)", new {style = "width:50%; color:red;"})
+                  @Html.TextAreaFor(m => m.Anmeldelse.Jord.Bemaerkning, new {@readonly = "readonly", Id = "txtKommunikationJordBemaerkning", style = "height:120px; width:100%", data_tooltip = "Bemærkningerne redigeres på Jord fanen."})
+              </div>
+          }
+          <div class="row_line">
+              @Html.Label("Bemærkning til kommunen", new {style = "width:171px"})
+              @Html.Label("(der må ikke indtastes persondata)", new {style = "width:50%; color:red;"})
+              @Html.TextAreaFor(m => m.Anmeldelse.BemaerkningTilKommune, new {Id = "txtSagsbehandlingBemaerkningTilKommunen", style = "height:120px; width:100%"})
+          </div>
+          <div class="row_line">
+              @Html.Label("Bemærkning til jordmodtager", new {style = "width:184px"})
+              @Html.Label("(der må ikke indtastes persondata)", new {style = "width:50%; color:red;"})
+              @Html.TextAreaFor(m => m.Anmeldelse.BemaerkningTilJordmodtager, new {Id = "txtSagsbehandlingBemaerkningTilJordmodtager", style = "height:120px; width:100%"})
+          </div>
+
+
+
+      </div>
+
+  </div>
+      <div style="clear: both"></div>
+
+      <div class="controlsbox row" style="margin-top: 10px">
+        <div class="cbheader">
+          <h5>Anmelders interne sagsnummer</h5>
+        </div>
+        <div class="row_control">
+          <div class="row_line">
+            @Html.Label("Sagsnummer", new { style = "width:37%" })
+            @Html.TextBoxFor(m => m.Anmeldelse.AnmelderSagsnummer, new {maxlength=40,  style = "width:63%; margin-bottom: 10px;", Id = "txtInternSagsnummer" })
+          </div>
+        </div>
+      </div>
+
+</div>
+
+<div class="column" style="margin-right: 0px; width: 498px">
+
+
+    <div class="controlsbox row" style="margin-top: 10px">
+        <div class="cbheader">
+            <h5>Advis</h5>
+        </div>
+        <div class="row_control">
+            <div class="row_line">
+                @Html.Label("Alarm", new { style = "width:50px", data_tooltip = "Personlig advis efter X % kørt jord (indtast et heltal). Gælder kun hvis jorden afleveres til modtageanlæg, som anvender FlytJord.dk som intern værktøj." })
+                @Html.Kendo().NumericTextBoxFor(m => m.Anmeldelse.KoertJordAlarm).Spinners(false).Min(0).Max(100).Decimals(0).Format("#").HtmlAttributes(new { Id = "txtAdvisProcent", style = "width:50px !important" })
+                <div style="clear: both"></div>
+            </div>
+            <div class="row_line">
+                @Html.Label("Ønsker du at tilføje andre, som kan se anmeldelsen og modtage advis?", new { style = "width: 100%;" })<br />
+                <div style="margin-top: 5px">
+
+                    @(Html.Kendo().Grid<InteresantModel>()
+                  .Name("GridInteresanter")
+                  .Columns(columns =>
+                  {
+                    columns.Bound(p => p.Id).Hidden();
+                    columns.Bound(p => p.Navn).Sortable(true).Title("Navn").Width(190);
+                    columns.Bound(p => p.Email).Sortable(true).Title("Email").Width(190);
+                    columns.Command(c => c.Destroy().Text("Fjern"));
+                  })
+                  .ToolBar(toolbar => toolbar.Create().Text("Tilføj"))
+
+                   .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                        .Editable(ed =>
+                        {
+                          ed.DisplayDeleteConfirmation("Vil du fjerne personen?");
+                          ed.Mode(GridEditMode.PopUp);
+                          ed.Window(z => z.Title("Tilføj person"));
+                        }
+                  )
+                  .Events(e => e.Edit("editForm"))
+                  .AutoBind(false)
+                  .DataSource(dataSource => dataSource
+                    .Ajax() // Specify that the data source is of ajax type
+                    .Read(read => read.Action("ReadInteresanter", "Anmeldelser")) // Specify the action method and controller name
+                    .Model(model => model.Id(p => p.Id))
+                    .Destroy(des => des.Action("RemoveInteresant", "Anmeldelser"))
+                    .Create(cre => cre.Action("CreateInteresant", "Anmeldelser"))
+                    .Model(model =>
+                                 {
+                                   model.Id(p => p.Id);
+                                   model.Field(p => p.Id).DefaultValue(Guid.NewGuid());
+                                 })
+                       ))
+
+                </div>
+                <div style="clear: both"></div>
+            </div>
+            <div style="clear: both"></div>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+
+    <div style="clear: both"></div>
+
+    <div class="controlsbox row" style="margin-top: 10px">
+        <div class="cbheader">
+            <h5>Anden part adviseres når</h5>
+        </div>
+        <div class="row_control">
+            <div class="row_line advisering">
+                <ul>
+                    <li>en jordflytning anmeldes/revideres</li>
+                    <li>kommunen godkender eller har bemærkninger til anmeldelsen/revisionen</li>
+                    <li>jordmodtager har accepteret modtagelse af jorden</li>
+                    <li>jordflytningssagen afsluttes</li>
+                </ul>
+                Bemærk, at den tilføjede person får læseadgang til anmeldelsen.
+            </div>
+        </div>
+    </div>
+
+    <div style="clear: both"></div>
+
+    <div class="controlsbox row" style="margin-top: 10px">
+        <div class="cbheader">
+            <h5>Kommunens sagsbehandler</h5>
+        </div>
+        <div class="row_control">
+            <div class="row_line">
+                @Html.Label("Sagsbehandler: ")
+                @Html.DisplayFor(m => m.Sagsbehandler)
+            </div>
+        </div>
+    </div>
+
+    <div style="clear: both"></div>
+
+    <div class="controlsbox row" style="margin-top: 10px; display: none">
+        <div class="cbheader">
+            <h5>Historik</h5>
+        </div>
+        <div class="row_control">
+            <div class="row_line">
+                @(Html.Kendo().Grid<HistorikAnmeldelseModel>()
+                    .Name("grdHistorikAnmeldelse")
+                    .Sortable()
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Id).Hidden();
+                        columns.Bound(p => p.Tid).Title("Tidspunkt").Format("{0:dd-MM-yyyy HH:mm:ss}").Width(90);
+                        columns.Bound(p => p.Handling).Title("Handling");
+                        columns.Bound(p => p.Person).Title("");
+                        columns.Bound(p => p.Link).Title("").Encoded(false);
+                    })
+                    .DataSource(dataSource => dataSource.Ajax()
+                    .ServerOperation(false)
+                    .Read(read => read.Action("ReadHistorikForAnmeldelse", "Anmeldelser").Data("getAnmeldelseId"))
+                    .Model(model => model.Id(p => p.Id))
+                )
+            )
+            </div>
+        </div>
+    </div>
+
+    <div style="clear: both"></div>
+
+</div>
+
+<div id="winAdvis" style="display: none;">
+</div>
+
+<script type="text/javascript">
+  function popInteressanter() {
+    $("#GridInteresanter").data("kendoGrid").dataSource.read();
+    }
+    var winAdvis = Jordflytning.ui.createModalWindow("winAdvis", 700, 900, "Advis", false);
+
+    function getAnmeldelseId() {
+        var a = $("#hflAnmeldelseId").val();
+        return { anmeldelseId: a };
+    }
+
+    function openAdvis(id) {
+
+      $.post("@Url.Action("ReadAdvis", "Anmeldelser")", { advisId: id }, function (result) {
+
+          if (result) {
+              var wdiv = $("#winAdvis");
+              wdiv.html(result);
+              wdiv.data("kendoWindow").center();
+              wdiv.data("kendoWindow").open();
+            }
+      });
+    }
+
+  function editForm(e) {
+    var title = $(e.container).parent().find(".k-window-title");
+    $(title).text('Tilføj person');
+
+    var buttonOpdater = $(e.container).parent().find(".k-grid-update");
+    var buttonAnnuller = $(e.container).parent().find(".k-grid-cancel");
+
+    buttonOpdater.text("OK");
+    buttonAnnuller.text("Fortryd");
+  }
+ 
+</script>

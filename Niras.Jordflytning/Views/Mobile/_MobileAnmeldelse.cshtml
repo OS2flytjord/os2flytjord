@@ -1,0 +1,303 @@
+﻿@using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
+@model Niras.Jordflytning.ViewModels.Mobile.MobileAnmeldelseModel
+
+@{
+	Layout = null;
+}
+
+<div id="anmeldelseContainerDiv">
+
+@Html.HiddenFor(m => m.Anmeldelse.Id, new { id = "hfAnmeldelseId" })
+@Html.HiddenFor(m => m.SelectedTransportoerId, new { id = "hfTransportoerId" })
+@Html.HiddenFor(m => m.SelectedModtagerAnlaegId, new { id = "hfModtagerAnlaegId" })
+@Html.HiddenFor(m => m.SelectedTransportoerId1, new { id = "hfTransportoerId1" })
+@Html.HiddenFor(m => m.SelectedModtagerAnlaegId1, new { id = "hfModtagerAnlaegId1" })
+@Html.HiddenFor(m=>m.Forueningskategori,new{id="hfForueningskategoriMobile"})
+@Html.HiddenFor(m=>m.AnvenderFJ,new{id="hfAnvenderFJ"})
+<h3>Anmeldelse
+</h3>
+<h4></h4>
+    <div data-role="collapsible-set">
+        <div data-role="collapsible" data-collapsed="false">
+            <h3>1. Stedet
+            </h3>
+	
+		
+            @Html.HiddenFor(m=>m.Anmeldelse.Oprindelsessted.PostDistrikt,new{id="hfMobilePostDistrikt"})
+            <div data-role="fieldcontain" data-controltype="textarea">
+                <label for="txtareaAdresse">Adresse</label>
+                @Html.TextAreaFor(m => m.Anmeldelse.Oprindelsessted.Adresse, new { id = "txtareaAdresse" })
+                @Html.ValidationMessageFor(m => m.Anmeldelse.Oprindelsessted.Adresse)
+
+            </div>
+            <div data-role="fieldcontain" data-controltype="textarea">
+                @Html.LabelFor(m => m.Anmeldelse.Oprindelsessted.Postnummer, "Postnummer")
+                @Html.TextAreaFor(m => m.Anmeldelse.Oprindelsessted.Postnummer) 		@*@Html.TextAreaFor(m => m.Anmeldelse.Oprindelsessted.Postnummer, new { data_mini = "true" })*@
+                @Html.ValidationMessageFor(m => m.Anmeldelse.Oprindelsessted.Postnummer)
+            </div>
+            <div data-role="fieldcontain" data-controltype="textarea">
+                @Html.LabelFor(m => m.Anmeldelse.Kommune.Navn, "Kommune")
+                @Html.TextAreaFor(m => m.Anmeldelse.Kommune.Navn)          			@*@Html.TextAreaFor(m => m.Anmeldelse.Kommune.Navn, new { data_mini = "true" })*@
+                @Html.ValidationMessageFor(m => m.Anmeldelse.Kommune.Navn)
+            </div>	
+            @*}*@
+		
+
+        </div>
+        <div data-role="collapsible">
+            <h3>2. Jorden
+            </h3>
+            <div data-role="collapsible-set">
+                <div data-role="collapsible" >             @*data-collapsed="false"*@
+                    <h3>Mængde, dato og affald
+                    </h3>
+                    @*				<div data-role="fieldcontain" data-controltype="toggleswitch">
+
+					@Html.LabelFor(m => m.Anmeldelse.Jord.Jordproever)
+					@Html.FlipSwitchFor(m => m.Anmeldelse.Jord.Jordproever)
+				</div>*@
+                    <div data-role="fieldcontain" data-controltype="toggleswitch">
+                        @Html.LabelFor(m => m.IndeholderJordenAffald)
+                        @Html.FlipSwitchFor(m => m.IndeholderJordenAffald)
+
+                    </div>
+                    <div data-role="fieldcontain" data-controltype="selectmenu">
+
+                        @Html.LabelFor(m => m.Affaldstype)
+                        @Html.DropDownListFor(m => m.Affaldstype, new List<SelectListItem>() { new SelectListItem() { Text = EnumAffaldstype.Andet.ToString(), Value = ((int)EnumAffaldstype.Andet).ToString() }, new SelectListItem() { Text = EnumAffaldstype.Asfalt.ToString(), Value = ((int)EnumAffaldstype.Asfalt).ToString() }, new SelectListItem() { Text = "Beton/Cementrør/Fliser", Value = ((int)EnumAffaldstype.BetonCementrørFliser).ToString() }, new SelectListItem() { Text = "Slagger", Value = "4" }, new SelectListItem() { Text = "Tegl/Murbrokker", Value = ((int)EnumAffaldstype.TeglMurbrokker).ToString() }, new SelectListItem() { Text = "Træ/Grene/Rødder", Value = ((int)EnumAffaldstype.TræGreneRødder).ToString() } }, new { data_mini = "true" })
+
+                    </div>
+                    <div data-role="fieldcontain" data-controltype="textinput">
+                        @*@Html.LabelFor(m => m.AndetAffald)*@
+                        <label for="">Andet affald</label>
+                        @Html.TextAreaFor(m => m.AndetAffald)
+                        @Html.ValidationMessageFor(m => m.AndetAffald)
+                    </div>
+                    <div data-role="fieldcontain" data-controltype="toggleswitch">
+                        @Html.LabelFor(m => m.Anmeldelse.Jord.IntaktJord)
+                        @Html.FlipSwitchFor(m => m.Anmeldelse.Jord.IntaktJord)
+
+                    </div>
+				
+			
+                    @*	<div data-role="fieldcontain" data-controltype="radiobuttons">*@
+                    <fieldset data-role="controlgroup">
+                        @*data-type="vertical" data-mini="true"*@
+                        <legend>Forueningskategori:
+                        </legend>
+
+					
+                        @*	@foreach (var c in Model.JordklassifikationTypeListe)
+					{
+						@Html.RadioButtonFor(m => m.Forueningskategori, c.Value, new {value = c.Value, id=c.Text , @class = "jordklassifikationTypeRadiolist",  @disabled = "disabled"  })
+						<label for="@c.Text">@c.Text</label>
+        
+					}*@
+					
+                        @foreach (var c in Model.JordklassifikationTypeListe)
+                        {
+                            @Html.RadioButtonFor(m => m.Forueningskategori, c.Value, new {value = c.Value, id=c.Text , @class = "jordklassifikationTypeRadiolist"})
+                            <label for="@c.Text">@c.Text</label>
+        
+                        }
+
+                        @*			@Html.RadioButtonFor(model => model.Forueningskategori, "1", new { value = "1", id = "Forueningskategori_kraftigt_forurenet_jord", @disabled = "disabled" })
+					<label for="Forueningskategori_kraftigt_forurenet_jord">Kraftigt forurenet jord</label>
+					@Html.RadioButtonFor(model => model.Forueningskategori, "2", new { value = "2", id = "Forueningskategori_let_forurenet_jord", @disabled = "disabled" })
+					<label for="Forueningskategori_let_forurenet_jord">let forurenet jord</label>
+					@Html.RadioButtonFor(model => model.Forueningskategori, "3", new { value = "3", id = "Forueningskategori_ren_jord", @disabled = "disabled" })
+					<label for="Forueningskategori_ren_jord">Ren jord</label>*@
+
+                    </fieldset>
+                    @*</div>*@
+                    @*			</div>
+			<div data-role="collapsible">
+				<h3>Jordflytningen
+				</h3>*@
+                    @*				<div data-role="fieldcontain" data-controltype="toggleswitch">
+					@Html.LabelFor(m => m.AlmJordflytning)
+					@Html.FlipSwitchFor(m => m.AlmJordflytning)
+				</div>*@
+
+                    <div data-role="fieldcontain" data-controltype="textinput">
+                        <label for="textinput23">
+                            Jordmængde (t):						
+                        </label>
+                        @Html.TextBoxFor(m => m.Anmeldelse.Jord.ForventetJordmaengdeTon, new { data_mini = "true", type = "number" })
+                        @Html.ValidationMessageFor(m => m.Anmeldelse.Jord.ForventetJordmaengdeTon)
+                    </div>
+                    <div data-role="fieldcontain" data-controltype="textinput">
+                        <label for="textinput3">
+                            Kørselstidspunkt fra:
+                        </label>
+
+                        @Html.TextBoxFor(m => m.DatoFra, new { @Value = Model.DatoFra })
+                        @Html.ValidationMessageFor(m => m.DatoFra)
+
+                    </div>
+                    <div data-role="fieldcontain" data-controltype="textinput">
+                        <label for="textinput4">
+                            Kørselstidspunkt til:
+								
+                        </label>
+
+
+                        @Html.TextBoxFor(m => m.DatoTil, new { @Value = Model.DatoTil })   @*   	@Html.EditorFor(model => model.Anmeldelse.Jord.KoerselSlut.Value) *@
+
+                        @Html.ValidationMessageFor(m => m.DatoTil)
+
+                    </div>
+                    <div data-role="collapsible">
+                        <h3>Bemærkninger
+                        </h3>
+                        <div data-role="fieldcontain" data-controltype="textarea">
+                            <label for="textarea4">
+                                Tidligere erhversaktivitet:
+								
+                            </label>
+                            @Html.TextAreaFor(m => m.Anmeldelse.Jord.TidligereErhvervsaktivitet)
+                            @Html.ValidationMessageFor(m => m.Anmeldelse.Jord.TidligereErhvervsaktivitet)
+                        </div>
+                        <div data-role="fieldcontain" data-controltype="textarea">
+                            <label for="textarea8">
+                                Bemærkninger til jordarbejdet:
+								
+                            </label>
+                            @Html.TextAreaFor(m => m.Anmeldelse.Jord.JordarbejdeBeskrivelse)  @*, new { data_mini = "true" }*@
+                            @Html.ValidationMessageFor(m => m.Anmeldelse.Jord.JordarbejdeBeskrivelse)
+                        </div>
+                        <div data-role="fieldcontain" data-controltype="textarea">
+                            <label for="txtareaAndreBemaerkninger">
+                                Andre bemærkninger:
+								
+                            </label>
+                            @*	@Html.LabelFor(m=>m.Anmeldelse.Jord.Bemaerkning)*@
+                            @Html.TextAreaFor(m => m.Anmeldelse.Jord.Bemaerkning)
+                            @Html.ValidationMessageFor(m => m.Anmeldelse.Jord.Bemaerkning)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div data-role="collapsible">
+            <h3>3. Modtager og transportør
+            </h3>
+            <h5>Modtager
+            </h5>
+            <div data-role="fieldcontain" data-controltype="toggleswitch">
+                <label for="selectAnvenderFJ">
+                    Anvender FlytJord?				
+                </label>
+                <select name="selectAnvenderFJ" id="selectAnvenderFJ" data-theme="" data-role="slider" 
+                        data-mini="true">
+                    <option value="off">Nej
+                    </option>
+                    <option value="on">Ja
+                    </option>
+                </select>
+            </div>
+            <div data-role="fieldcontain" data-controltype="selectmenu">
+                <label for="selectModtageranlaeg">
+                    Jordmodtager
+						
+                </label>
+
+                <select id="selectModtageranlaeg" name="" data-mini="true" onchange="selectModtageranlaegOnChange()">
+                    <option value="" data-placeholder="true">Vælg modtageanlæg</option>
+                    @*	@foreach (var modtageranlaeg in Model.ModtagerAnlaeg.OrderBy(x=>x.Navn))
+				{
+					if (modtageranlaeg.Id.ToString() == Model.SelectedModtagerAnlaegId)
+					{
+						<text>
+							<option selected="selected" value=" @modtageranlaeg.Id">@modtageranlaeg.Navn
+						</text>
+					}
+					else
+					{
+						<text>
+							<option value=" @modtageranlaeg.Id">@modtageranlaeg.Navn
+						</text>
+					}
+				}*@
+                </select>
+
+            </div>
+            <div data-role="fieldcontain" data-controltype="selectmenu">
+                <label for="selectTransportoer">
+                    Transportør
+						
+                </label>
+
+                <select id="selectTransportoer" name="" data-mini="true" onchange="selectTransportoerOnChange()">
+                    <option value="" data-placeholder="true">Vælg transportør</option>
+                    @foreach (var transportoer in Model.Transportoere)
+                    {
+                        if (transportoer.Id.ToString() == Model.SelectedTransportoerId)
+                        {
+                            <text>
+                                <option value="@transportoer.Id" selected="selected">@transportoer.Firma
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <option value="@transportoer.Id">@transportoer.Firma
+                            </text>
+                        }
+
+                    }
+                </select>
+
+            </div>
+        </div>
+        <div data-role="collapsible" id ="mobileAnmeldelseBetalerDiv">
+            <h3>4. Betaler
+            </h3>
+
+            <fieldset data-role="controlgroup" data-type="vertical" data-mini="true">
+                <legend></legend>
+                @Html.RadioButtonFor(model => model.HvemBetaler, "1", new { value = "1", id = "rbnBetaler_anmelder" })
+                <label for="rbnBetaler_anmelder">Anmelder er betaler</label>
+                @Html.RadioButtonFor(model => model.HvemBetaler, "2", new { value = "2", id = "rbnBetaler_transportoer" })
+                <label for="rbnBetaler_transportoer">Transportør er betaler</label>
+                @Html.RadioButtonFor(model => model.HvemBetaler, "3", new { value = "3", id = "rbnBetaler_anden" })
+                <label for="rbnBetaler_anden">Anden betaler</label>
+            </fieldset>
+            @*		</div>*@
+            <div data-role="fieldcontain" data-controltype="textinput" id="andenBetalerDiv">
+                <label for="andenBetalerDiv">
+                    Betaler (angiv e-mail): 
+                </label>
+                <p>
+                    @Html.TextBoxFor(m => m.AndenBetaler, new { id = "searchField", placeholder = "Betaler" })
+                    <ul id="suggestions" data-role="listview" data-inset="true"></ul>
+                </p>
+
+            </div>
+        </div>
+        @*<div data-role="collapsible">
+		  <h3>5. Indsend </h3>*@
+	
+        @*</div>*@
+    </div>
+
+    @if (!Model.LockAnmeldelse)
+    {
+        <a data-role="button" href="#" id="btnAnmeldelseGem" @*data-transition="none"*@>Gem</a>
+    }
+	 @if (Model.kanIndsende)
+		 {
+			
+			 <p>
+				 <a data-role="button" href="#" id="btnPreviewAnmeldelse" data-transition="slide">Videre</a>
+			 </p>
+
+		 }
+		 else
+		 {
+			 @*<p>
+				 Denne anmeldelse er allerede indsendt.
+			 </p>*@
+		 }
+	
+	</div>

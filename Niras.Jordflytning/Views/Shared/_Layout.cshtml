@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <meta charset="utf-8" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width" />
+    @Styles.Render("~/bundles/Content/Css/Login")
+    @RenderSection("Styles", false)
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/eventLib")
+    @Styles.Render("~/bundles/Content/kendo")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/kendo")
+    @Scripts.Render("~/bundles/jordflytning")
+    @Scripts.Render("~/bundles/proj4s")
+    @Scripts.Render("~/bundles/cookie")
+    @RenderSection("Scripts", false)
+</head>
+    <body>
+        
+        <div id="container">
+
+            <div id="main">
+
+                <div id="body">
+                    <div id="content">
+                        <header id="header">
+                            <h1><a href="/default/contentpage">FlytJord.dk ®</a></h1>
+                        </header>
+                        @RenderBody()
+                        @Html.Analytics()
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

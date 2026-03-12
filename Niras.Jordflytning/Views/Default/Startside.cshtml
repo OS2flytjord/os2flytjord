@@ -1,0 +1,130 @@
+﻿@model Niras.Jordflytning.ViewModels.Anmeldelse.SoegModel
+
+@{
+    ViewBag.Title = "Forside";
+    Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+
+@section TopMenu {
+    <div class="toolbarButtons">
+        <input id="anmeldelseknap" type="button" value="Anmeld jordflytning" style="width:130px"/>
+        <input id="ikkefremsendanmeldelse" type="button" value="Kladder" style="width:99px;"/>
+        <input id="fremsendanmeldelse" type="button" value="Fremsendte anmeldelser" style="width:163px"/>
+        <input id="aktiveanmeldelser" type="button" value="Aktive anmeldelser" style="width:128px"/>
+        <input id="afsluttedeanmeldelser" type="button" value="Afsluttede anmeldelser" style="width:152px"/>
+        <input id="soeg" type="button" value="Søg" style="width:99px"/>
+        <input id="profil" type="button" value="Profil" style="width:99px"/>
+    </div>
+    <div style="clear: both"></div>
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+      $(document).ready(function () {
+        kendo.culture("da-DK");
+        
+        $("#GridSoegeresultater tbody tr").hover(function () {
+          $(this).toggleClass("k-state-hover");
+        });
+
+            $("#anmeldelseknap").click(function () {            
+                document.location = "/Anmeldelser/Opret";
+            });
+            $("#ikkefremsendanmeldelse").click(function () {
+                document.location = "/Soeg/Soeg?soegetype=1";
+            });
+
+            $("#fremsendanmeldelse").click(function () {
+                document.location = "/Soeg/Soeg?soegetype=2";
+            });
+
+            $("#aktiveanmeldelser").click(function () {
+                document.location = "/Soeg/Soeg?soegetype=3";
+            });
+
+            $("#afsluttedeanmeldelser").click(function () {
+                document.location = "/Soeg/Soeg?soegetype=4";
+            });
+
+            $("#soeg").click(function () {
+                document.location = "/Soeg/Soeg?soegetype=0";
+            });
+
+            $("#profil").click(function () {
+                document.location = "/Bruger/Profil";
+            });           
+      });
+      
+      function GridSoegeresultaterDataBound() {
+        $("#GridSoegeresultater tbody tr").hover(function () {
+          $(this).toggleClass("k-state-hover");
+        });
+      }
+
+      function GridSoegeresultaterOnChange() {
+        var grid = $("#GridSoegeresultater").data("kendoGrid");
+        var id;
+        grid.select().each(function () {
+          var dataItem = grid.dataItem($(this));
+          id = dataItem.AnmeldelseId;
+        });
+        window.location.href = "@Url.Action("Rediger", "Anmeldelser")" + "?anmeldelseId=" + id;
+      }
+
+    </script>
+}
+
+
+
+<div id="oprindelsessted" class="controlsbox" style="margin-top: 10px">
+    <div class="cbheader">
+        <h5>Kræver handling</h5>
+    </div>
+    <div class="row">
+         @(Html.Kendo().Grid(Model.SoegeResultatList)
+                      .Name("GridSoegeresultater")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new[] { 5, 10, 20, 100 }).Messages(x => x.ItemsPerPage("Rækker pr. side")))
+                      .HtmlAttributes(new { style = "font-size:12px;" })
+                      .Groupable()
+                      .Sortable()
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.AnmeldelseId).Hidden(true);
+                              columns.Bound(a => a.LoebeNr).Title("Løbenr.").Width(20);
+                              columns.Bound(a => a.OprindelsesSted).Title("Oprindelsessted").Width(120).Encoded(false);
+                              columns.Bound(a => a.Jordmodtager).Title("Jordmodtager").Width(100);
+                              columns.Bound(a => a.Koerselsperiode).Title("Kørselsperiode").Width(90);
+                              columns.Bound(a => a.Transportoer).Title("Transportør").Encoded(false);
+                              columns.Bound(a => a.Betaler).Title("Betaler").Encoded(false);
+                              columns.Bound(a => a.KoertJordMaengde).Title("Kørt/forventet<br/>jordmængde (t)");
+                              columns.Bound(a => a.SenesteStatus).Title("Status").Encoded(false).Width(100);
+                              columns.Bound(a => a.Revision).Title("Revision").Encoded(false).Width(20).HtmlAttributes(new { style = "text-align:center;" });
+                              columns.Bound(a => a.JordKategoriNavn).Title("Jordkategori/<br/>Klasse").Encoded(false).Width(45);
+                                  //.HtmlAttributes(new { title = "#= JordKategoriNavn #", @class = "jord-kategori kategori-#= JordKategoriKode #" });
+
+                              @*columns.Template(@<text>
+                               @Html.ActionLink(@item.JordKategoriNavn, "Index", "Kode", new { id = @item.JordKategoriKode })  
+                             </text>)
+                             .ClientTemplate("<a href='/Kode/Index/?id =#= id #'>#=JordKatekoriNavn#</a>").Title("Kategori");*@
+                              
+             
+                              
+                              columns.Bound(p => p.EksternVognlaesLink).Title("").Encoded(false);
+                          })
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Model(model => model.Id(m => m.AnmeldelseId))
+                                                          .ServerOperation(false)
+                                                          .PageSize(10))
+
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+
+                      .Events(events => events
+                                            .Change("GridSoegeresultaterOnChange")
+                                            .DataBound("GridSoegeresultaterDataBound"))
+                      )
+    </div>
+</div>
+

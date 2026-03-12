@@ -1,0 +1,315 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.Core.Models.SoegeResultat
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+
+@{
+  ViewBag.Title = "Søg";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+<script type="text/javascript">
+
+  var afvistDatarow;
+  $(document).ready(function () {
+    SetHoverOnGrid();
+
+  });
+
+  function editForm(e) {
+    e.model.Afvist = true;
+    e.model.set("Afvist", true);
+  }
+
+
+  function gridVognlaesSoegeresultaterRequestEnd(e) {
+
+    if (e.type == "update") {
+      if (!e.response.Errors) {
+        Logger.log(afvistDatarow);
+      } else {
+
+      }
+    }
+
+  }
+
+  function GridVognlaesListDataBound() {
+    SetHoverOnGrid();
+
+    //Selects all edit buttons
+    $("#GridVognlaesSoegeresultater tbody tr .k-grid-edit").each(function () {
+      var currentDataItem = $("#GridVognlaesSoegeresultater").data("kendoGrid").dataItem($(this).closest("tr"));
+
+      //Check in the current dataItem if the row is editable
+      if (currentDataItem.Afvist == true) {
+        $(this).remove();
+      }
+    });
+  }
+
+  function SetHoverOnGrid() {
+    $("#GridVognlaesSoegeresultater tbody tr").hover(
+     function () {
+       $(this).toggleClass("k-state-hover");
+     });
+  }
+
+  function OpenAnmeldelse() {
+    var grid = $("#GridVognlaesSoegeresultater").data("kendoGrid");
+    grid.select().each(function () {
+      var dataItem = grid.dataItem($(this));
+      var id = dataItem.AnmeldelseId;
+      var faneNavn = dataItem.Adresse;
+      if (parent.addTab) {
+        parent.addTab(faneNavn, "/Backend/Anmeldelser/Index?anmeldelseId=" + id);
+      }
+    });
+  }
+
+  function ExportToCsv(gridName, controllerName) {
+
+
+    var theGrid = $("#" + gridName);
+    var theDataSource = theGrid.data("kendoGrid").dataSource;
+    var theGridData = theGrid.data("kendoGrid").dataSource.data();
+
+
+    // Create a datasource for the export data.
+    var ds = new kendo.data.DataSource({
+      data: theGridData
+    });
+
+    ds.query({
+      aggregate: theDataSource._aggregate,
+      filter: theDataSource._filter,
+      sort: theDataSource._sort
+    });
+
+    var dataene = JSON.stringify(ds._view);
+    // Define the data to be sent to the server to create the csv.
+    data = {
+      data: dataene,
+      title: gridName
+    };
+
+    if (dataene != "undefined" & dataene != null & dataene.length > 1900000) {
+      //Datamængden er forstår
+      alert('Datamængden overskridet det maksimal tilladte!\nOpdel eventuel søgningen flere mindre søgninger.');
+
+    } else {
+      
+      // Create the csv.
+      $.ajax({
+        type: "POST",
+        url: "/" + controllerName + "/ExportToCsv",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(data)
+      })
+          .done(function (e) {
+            // Download the csv.
+            window.location.href = "/Backend/" + controllerName + "/GetCsvFile?title=" + gridName;
+          });
+    }
+  }
+
+  function getSearchParameters() {
+    var vognlaesFoerDato = $("#hflVognlaesFoerDato").val();
+    var vognlaesEfterDato = $("#hflVognlaesEfterDato").val();
+    var vognlaesReturnType = $("#hflVognlaesReturnType").val();
+    return {
+      foerDate: vognlaesFoerDato, efterDate: vognlaesEfterDato, udtraekTilOkonimiSystem: vognlaesReturnType
+    };
+  }
+
+
+</script>
+<body style="height: 90%;">
+  @Html.HiddenFor(m => m.VognlaesFoerDato, new { id = "hflVognlaesFoerDato" })
+  @Html.HiddenFor(m => m.VognlaesEfterDato, new { id = "hflVognlaesEfterDato" })
+  @Html.HiddenFor(m => m.VognlaesReturnType, new { id = "hflVognlaesReturnType" })
+
+  <div class="row_line">
+    <div id="divSoegParam" class="controlsbox">
+      <div class="cbheader">
+        <h5>Søgeparametre</h5>
+      </div>
+      <div class="row_line" style="margin: 10px;">
+        @Html.DisplayFor(m => m.SoegningBeskrivelseVognlaes, new { Id = "soegVognlaesNote", style = "width: 99%" })
+      </div>
+      <div style="clear: both"></div>
+    </div>
+  </div>
+
+  <div class="row_line">
+    <div id="divSoegResult" class="controlsbox">
+      <div class="cbheader">
+        <h5>Søgeresultat vognlæs</h5>
+      </div>
+
+      <div class="row_line" style="margin: 10px;">
+        <input type="button" value="Exportér til Excel" onclick="ExportToExcel('GridVognlaesSoegeresultater', 'Search')" />
+        <input type="button" value="Exportér til CSV" onclick="ExportToCsv('GridVognlaesSoegeresultater', 'Search')" />
+      </div>
+      <div style="clear: both"></div>
+      <div class="row_line">
+        @* @(Html.Kendo().Grid(Model.SoegeResultatVognlaesList)
+                      .Name("OldGridVognlaesSoegeresultater")      
+                      .Sortable()                            
+                      .Groupable()       
+                      .HtmlAttributes(new { style = "font-size:12px;" })            
+                                               
+                      .Pageable(pager => pager
+                          .PageSizes(true)
+                          .PageSizes(new []{ 10, 20, 100, 1000 })
+                          .Messages(x => x.ItemsPerPage("Rækker pr. side")))         
+                                         
+                      .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Single)
+                          .Type(GridSelectionType.Row))               
+                          
+                      .Events(events => events
+                          //.Change("GridVognlaesListOnChange")
+                          .DataBound("GridVognlaesListDataBound").Edit("editForm"))
+                          
+                      .Editable(editable => editable.Mode(GridEditMode.PopUp)
+                          .Window(w => w
+                              .Title("Afvis vognlæs")
+                              .Height(150)
+                              .Draggable(true)
+                              .Width(650)
+                              .Modal(true)
+                              .HtmlAttributes(new { id = "idAfvisPopup" }))
+                          .TemplateName("VognlaesAfvisCustomPopupEditor")
+                          .DisplayDeleteConfirmation("Er du sikker på at du vil afvise vognlæsset?"))                                            
+                                                
+                      .DataSource(dataSource => dataSource.Ajax()
+                          .Model(model => model.Id(m => m.VognlaesId))
+                          .ServerOperation(false)
+                          .PageSize(100)
+                          .Update(u => u.Action("AfvisVognlaes", "Search")))                
+													//.Events(events => events.RequestEnd("gridVognlaesSoegeresultaterRequestEnd")))
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.VognlaesId).Hidden(true);
+                              columns.Bound(a => a.AnmeldelseId).Hidden(true);
+                              columns.Bound(a => a.Adresse).Hidden(true);
+                              columns.Bound(a => a.AfvistNote).Hidden(true);
+                              columns.Bound(a => a.VognlaesDato).Hidden(true);
+                              //columns.Bound(a => a.Dato).Title("Dato <br/>(Bom)").Width(90);
+                              columns.Bound(a => a.VognlaesDato).Title("Dato <br/>(Bom)").Width(90).Format("{0:dd-MM-yyyy H:mm:ss}");                         
+                              columns.Bound(a => a.BetalerNavn).Title("Betaler");
+                              columns.Bound(a => a.ModtageAnlaegNavn).Title("Modtageanlæg");
+                              columns.Bound(a => a.TransportoerNavn).Title("Transportør").Encoded(false);
+                              columns.Bound(a => a.JordmaengdeTons).Title(@"Jordmængde <br/>(t)").Width(100);
+                              columns.Bound(a => a.JordmaengdeAksler).Title("Jordmængde <br/>(Aksler)").Width(100);
+                              columns.Bound(a => a.Status).Title("Seneste <br/>stikprøvestatus");
+                              columns.Bound(p => p.Afvist).Sortable(true).ClientTemplate(
+                                  "<div title=\"#=AfvistNote#\">" +
+                                  "<input type='checkbox' disabled='disabled' # if(Afvist) {# checked='checked' #} else {# '' #}# /></div>")
+                                  .Title("Afvist?");
+                              columns.Command(command =>
+                                  {
+                                      command
+                                          .Edit()
+                                          .Text("Afvis")
+                                          .UpdateText("Ok")
+                                          .CancelText("Annuller")
+                                          .HtmlAttributes(new { id = "idColAfvis" });
+                                  });                              
+                              columns.Command(command =>
+                                {
+                                  command.Custom("cmdOpenAnmeld").Click("OpenAnmeldelse").Text("Åben");
+                                });
+                          })
+                    )
+              *@
+        @(Html.Kendo().Grid<SoegeResultatVognlaes1>()
+                          .Name("GridVognlaesSoegeresultater")
+                           .Sortable()
+                      .Groupable(grouper => grouper
+                        .Messages(messager => messager.Empty("Træk en kolonneoverskrift og slip den her for at gruppere efter denne kolonne")) //Det står også i culture filen, men den renders først efter dataene er indlæst ! Derfor sætter jeg den også her.
+                        .Enabled(true)
+                      )
+                      .HtmlAttributes(new { style = "font-size:12px;" })
+
+                      .Pageable(pager => pager
+                          .PageSizes(true)
+                          .PageSizes(new[] { 10, 20, 100, 1000 })
+                          .Messages(x => x.ItemsPerPage("Rækker pr. side")))
+
+                      .Selectable(selectable => selectable
+                          .Mode(GridSelectionMode.Single)
+                          .Type(GridSelectionType.Row))
+                           .Events(events => events
+                             //.Change("GridVognlaesListOnChange")
+                          .DataBound("GridVognlaesListDataBound").Edit("editForm")
+
+                          )
+
+                      .Editable(editable => editable.Mode(GridEditMode.PopUp)
+                          .Window(w => w
+                              .Title("Afvis vognlæs")
+                              .Height(150)
+                              .Draggable(true)
+                              .Width(650)
+                              .Modal(true)
+                              .HtmlAttributes(new { id = "idAfvisPopup" }))
+                          .TemplateName("VognlaesAfvisCustomPopupEditor")
+                          .DisplayDeleteConfirmation("Er du sikker på at du vil afvise vognlæsset?"))
+                          .Columns(columns =>
+                          {
+                            columns.Bound(a => a.VognlaesId).Hidden(true);
+                            columns.Bound(a => a.AnmeldelseId).Hidden(true);
+                            columns.Bound(a => a.Adresse).Hidden(true);
+                            columns.Bound(a => a.AfvistNote).Hidden(true);
+                            columns.Bound(a => a.VognlaesDato).Hidden(true);
+                            //columns.Bound(a => a.Dato).Title("Dato <br/>(Bom)").Width(90);
+                            columns.Bound(a => a.VognlaesDato).Title("Dato <br/>(Bom)").Width(90).Format("{0:dd-MM-yyyy H:mm:ss}");
+                            columns.Bound(a => a.BetalerNavn).Title("Betaler");
+                            columns.Bound(a => a.ModtageAnlaegNavn).Title("Modtageanlæg");
+                            columns.Bound(a => a.TransportoerNavn).Title("Transportør").Encoded(false);
+                            columns.Bound(a => a.JordmaengdeTons).Title(@"Jordmængde <br/>(t)").Width(100);
+                            columns.Bound(a => a.JordmaengdeAksler).Title("Jordmængde <br/>(Aksler)").Width(100);
+                            columns.Bound(a => a.Status).Title("Seneste <br/>stikprøvestatus");
+                            columns.Bound(p => p.Afvist).Sortable(true).ClientTemplate(
+                                "<div title=\"#=AfvistNote#\">" +
+                                "<input type='checkbox' disabled='disabled' # if(Afvist) {# checked='checked' #} else {# '' #}# /></div>")
+                                .Title("Afvist?");
+                            columns.Command(command =>
+                            {
+                              command
+                                  .Edit()
+                                  .Text("Afvis")
+                                  .UpdateText("Ok")
+                                  .CancelText("Annuller")
+                                  .HtmlAttributes(new { id = "idColAfvis" });
+                            });
+                            columns.Command(command =>
+                            {
+                              command.Custom("cmdOpenAnmeld").Click("OpenAnmeldelse").Text("Åben");
+                            });
+
+
+                          }
+                          )
+                          .AutoBind(true)
+                          .DataSource(dataSource => dataSource
+                                                        .Ajax() // Specify that the data source is of ajax type
+                                                        .ServerOperation(false)
+                                                        .Read(read => read.Action("AdminResultatVognlaes1Ajax", "Search", "backend").Data("getSearchParameters")) // Specify the action method and controller name
+                                                        .Model(model => model.Id(p => p.VognlaesId))
+                                                        .PageSize(100)
+                                                        .Update(u => u.Action("AfvisVognlaes", "Search"))
+                          )
+                          .HtmlAttributes(new { Id = "GridVognlaesSoegeresultater" })
+                          )
+      </div>
+
+
+
+
+      <div style="clear: both"></div>
+    </div>
+  </div>
+</body>

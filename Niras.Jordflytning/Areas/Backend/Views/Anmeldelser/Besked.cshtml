@@ -1,0 +1,86 @@
+﻿@model Niras.Jordflytning.Areas.Backend.ViewModels.KommunikationModel
+
+@{
+  ViewBag.Title = "Kommunikation";
+  Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+}
+
+<script type="text/javascript">
+
+  $(document).ready(function () {
+    kendo.culture("da-DK");
+
+    $("#btnSendAdvis").click(function (e) {
+      e.preventDefault();
+
+      
+      var advisbesked = $("#txtOpretAdvisBesked").val();
+      var aid = $("#hflAnmeldelseId").val();
+      var bAnmelder = $('#chkAnmelder').is(':checked');
+      var bTransportoer = $('#chkTransportoer').is(':checked');
+      var bBetaler = $('#chkBetaler').is(':checked');
+      var bInteressenter = $('#chkInteressenter').is(':checked');
+      var bSagsbehandler = $('#chkSagsbehandler').is(':checked');
+
+      $.post("@Url.Action("SendAdviser", "Anmeldelser", new { area = "Backend" })",
+                { besked: advisbesked, anmeldelseId: aid, anmelder: bAnmelder, transportoer: bTransportoer, betaler: bBetaler, interessenter: bInteressenter, sagsbehandler: bSagsbehandler },
+                function (result) {
+                  if (result.Success == true) {
+                    alert("Besked er afsendt.");
+                    $("#txtOpretAdvisBesked").val("");
+                    $('#chkAnmelder').attr('checked', false);
+                    $('#chkTransportoer').attr('checked', false);
+                    $('#chkBetaler').attr('checked', false);
+                    $('#chkInteressenter').attr('checked', false);
+                    $('#chkSagsbehandler').attr('checked', false);
+
+                    closeWindow();
+
+                  }
+                });
+
+        });
+    });
+
+  function closeWindow(e) {
+    this.parent.$("#winOpretAdvis").data("kendoWindow").close();
+    this.parent.loadHistorikForAnmeldelse();
+  }
+</script>
+
+
+    @Html.HiddenFor(m => m.AnmeldelseId, new { Id = "hflAnmeldelseId" })
+<div class="row" style="width:568px; height:500px; padding-left: 15px; background-color:#fff;">
+    <div class="row">
+        @Html.Label("Anmelder")@Html.CheckBox("chkAnmelder")
+    </div>
+
+    <div class="row">
+        @Html.Label("Transportør")@Html.CheckBox("chkTransportoer")
+    </div>
+
+    <div class="row">
+        @Html.Label("Betaler")@Html.CheckBox("chkBetaler")
+    </div>
+
+    <div class="row">
+        @Html.Label("Anden part")@Html.CheckBox("chkInteressenter")
+    </div>
+
+    <div class="row">
+        @Html.Label("Sagsbehandler")@Html.CheckBox("chkSagsbehandler")
+    </div>
+
+
+
+    <div class="row">
+        @Html.Label("Besked", new { style = "width:auto; " })
+        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:auto; padding-left: 20px; color:red;" })
+        @Html.TextArea("txtOpretAdvisBesked", new { style = "width:500px;height:260px;" })
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <input type="button" value="Send" class="toolbarButton" id="btnSendAdvis" />
+    </div>
+
+</div>

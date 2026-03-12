@@ -1,0 +1,682 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using DocumentFormat.OpenXml.Office2010.ExcelAc
+@using Kendo.Mvc.UI
+@using Kendo.Mvc.UI.Fluent
+@using Niras.Jordflytning.ViewModels.Backend
+@model ModtagerAnlaegAdminModel
+
+@{
+  ViewBag.Title = "Jordmodtager administration";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+
+        /* Lyt på window messaging, for at fange beskeder fra f.eks. opdateringer i et modal / iframe vindue */
+        if (window.addEventListener) {
+            window.addEventListener("message", receiveMessage, false);
+        } else {
+            window.attachEvent("onmessage", receiveMessage, false);
+        };
+
+        function receiveMessage(event) {
+            var data = event.data;
+            if (event.data && event.data.command) {
+                switch (event.data.command) {
+                    case "anvendMatrikelIndtegning":
+                    anvendMatrikelIndtegning(event.data.data);
+                    break;
+                }
+            };
+        };
+
+        function anvendMatrikelIndtegning(data) {
+            // Data er af typen Niras.Jordflytning.ViewModels.Placering.PlaceringsdataModel
+            var dialog = $("#winRedigerIndtegnetPlacering").data("kendoWindow");
+            setTimeout(function() { dialog.close(); }, 1);
+            // Håndter det valgte
+            $("#hflModtagerAnlaegWkt2").val(data.Wkt);
+            $("#hfEjerlav").val(data.Ejerlav);
+            $("#hfEjerlavsnavn").val(data.Ejerlavsnavn);
+            $("#hfEsrEjendomsnummer").val(data.EsrEjendomsnummer);
+            $("#hfIndtegnedeMatriklerJson").val(JSON.stringify(data.Matrikler));
+        };
+
+        $(document).ready(function() {
+
+            //Validering af dansk datoformat
+            $.validator.methods.date = function(value, element) {
+                return this.optional(element) ||
+                (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}(\s\d{2}:\d{2}(:\d{2})?)?$/.test(value) &&
+                    !/Invalid|NaN/.test(new Date(value.replace("/", "-").split("-")[2],
+                        value.replace("/", "-").split("-")[1],
+                        value.replace("/", "-").split("-")[0])));
+            };
+
+            kendo.culture('da-DK');
+
+            $("#btnTilfoejForureningskomponent").click(function(e) {
+                e.preventDefault();
+                var displayName = $("#txtForureningAutoComplete").data("kendoAutoComplete").value();
+                if (displayName != '') {
+                    var modtAnlaegId = $("#hfSelectedModtagerAnlaegId").val();
+                    var maxValue = $("#txtMaxValue").val();
+                    document.getElementById('txtMaxValue').value = "";
+                    document.getElementById('txtForureningAutoComplete').value = "";
+                    e.preventDefault();
+                    //Read komponent med id
+                    $.post("/Administration/AddGraenseVaerdi",
+                        { DisplayName: displayName, max: maxValue, modtageAnlaegGuid: modtAnlaegId },
+                        function(result) {
+                            if (result) {
+                                var grid = $("#grdAnmeldelseForureningskomponentListe").data("kendoGrid");
+                                //Tilføj række til øverste grid
+                                grid.dataSource.add({
+                                    Id: result.Id,
+                                    Navn: result.Navn,
+                                    Max: result.Max,
+                                    EnhedNavn: result.Enhed
+                                });
+                            }
+                        });
+                }
+            });
+
+            $("#txtForureningAutoComplete").kendoAutoComplete({
+                dataTextField: "DisplayName", // The widget is bound to the "name" field
+                dataValueField: "Id",
+                minLength: 1,
+                placeholder: "Forureningskomponent",
+                filter: "startswith",
+                dataSource: {
+                    serverFiltering: true,
+                    serverPaging: true,
+                    pageSize: 2,
+                    transport: {
+                        read: "/Administration/SearchForureningskomponent",
+                        parameterMap: function() {
+                            return { wildcard: $("#txtForureningAutoComplete").val() };
+                        }
+                    }
+                }
+            });
+
+            $("#txtForureningAutoComplete").keypress(function(e) {
+                if (e.keyCode == '13') {
+                    e.preventDefault();
+                    $("#btnTilfoejForureningskomponent").click();
+                    $("#txtForureningAutoComplete").val("");
+                }
+            });
+
+            $("#btnKortModtagerAnlaeg").click(function(e) {
+                e.preventDefault();
+                if ($("#chkCentraltOprettetMidlertidigtAnlaeg").is(":checked")) {
+                    $("#winRedigerIndtegnetPlacering").data("kendoWindow").center().open();
+                    // Load håndteres længere nede
+                } else {
+                    var maid = $("#hfSelectedModtagerAnlaegId").val();
+                    openModtagerAnlaegKort(maid);
+                };
+            });
+            Jordflytning.ui.createModalWindow("winModtagerAnlaegKort", 600, 900, "Modtageanlæggets placering", false);
+        });
+
+        function onModtagerAnlaegSelected() {
+            var grid = $("#GridModtagerAnlaeg").data("kendoGrid");
+            var idJord;
+            grid.select().each(function() {
+                var dataItem = grid.dataItem($(this));
+                idJord = dataItem.Id;
+                window.location.href = "@Url.Action("SelectModtagerAnlaeg", "Administration")" + "?id=" + idJord;
+            });
+        }
+
+        function showOkAlert(data, status, xhr) {
+            window.displayMessage('Oplysningerne er gemt');
+            if (data && data.redirectTo) {
+                location.replace(data.redirectTo);
+            }
+        }
+
+        function showFailAlert() {
+            alert("Der skete en fejl. Prøv igen.");
+        }
+
+        function onSuccess() {
+            onModtagerAnlaegSelected();
+            $("#GridDokumenation").data("kendoGrid").dataSource.read();
+        }
+
+        function onError(e) {
+            // Array with information about the uploaded files
+            if (e.operation == "upload") {
+                alert("Filen er for stor!");
+            }
+        }
+
+        function openModtagerAnlaegKort(id) {
+            var handleModalWindowInputs = function() {
+                alert("handleModalWindowInputs");
+                var wkt = $("#hflModtagerAnlaegWkt").val();
+                $("#hflModtagerAnlaegWkt2").val(wkt);
+            };
+            var wdiv = $("#winModtagerAnlaegKort").kendoWindow({
+                iframe: true,
+                content: "/ModtagerAnlaeg/RedigerPlacering?modtagerAnlaegId=" + id,
+                type: "GET"
+            });
+            wdiv.data("kendoWindow").center();
+            wdiv.data("kendoWindow").open();
+        }
+
+        function onSelectedJordAnlaegType(e) {
+            var currentSelectedItem = this.dataItem(this.select());
+            if (currentSelectedItem != null) {
+                var dataItem = this.dataItem(e.item.index());
+                $("#hfJordAnlaegTypeId").val(dataItem.Value);
+            }
+        }
+
+        function onTilfoejAnlaeg() {
+            var id = $("#hfSelectedJordModtagerId").val();
+            window.location.href = "@Url.Action("CreateModtagerAnlaeg", "Administration")" + "?jordGuid=" + id;
+        }
+
+        function onSelectedLandsdelType(e) {
+            var currentSelectedItem = this.dataItem(this.select());
+            if (currentSelectedItem != null) {
+                $("#hfLandsdelTypeId").val(currentSelectedItem.Value);
+            }
+        }
+
+        function getLandsdelId() {
+            var filtParam = {
+                landsdelTypeId: $("#drpLandsdel").val()
+            };
+            return filtParam;
+        }
+
+        function gridModtagerAnlaegHover() {
+            $("#GridModtagerAnlaeg tbody tr").hover(
+                function() {
+                    $(this).toggleClass("k-state-hover");
+                }
+            );
+        }
+
+        function PopUpEdit(e) {
+            // HIDE READONLY VALUES!
+            $(e.container).find('[for="Id"]').parent().hide();
+            $(e.container).find('#Id').parent().hide();
+            $(e.container).find('#Navn').attr('disabled', 'disabled');
+            $(e.container).find('#Navn').addClass('hideTextbox');
+            $(e.container).find('[for="Kode"]').parent().hide();
+            $(e.container).find('#Kode').parent().hide();
+            $(e.container).find('[for="EnhedNavn"]').parent().hide();
+            $(e.container).find('#EnhedNavn').parent().hide();
+        }
+
+        function startChange() {
+            var endPicker = $("#datSlut").data("kendoDatePicker"),
+                startDate = this.value();
+
+            if (startDate) {
+                startDate = new Date(startDate);
+                startDate.setDate(startDate.getDate() + 1);
+                endPicker.min(startDate);
+            }
+        }
+
+        function endChange() {
+            var startPicker = $("#datStart").data("kendoDatePicker"),
+                endDate = this.value();
+
+            if (endDate) {
+                endDate = new Date(endDate);
+                endDate.setDate(endDate.getDate() - 1);
+                startPicker.max(endDate);
+            }
+        }
+    </script>
+}
+
+<style>
+    #winRedigerIndtegnetPlacering {
+        overflow: hidden !important;
+    }
+</style>
+
+<div class="row">
+	<div class="column" style="margin-right: 10px; width: 532px">
+		@using (Ajax.BeginForm("EditJordModtager", "Administration", new AjaxOptions { HttpMethod = "POST", OnSuccess = "showOkAlert", OnFailure = "showFailAlert", Confirm = "Er du sikker på at du vil gemme?" }, new { Id = "frmJordmodtager" }))
+	{
+        
+
+		@Html.HiddenFor(p => p.SelectedJordmodtager.Id, new { Id = "hfSelectedJordModtagerId" })
+
+		<div class="controlsbox row" style="margin-top: 10px">
+			<div class="cbheader">
+				<h5>Jordmodtagerfirma</h5>
+			</div>
+			<div class="row_control">
+				<div class="row_line">
+					<label>Navn</label>
+					@Html.TextBoxFor(p => p.SelectedJordmodtager.Navn, new { style = "width: 317px;" })
+					<div class="ErrorMessages">
+						@Html.ValidationMessageFor(m => m.SelectedJordmodtager.Navn)
+					</div>
+				</div>
+				<div style="clear: both"></div>
+
+				<div class="row_line">
+					<label>Adresse</label>
+					@Html.TextBoxFor(p => p.SelectedJordmodtager.Adresse, new { style = "width: 317px;"})
+					<div class="ErrorMessages">
+						@Html.ValidationMessageFor(m => m.SelectedJordmodtager.Adresse)
+					</div>
+				</div>
+				<div style="clear: both"></div>
+
+				<div class="row_line">
+					<label>Postnummer</label>
+					@Html.TextBoxFor(p => p.SelectedJordmodtager.Postnummer, new { style = "width: 40px; margin-right: 5px" })
+					<div class="ErrorMessages">
+						@Html.ValidationMessageFor(m => m.SelectedJordmodtager.Postnummer)
+					</div>
+
+					@Html.TextBoxFor(p => p.SelectedJordmodtager.By, new { style = "width: 272px" })
+					<div class="ErrorMessages">
+						@Html.ValidationMessageFor(m => m.SelectedJordmodtager.By)
+					</div>
+				</div>
+				<div style="clear: both"></div>
+
+				<div class="row_line">
+					<label>CVR</label>
+					@Html.TextBoxFor(p => p.SelectedJordmodtager.Cvr, new { style = "width:317px;" })
+					<div class="ErrorMessages">
+						@Html.ValidationMessageFor(m => m.SelectedJordmodtager.Cvr)
+					</div>
+				</div>
+				<div style="clear: both"></div>
+
+				<div class="row_line">
+					<label>Telefon</label>
+					@Html.TextBoxFor(p => p.SelectedJordmodtager.Telefon, new { style = "maxlength:8; width:317px;" })<br />
+					<div class="ErrorMessages">
+						@Html.ValidationMessageFor(m => m.SelectedJordmodtager.Telefon)
+					</div>
+				</div>
+				<div style="clear: both"></div>
+
+			    <div class="row_line">
+			       <label>&nbsp;</label>
+			       <label>@Html.CheckBoxFor(jm => jm.SelectedJordmodtager.Aktiv, new { style = "margin-left: 0px; margin-right: 5px; margin-top:2px;" })Aktiv</label>
+			    </div>
+                <div style="clear: both"></div>
+                <div class="row_line">
+                    <label>&nbsp;</label>
+                    <label style="width:auto">@Html.CheckBoxFor(jm => jm.SelectedJordmodtager.JordmodtagerMedFlytjordAbonnement, new { style = "margin-left: 0px; margin-right: 5px; margin-top:2px; margin-bottom:10px;" }) Jordmodtagerfirma med Flytjord abonnement</label>
+                </div>
+				<div style="clear: both"></div>
+
+				<div class="row_line" style="margin-left:0px;">
+					<input id="btnGemJordmodtager" name="command" type="submit" style=" margin-left:38%;" value="Gem" />
+				</div>
+				<div style="clear: both"></div>
+			</div>
+		</div>
+	}
+	
+	</div>
+
+    <div class="column" style="margin-right: 0px; width: 48%;">
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Modtageanlæg</h5>
+            </div>
+            <div style="clear: both"></div>
+            <div class="row_control">
+                <div class="row_line">
+                    @(Html.Kendo().Grid(Model.ModtagerAnlaegList)
+                          .Name("GridModtagerAnlaeg")
+                          .HtmlAttributes(new { style = "font-size:12px;" })
+                          .Columns(columns =>
+                          {
+                              columns.Bound(p => p.Id).Hidden();
+                              columns.Bound(p => p.Navn).Sortable(true).Title("Navn");
+                              columns.Bound(p => p.Adresse).Sortable(true).Title("Adresse");
+                              columns.Bound(p => p.Postnummer).Sortable(true).Title("Postnr.");
+                              columns.Bound(p => p.By).Sortable(true).Title("By");
+                              columns.Bound(p => p.Aktiv).Sortable(true).Title("Aktiv").ClientTemplate("<input disabled='disabled' type='checkbox' #= Aktiv ? checked='checked' :'' # />").Width(20);
+                          })
+                          .Sortable()
+                          .Events(events => events.Change("onModtagerAnlaegSelected").DataBound("gridModtagerAnlaegHover"))
+                          .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                          .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .ServerOperation(false)
+                              .Model(model => model.Id(p => p.Id)))
+
+                          )
+                </div>
+            </div>
+            <div class="row_line" style="float: left">
+                <input type="button" id="btnTilfoejAnlaeg" style="margin-left:10px" value="Opret" onclick="onTilfoejAnlaeg()" />
+            </div>
+            <div style="clear: both"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="display: @( (Model.SelectedModtagerAnlaeg != null) ? "block" : "none")" >
+    <div class="controlsbox row" style="height: auto; width: 99,9%; margin-top: 10px;">
+        <div class="cbheader">
+            <h5>Rediger modtageanlæg</h5>
+        </div>
+        <div class="column" style="width: 51%; margin-right: 13px;">
+            @using (Ajax.BeginForm("EditModtagerAnlaeg", "Administration", new AjaxOptions { HttpMethod = "POST", OnSuccess = "showOkAlert", OnFailure = "showFailAlert", Confirm = "Er du sikker på at du vil fortsætte?" }, new { Id = "frmModtagerAnlaeg" }))
+            {
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.Id, new { Id = "hfSelectedModtagerAnlaegId" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.JordanlaegTypeId, new { Id = "hfJordAnlaegTypeId" })
+                //@Html.HiddenFor(p => p.SelectedModtagerAnlaeg.JordKlassifikationTypeId, new { Id = "hfKlassifikationTypeId" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.JordmodtagerId, new { Id = "hfSelectedJordModtagerId2" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.Wkt, new { Id = "hflModtagerAnlaegWkt2" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.LandsdelTypeId, new { Id = "hfLandsdelTypeId" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.AnvenderJf, new { Id = "hfAnvenderJf" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.Ejerlav, new { Id = "hfEjerlav" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.Ejerlavsnavn, new { Id = "hfEjerlavsnavn" })
+                @Html.HiddenFor(p => p.SelectedModtagerAnlaeg.EsrEjensomsnummer, new { Id = "hfEsrEjendomsnummer" })
+                @Html.Hidden("hfIndtegnedeMatriklerJson", "", new { Id="hfIndtegnedeMatriklerJson" });
+                
+                <div class="row_control">
+   
+                    <div class="row_line">
+                        <label>&nbsp;</label>
+                        <label style="width:260px;">@Html.CheckBoxFor(jm => jm.SelectedModtagerAnlaeg.CentraltOprettetMidlertidigtAnlaeg, new { style = "margin-left: 0px; margin-right: 5px; margin-top:2px;", id = "chkCentraltOprettetMidlertidigtAnlaeg" })Midlertidigt anlæg (centralt oprettet)</label>
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <input type="button" id="btnKortModtagerAnlaeg" style="width:322px; margin-left: 38%; margin-top:5px; margin-right:0px; padding-left:0px; padding-right:0px; border:none;" value="Modtageanlæggets placering ..." />
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Navn</label>
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.Navn, new { style = "width:315px; padding-right:0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Adresse</label>
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.Adresse, new { style = "width:315px; padding-right:0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Postnummer</label>
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.Postnummer, new { style = "width: 40px; margin-right: 5px" })
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.By, new { style = "width: 270px" })
+                    </div>
+                    
+                    @* Midlertidig modtager anlæg editor - Se scrollbar fix i øverste CSS deklaration! *@
+                    <script>
+                        var loadRedigerIndtegnetPlaceringEditor = function () {
+                            var wkt = $("#hflModtagerAnlaegWkt2").val();
+                            var dialog = $("#winRedigerIndtegnetPlacering").data("kendoWindow");
+                            dialog.refresh('@Url.Action("RedigerIndtegnetPlacering", "Placering", new {Area = ""})/?wkt='+wkt);
+                        };
+                    </script>
+
+                    <!--
+                    http://demos.telerik.com/aspnet-mvc/window/ajax
+                    -->
+
+                    @(Html.Kendo().Window()
+                            .Name("winRedigerIndtegnetPlacering")
+                            .Title("Rediger placering")
+                            .Content("Vent venligst...")
+                            .Iframe(true)
+                            .Scrollable(false)
+                            .Draggable()
+                            .Resizable()
+                            .Width(1024)
+                            .Height(610)
+                            .Visible(false)
+                            .Events(ev => ev.Open("loadRedigerIndtegnetPlaceringEditor"))
+                    )
+
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Aktiv</label>
+                        <label>@Html.CheckBoxFor(jm => jm.SelectedModtagerAnlaeg.Aktiv, new { style = "margin-left: 0px; margin-right: 5px; margin-top:2px;" })Aktiv</label>
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        <label>Aktiv fra - til</label>
+                        @(Html.Kendo().DatePickerFor(m => m.SelectedModtagerAnlaeg.AktivFra)
+                  .HtmlAttributes(new { Id = "datStart", type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv start dato for aktivering af modtageanlæg", style = "width: 125px" })
+                          .Events(e => e.Change("startChange"))
+                              )
+                        @(Html.Kendo().DatePickerFor(m => m.SelectedModtagerAnlaeg.AktivTil)
+              .HtmlAttributes(new { Id = "datSlut", type = "text", Class = "classiclook_kendo_workaround", data_tooltip = "Angiv slut dato for aktivering af modtageanlæg", style = "width: 125px" })
+                              .Events(e => e.Change("endChange"))
+                              )
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        <label>www</label>
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.Www, new { style = "width:315px; padding-right:0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Kontaktperson navn</label>
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.KontaktpersonNavn, new { style = "width:315px; padding-right:0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Kontaktperson tlf.</label>
+                        @Html.Kendo().NumericTextBoxFor(m => m.SelectedModtagerAnlaeg.KontaktpersonTlf).Spinners(false).Min(0).Max(99999999).Decimals(0).Format("#")
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Kontaktperson e-mail </label>
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.KontaktpersonEmail, new { style = "width:315px; padding-right:0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line" style="display: none;">
+                        <label>Advis</label>
+                        <label style="width: auto;">@Html.CheckBoxFor(jm => jm.SelectedModtagerAnlaeg.Advis, new { style = "margin-left: 0px; margin-right: 5px; margin-top:2px;" })Send advis om godkendelse</label>
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        <label>Kommunekode </label>
+                        @Html.TextBoxFor(p => p.SelectedModtagerAnlaeg.KommuneKode, new { style = "width:315px; padding-right:0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Jordklassifikationsmodel</label>
+                        @(Html.Kendo().DropDownListFor(m => m.SelectedModtagerAnlaeg.LandsdelTypeId)
+                              .Name("drpLandsdel")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.LandsdelTypeList)
+                              .Events(e => e.Change("onSelectedLandsdelType"))
+                              .HtmlAttributes(new { style = "width:315px" })
+                              )
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Jordklassifikation</label>                      
+                        @(Html.Kendo().DropDownListFor(m=>m.SelectedModtagerAnlaeg.JordKlassifikationTypeId)
+                              .HtmlAttributes(new {id ="drpJordklassifikationType", style = "width:275px" })
+                              .OptionLabel("Vælg Jordklassifikation")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .DataSource(source => {source
+                                  .Read(read =>{ read.Action("ReadJordklassifikation", "Administration", new { area = "Backend" }).Data("getLandsdelId");})                                                             
+                                  .ServerFiltering(true);
+                              })
+                              .Enable(false)
+                              .AutoBind(false)
+                              .CascadeFrom("drpLandsdel")
+                              .HtmlAttributes(new { style = "width:315px" })
+                              )
+                    </div>                   
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Modtager affald</label>
+                        <label style="width: 50px;">@Html.RadioButtonFor(m => m.SelectedModtagerAnlaeg.TakesAffald, true, new { name = "rbAffald" })Ja</label>
+                        <label>@Html.RadioButtonFor(m => m.SelectedModtagerAnlaeg.TakesAffald, false, new { name = "rbAffald" })Nej</label>
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        <label>Jordanlæg</label>
+                        @(Html.Kendo().DropDownListFor(m => m.SelectedModtagerAnlaeg.JordanlaegTypeId)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.JordanlaegTypeList)
+                              .Events(e => e.Select("onSelectedJordAnlaegType"))
+                              .HtmlAttributes(new { style = "width:275px" })
+                              .HtmlAttributes(new { style = "width:315px" })
+                              )
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @*<label>Bemærkning</label>*@
+                        <label style="width:195px"><span style="width:195px">Bemærkning </span><span style="color:red; font-size:11px; line-height:11px; display: block;">(der må ikke indtastes persondata)</span></label>
+                        @Html.TextAreaFor(p => p.SelectedModtagerAnlaeg.Bemaerkning, new { style = "width:315px; height:80px; padding-right:0px;" })
+                    </div>
+                    <div style="clear: both"></div>
+                    
+                    <div class="row_line">
+                        <label>Automatik kommune</label>
+                        <label style="width: 260px">@Html.CheckBoxFor(m => m.SelectedModtagerAnlaeg.OphaevAutoGodkendAnmKom, new { style = "margin-left: 0px; margin-right: 5px; margin-top:2px;" })Ingen automatisk godkendelse af anmeldelser</label>
+                    </div>
+
+                    <div class="row_line" style="display: @( (Model.SelectedModtagerAnlaeg != null && Model.SelectedModtagerAnlaeg.AnvenderJf) ? "block" : "none")">
+                        <label>Automatik jordmodtager</label>
+                        <label style="width: 260px">@Html.RadioButtonFor(m => m.SelectedModtagerAnlaeg.AutoGodkend, true, new { name = "rbAccept" })Systemet godkender automatisk visse anmmeldelser</label>
+                    </div>
+                    <div style="clear: both"></div>
+                    
+                    <div class="row_line"  style="display: @( (Model.SelectedModtagerAnlaeg != null && Model.SelectedModtagerAnlaeg.AnvenderJf) ? "block" : "none")">
+                        <label>&nbsp;</label>
+                        <label style="width: 260px">@Html.RadioButtonFor(m => m.SelectedModtagerAnlaeg.AutoGodkend, false, new { name = "rbAccept" })Miljømedarbejder skal altid vurdere anmeldelserne</label>
+                    </div>
+                    <div style="clear: both"></div>
+                    
+                    <div class="row_line" >
+                        <input id="btnGemAnlaeg" name="command" type="submit" style="margin-top:15px;  margin-left:38%;" value="Gem" />
+                    </div>
+                    <div style="clear: both"></div>
+                </div>      
+            }
+        </div>
+
+        <div class="column" style="width: 47%; margin-right: 0px; margin-top: 6px; display: @( (Model.SelectedModtagerAnlaeg != null && Model.SelectedModtagerAnlaegGuid != Guid.Empty) ? "block" : "none");">
+            <div class="row_line" >
+                @(Html.Kendo().Grid<DokumenterViewModel>()
+                      .Name("GridDokumenation")
+                      .HtmlAttributes(new { style = "font-size:12px;" })
+                      .Columns(columns =>
+                          {
+                              columns.Bound(p => p.Id).Hidden();
+                              columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter");
+                              columns.Bound(p => p.Id).ClientTemplate(Html.ActionLink("Åben", "DownloadDokumentation",
+                                                                                      new
+                                                                                          {
+                                                                                              modtageAnlaegId = Model.SelectedModtagerAnlaegGuid,
+                                                                                              filnavn = "#=FilNavn#",
+                                                                                              target = "_blank"
+                                                                                          })
+                                                                          .ToHtmlString())
+                                     .Title("").Width(70);
+                              columns.Command(c => c.Destroy().Text("Fjern")).Width(70);
+                          }
+                      )
+                      .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                      .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne filen?"))
+                      .DataSource(dataSource => dataSource.Ajax() // Specify that the data source is of ajax type
+                                                          .Read(read => read.Action("ReadDokumentation", "Administration", new { anlaegGuid = Model.SelectedModtagerAnlaegGuid }))
+                                                          .Model(model => model.Id(p => p.Id))
+                                                          .Destroy(des => des.Action("RemoveTheDocument", "Administration", new { anlaegGuid = Model.SelectedModtagerAnlaegGuid }))
+                      ))        
+            </div>
+            <div style="clear: both"></div>
+
+            <div style="width: 45%">
+                <div>
+                    @(Html.Kendo().Upload()
+                          .Name("files")
+                          .Async(a => a.Save("UploadDocument", "Administration", new { modtageAnlaegGuid = Model.SelectedModtagerAnlaegGuid })
+                              .AutoUpload(true))
+                          .ShowFileList(false)
+                          .Messages(m=>m.Select("Tilføj"))
+                          .Events(ev => ev
+                              .Success("onSuccess")
+                              .Error("onError")
+                              ))
+                </div>
+            </div>
+            <div style="clear: both"></div>
+
+            <div class="row_line" style="margin-bottom: 15px; margin-top:25px;">
+                @if (Model.SelectedModtagerAnlaeg != null)
+                {
+                    @(Html.Kendo().Grid(Model.SelectedModtagerAnlaeg.GraenseVaerdierList)
+                          .Name("grdAnmeldelseForureningskomponentListe")
+                          .HtmlAttributes(new { style = "font-size:12px; max-height: 650px; overflow-y: auto;" })
+                          .Events(e => e.Edit("PopUpEdit"))
+                          .Columns(columns =>
+                              {
+                                  columns.Bound(p => p.Id).Hidden();
+                                  columns.Bound(p => p.Navn).Title("Forureningskomponent").Width(250);
+                                  columns.Bound(p => p.Max).Title("Max");
+                                  columns.Bound(p => p.EnhedNavn).Title("Enhed");
+
+                                  columns.Command(command =>
+                                  {
+                                      command.Edit().Text("Ret").UpdateText("Gem").CancelText("Annuller");
+                                      command.Destroy().Text("Fjern");
+                                  }).Width(50);
+                              })
+                              .Editable(editable => editable.Mode(GridEditMode.PopUp).Window( w => w.Title("Ret")))
+                          .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne forureningskomponenten?"))
+                          .DataSource(dataSource => dataSource
+                                                        .Ajax()
+                                                        .Model(model => model.Id(p => p.Id))
+                                                            .Destroy(destroy => destroy.Action("RemoveGraenseVaerdi", "Administration", new { modtageAnlaegGuid = Model.SelectedModtagerAnlaeg.Id }))
+                                                            .Update(update => update.Action("UpdateGraenseVaerdi", "Administration", new { modtageAnlaegGuid = Model.SelectedModtagerAnlaeg.Id }))
+                          ))
+                }
+                
+            </div>
+            <div class="row_line" style="display: inline; ">
+                <input id="txtForureningAutoComplete" style="width: 250px; float: left; border:0px;" />
+                <input id="txtMaxValue" maxlength="10" style="height:22px; margin-top: 1px; margin-left: 6px; width: 50px; float: left;" />
+                <label style="margin-top: 1px; margin-left: 12px; width:45px; float: left">mg/kg</label>
+                <input id="btnTilfoejForureningskomponent" style="float: right; margin-right:0px;" type="button" value="Tilføj" />
+            </div>
+            <div style="clear: both"></div>
+        </div>
+        <div style="clear: both"></div>
+
+    </div>
+</div>
+
+<div id="winModtagerAnlaegKort" style="display: none">
+    @*Modal vindue til visning af modtagerAnlaeget i kortet.*@
+</div>

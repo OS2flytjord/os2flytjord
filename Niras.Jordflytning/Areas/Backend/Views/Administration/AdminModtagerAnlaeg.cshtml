@@ -1,0 +1,125 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.ViewModels.Backend
+@model List<ModtagerAnlaegViewModel>
+
+@{
+    ViewBag.Title = "Modtager Anlæg administration";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+   
+    <script>
+
+
+        function onAdditionalData() {
+            return {
+                text: $("#Modtageranlæg").val()
+            };
+        }
+
+        function openTab(text, url) {
+            if (parent.addTab) {
+                parent.addTab(text, url);
+            }
+        }
+
+        function onModtagerAnlaegSelected() {
+            var id,
+                grid = $("#ModtagerAnlaegGrid").data("kendoGrid");
+                
+            grid.select().each(function () {
+                var dataItem = grid.dataItem($(this)),
+                    faneNavn = dataItem.Navn;
+                id = dataItem.Id;
+                openTab(faneNavn, "@Url.Action("SelectModtagerAnlaeg", "Administration")" + "?id=" + id);
+            });
+        }
+
+        function gridModtagerAnlaegHover() {
+            $("#ModtagerAnlaegGrid tbody tr").hover(function () {
+                $(this).toggleClass("k-state-hover");
+            });
+        }
+
+        function onModtagerAnlaegAutocompleteSelect(e) {
+            var dataItem = this.dataItem(e.item.index()),
+                faneNavn = dataItem.Navn,
+                id = dataItem.Id;
+            openTab(faneNavn, "@Url.Action("SelectModtagerAnlaeg", "Administration")" + "?id=" + id);
+        }
+
+
+    </script>
+}
+
+<div class="controlsbox row" style="margin-top: 10px; width: 1003px;">
+    <div class="cbheader">
+        <h5>Søg og vælg modtageanlæg</h5>
+    </div>
+    <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px;">
+        <div style="clear: both"></div>
+        <div class="row_line">
+            <br />
+
+            @(Html.Kendo().AutoComplete()
+            .Name("ModtageranlaegAutocomplete")
+            .Filter("contains")
+            .Placeholder("Søg og vælg modtageanlæg ...")
+            .MinLength(2)
+            .HtmlAttributes(new { style = "width:400px" })
+            .DataTextField("Navn")
+            .BindTo(Model)
+            .Events(events => events.Select("onModtagerAnlaegAutocompleteSelect"))
+            )
+        </div>
+    </div>
+</div>
+
+<div class="controlsbox row" style="margin-top: 10px; width: 1003px;">
+    <div class="cbheader">
+        <h5>Vælg modtageanlæg</h5>
+    </div>
+    <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px;">
+        <div style="clear: both"></div>
+        <div class="row_line">
+            @(Html.Kendo().Grid(Model)
+                .Name("ModtagerAnlaegGrid")
+                .HtmlAttributes(new { style = "font-size:12px; min-height: 60px;" })
+                .Selectable()
+                .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Id).Hidden();
+                        columns.Bound(p => p.Navn).Sortable(true);
+                        columns.Bound(p => p.Adresse).Sortable(true).Filterable(false).Title("Adresse");
+                        columns.Bound(p => p.Postnummer).Sortable(true).Filterable(false).Title("Postnr.");
+                        columns.Bound(p => p.By).Sortable(true).Filterable(false).Title("By");
+                        columns.Bound(p => p.JordKlassifikationNavn).Sortable(true).Filterable(false).Title("Jord Klassifikation");
+                        columns.Bound(p => p.JordmodtagerNavn).Sortable(true).Filterable(false).Title("Jordmodtagerfirma");
+                        columns.Bound(p => p.Aktiv).Sortable(true).Filterable(false).ClientTemplate("<input disabled='disabled' type='checkbox' #= Aktiv ? checked='checked' :'' # />"); ;
+                        columns.Bound(p => p.CentraltOprettetMidlertidigtAnlaeg).Sortable(true).Filterable(false).Title("Midlertidigt anlæg (centralt oprettet)").ClientTemplate("<input disabled='disabled' type='checkbox' #= CentraltOprettetMidlertidigtAnlaeg ? checked='checked' :'' # />"); ;
+                    })
+                .Sortable()
+                .DataSource(da => da.Ajax()
+                    .Model(model => model.Id(p => p.Id))
+                    .ServerOperation(false)
+                            .Read(read => read.Action("AdminModtagerAnlaeg", "Frontpages", "backend"))
+                )
+                .Selectable(selectable => selectable
+                            .Mode(GridSelectionMode.Single)
+                            .Type(GridSelectionType.Row))
+
+                .Editable(editable =>
+                {
+                    editable.Mode(GridEditMode.PopUp);
+                    editable.Window(z => { z.Title("Opret jordmodtager"); z.Width(500); });
+                })
+                //.Events(e => e.Edit("editJordmodtagerForm").DataBound("gridJordmodtagerHover"))
+                .Events(events => events.Change("onModtagerAnlaegSelected").DataBound("gridModtagerAnlaegHover"))
+
+
+            )
+        </div>
+
+    </div>
+</div>

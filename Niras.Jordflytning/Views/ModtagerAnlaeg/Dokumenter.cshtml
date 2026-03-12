@@ -1,0 +1,42 @@
+﻿
+@using Niras.Jordflytning.ViewModels.Backend
+@model Niras.Jordflytning.ViewModels.ModtagerAnlaeg.ModtagerAnlaegDokumentModel
+@{
+    ViewBag.Title = "Dokumenter";
+    Layout = "~/Views/Shared/_LayoutBasic.cshtml";
+}
+@section Scripts{
+  
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+
+
+    });
+
+  </script>
+}
+@(Html.Kendo().Grid<DokumenterViewModel>()
+                          .Name("GridDokumenation")
+                          .Columns(columns =>
+                              {
+                                columns.Bound(p => p.Id).Hidden();
+                                columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter");
+                                columns.Bound(p => p.Id).ClientTemplate(Html.ActionLink("Åben", "DownloadDokumentation",
+                                                                                        new
+                                                                                        {
+                                                                                          modtageAnlaegId = Model.ModtagerAnlaegId,
+                                                                                          filnavn = "#=FilNavn#",
+                                                                                          target = "_blank"
+                                                                                        })
+                                                                                        .ToHtmlString())
+                                                                                        .Title("").Width(70);
+                                
+                              }
+                          )
+                          .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                          .DataSource(dataSource => dataSource.Ajax() // Specify that the data source is of ajax type
+                                                              .Read(read => read.Action("ReadDokumentation", "Administration", new { anlaegGuid = Model.ModtagerAnlaegId }))
+                                                              .Model(model => model.Id(p => p.Id))
+                          ))
+

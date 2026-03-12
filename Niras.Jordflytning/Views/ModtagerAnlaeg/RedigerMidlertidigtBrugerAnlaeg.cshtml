@@ -1,0 +1,694 @@
+﻿@using Niras.Jordflytning.Enums
+@model Niras.Jordflytning.ViewModels.ModtagerAnlaeg.RedigerMidlertidigtBrugerAnlaegModel
+@{
+    ViewBag.Title = "Anmeldelse";
+    Layout = "~/Views/Shared/_LayoutModal.cshtml";
+    var erNy = !(Model.AnlaegId.HasValue && Model.AnlaegId.Value != Guid.Empty);
+}
+
+@section Scripts{
+    <script src='@(Model.KortApiUrl)' type='text/javascript'></script>
+    
+    @Scripts.Render("/bundles/proj4s")
+    @Scripts.Render("/bundles/wicket")
+}
+@section Styles
+{
+    <link href="@Url.Content("~/Content/Css/modal.css")" rel="stylesheet" type="text/css" />
+}
+@using (Html.BeginForm())
+{
+    <div>
+        <div class="row" id="divJorden">
+            <div class="column" style="margin-right: 10px; width: 525px;">
+                <div class="row controlsbox" style="margin-top: 10px">
+                    <div class="cbheader">
+                        <h5>Navigér til stedet og indtegn området</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row">
+
+                            <div class="">
+                                <div class="row_line" id="" style="margin-left: -3px; width: 100%; overflow: hidden;">
+                                    @Html.Partial("~/Views/Anmeldelser/_AdresseOpslag.cshtml")
+                                </div>
+                                <div class="row_line" id="" style="margin-left: 0px; width: 100%; overflow: hidden;">
+                                    @Html.Partial("~/Views/Anmeldelser/_MatrikelOpslag.cshtml")
+                                </div>
+                            </div>
+                            <div class="row_line" id="">
+                                <div>
+                                    <input type="button" style="margin-bottom: 5px;"
+                                        id="btnEjendomMapDigPolygon"
+                                        value="Start indtegning af området (Afslut med dobbeltklik)*" onclick="mapStedDigitaliser();$(this).hide();"
+                                        data-tooltip="Klik her for at starte indtegning i kortet af området, som jordflytningen vedrører"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="row" id="" style="height: 400px">
+                                <div style="border: solid 0 #000; height: 100%; width: 100%; position: relative;" id="divMapContainer">
+                                    <div id="divMapSted" class="kiMap" style="width: 100%; height: 100%"></div>
+                                    <img id="imgMinimise" src="/Content/images/cross.png" title="Skift til lille kort" style="position: absolute; top: 10px; right: 25px; display: none;">
+                                    <img id="imgMaximise" src="/Content/images/application_side_contract.png" title="Skift til stort kort" style="position: absolute; top: 10px; right: 25px; ">
+                                    <img id="imgSignatur" src="/Content/images/Signatur.png" title=""/>
+                                    <img id="imgSignaturForklaringExpand" src="/Content/images/Pil_ned.png" title="Udvid signaturforklaring"/>
+                                    <img id="imgSignaturForklaringColapse" src="/Content/images/Pil_op.png" title="Minimer signaturforklaring"/>
+                                    <img id="imgSignaturForklaring" src="/Content/images/Signaturforklaring_FJ_small.png" title=""/>
+                                </div>
+                                <div style="clear: both"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row controlsbox" id="oplysningerContainer" style="width: 100%; display: none;">
+                    <div class="cbheader">
+                        <h5>Forhold på stedet ud fra centrale registreringer</h5>
+                    </div>
+                    <div class="row" id="oplysninger" style="padding: 10px;">
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="column k-state-disabled" id="anlaegSection" style="width: 415px">
+                <div class="row controlsbox" style="margin-top: 10px">
+                    <div class="cbheader">
+                        <h5>Anlægget</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Navn)</td>
+                                    <td>&nbsp;</td>
+                                    <td>@Html.TextBoxFor(model => model.Navn, new { id = "navn", style = "width: 100%", @maxlength = 120 })</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Grundejer)</td>
+                                    <td style="padding: 0 5px 5px 0">*</td>
+                                    <td>@Html.TextBoxFor(model => model.Grundejer, new { id = "grundejer", style = "width: 100%", @maxlength = 120 })</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Adresse)</td>
+                                    <td style="padding: 0 5px 5px 0">*</td>
+                                    <td>@Html.TextBoxFor(model => model.Adresse, new { id = "adresse", style = "width: 100%", @maxlength = 100 })</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Postnummer, "Postnummer og by")</td>
+                                    <td style="padding: 0 5px 5px 0">*</td>
+                                    <td>
+                                        <table border="0" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td width="20%">@Html.TextBoxFor(model => model.Postnummer, new { id = "postnummer", style = "width:100%;", @maxlength = 4 })</td>
+                                                <td width="1%">
+                                                <td>@Html.TextBoxFor(model => model.Postdistrikt, new { id = "postdistrikt", style = "width:100%;", @maxlength = 40 })</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Kommunekode)</td>
+                                    <td style="padding: 0 5px 5px 0">*</td>
+                                    <td>
+                                        <select data-val="true" data-val-required="Kommune skal angives" id="kommunekode" name="Kommunekode" style="width: 100%">
+                                            <option value=""></option>
+                                            @foreach (var item in Model.Kommuner)
+                                            {
+                                                if (Model.Kommunekode != null && item.Value == Model.Kommunekode.PadLeft(4, '0')) { <option value="@item.Value" selected="selected">@item.Text</option> }
+                                                else { <option value="@item.Value">@item.Text</option> }
+                                            }
+                                        </select>
+                                        @* Af en eller anden årsag vil nedenstående ikke virke korrekt *@
+                                        @*@Html.DropDownListFor(model => model.Kommunekode, Model.Kommuner, "", new { id = "kommunekode", style = "width: 100%;" })*@
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap" valign="top"><label>Matrikel info</label></td>
+                                    <td style="padding: 0 5px 5px 0"></td>
+                                    <td>
+                                        <div id="matrikelVisning" class="controlsbox" style="padding: 0 3px 3px 3px; margin-top: 1px;">[Ikke angivet]</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Affald)</td>
+                                    <td>&nbsp;</td>
+                                    <td>@Html.CheckBoxFor(model => model.Affald, new { id = "affald" })</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">
+                                        @Html.LabelFor(model => model.Bemaerkninger)<br/>
+
+                                        @Html.TextAreaFor(model => model.Bemaerkninger, new { style = "height: 50px; width: 100%;", @maxlength = 500 })
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row controlsbox">
+                    <div class="cbheader">
+                        <h5>Kontaktoplysninger</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Kontaktperson)</td>
+                                    <td style="padding: 0 5px 5px 0">*</td>
+                                    <td>@Html.TextBoxFor(model => model.Kontaktperson, new { id = "kontaktperson", style = "width: 100%", @maxlength = 80 })</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Telefon)</td>
+                                    <td style="padding: 0 5px 5px 0">*</td>
+                                    <td>@Html.TextBoxFor(model => model.Telefon, new { id = "telefon", style = "width: 100%", @maxlength = 8 })</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.Email)</td>
+                                    <td>&nbsp;</td>
+                                    <td>@Html.TextBoxFor(model => model.Email, new { id = "email", style = "width: 100%", @maxlength = 100 })</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 120px; white-space: nowrap">@Html.LabelFor(model => model.CVR)</td>
+                                    <td>&nbsp;</td>
+                                    <td>@Html.TextBoxFor(model => model.CVR, new { id = "cvr", style = "width: 100%", @maxlength = 15 })</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row controlsbox">
+                    <div class="cbheader">
+                        <h5>Dokumenter</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row">
+                            @(Html.Kendo().Upload()
+                                  .Name("files")
+                                  .Messages(m=>m.Select("Tilføj dokument"))
+                            )
+                        </div>
+                    </div>
+                </div>
+
+                @if (!Model.InitFejl.Any())
+                {
+                    <br/>
+                    <input type="submit" value="Gem" style="float: right;" />
+                }
+                else
+                {
+                    <ul>
+                        @foreach (var fejl in Model.InitFejl)
+                        {
+                            <li>@fejl</li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    @Html.HiddenFor(model => model.Ejerlav, new { id = "ejerlav" })
+    @Html.HiddenFor(model => model.Ejerlavsnavn, new { id = "ejerlavsnavn" })
+    @Html.HiddenFor(model => model.Matrikelnummer, new { id = "matrikelnummer" })
+    @Html.HiddenFor(model => model.EsrEjensomsnummer, new { id = "esrejendomsnummer" })
+    @Html.HiddenFor(model => model.JordKlassifikationTypeId)
+    @Html.HiddenFor(model => model.MapBounds.Wkt, new { id = "hflWkt" })
+    @Html.HiddenFor(model => model.MapBounds.LowerX, new { id = "LowerX" })
+    @Html.HiddenFor(model => model.MapBounds.LowerY, new { id = "LowerY" })
+    @Html.HiddenFor(model => model.MapBounds.UpperX, new { id = "UpperX" })
+    @Html.HiddenFor(model => model.MapBounds.UpperY, new { id = "UpperY" })
+    @Html.HiddenFor(model => model.PostAttempts)
+    @Html.HiddenFor(model => model.AnlaegId)
+    @Html.HiddenFor(model => model.ModtagerId)
+}
+
+<script type="text/javascript">
+
+    var fundetAdresse = null;
+
+    @if (Model.SaveState == SaveState.Saved)
+    {
+        <text>
+        $(document).ready(function() {
+            if (parent) {
+                var modtagerId = "@Model.ModtagerId";
+                var anlaegId = "@Model.AnlaegId";
+                parent.postMessage({ command: "anvendMidlertidigModtager", modtagerId: modtagerId, anlaegId: anlaegId }, "*");
+            }
+        });
+        </text>
+    }
+
+    var getCentroid2 = function(arr) {
+        var twoTimesSignedArea = 0;
+        var cxTimes6SignedArea = 0;
+        var cyTimes6SignedArea = 0;
+
+        var length = arr.length
+
+        var x = function(i) { return arr[i % length][0] };
+        var y = function(i) { return arr[i % length][1] };
+
+        for (var i = 0; i < arr.length; i++) {
+            var twoSA = x(i) * y(i + 1) - x(i + 1) * y(i);
+            twoTimesSignedArea += twoSA;
+            cxTimes6SignedArea += (x(i) + x(i + 1)) * twoSA;
+            cyTimes6SignedArea += (y(i) + y(i + 1)) * twoSA;
+        }
+        var sixSignedArea = 3 * twoTimesSignedArea;
+        return [cxTimes6SignedArea / sixSignedArea, cyTimes6SignedArea / sixSignedArea];
+    };
+
+    var getCenterFromWkt = function(wkt) {
+        var coordinateRaw = wkt.substring(7).replace(/\(/g, '').replace(/\)/g, '');
+        var coordinateStrings = coordinateRaw.split(',');
+        var coordinates = [];
+        for (var i = 0; i < coordinateStrings.length; i++) {
+            var arr = coordinateStrings[i].trim().split(' ');
+            coordinates.push([parseFloat(arr[0]), parseFloat(arr[1])]);
+        };
+        var centroid = getCentroid2(coordinates);
+        return {
+            x: centroid[0],
+            y: centroid[1]
+        };
+    };
+
+    var udfyldEjerlav = function (adresse, doneHandler) {
+        $.ajax({
+            type: "GET",
+            url: "https://dawa.aws.dk/ejerlav/" + adresse.ejerlavkode,
+            dataType: "json",
+            success: function (d) {
+                adresse.ejerlavkode = d.kode;
+                adresse.ejerlavnavn = d.navn;
+                doneHandler.apply(this, [adresse]);
+            },
+            error: function (msg) {
+                //alert("Fejl ved udfyldning af ejerlav");
+            }
+        });
+    };
+    
+    var udfyldMatrikel = function (adresse, doneHandler, errorHandler) {
+        $.ajax({
+            type: "GET",
+            url: "https://dawa.aws.dk/jordstykker/reverse",
+            dataType: "json",
+            data: {
+                //struktur: 'flad',
+                srid: '25832',
+                x: adresse.x,
+                y: adresse.y
+            },
+            success: function (d) {
+                adresse.matrikelnr = d.matrikelnr;
+                adresse.ejerlavkode = d.ejerlav.kode;
+                adresse.ejerlavnavn = d.ejerlav.navn;
+                adresse.esrejendomsnr = d.esrejendomsnr;
+                doneHandler.apply(this, [adresse]);
+                //udfyldEjerlav(adresse, doneHandler);
+            },
+            error: function (a, b) {
+                //alert("Fejl ved udfyldning af matrikel");
+                if (errorHandler != null) {
+                    errorHandler.apply(this, [adresse]);
+                };
+            }
+        });
+    };
+
+    var toggleAnlaegSection = function(enabled) {
+        $("#anlaegSection :input").each(function (i, e) {
+            if (enabled) {
+                $(this).removeAttr("disabled");
+            }
+            else {
+                $(this).attr("disabled", "disabled");
+            };
+        });
+        $("#anlaegSection").toggleClass("k-state-disabled", (!enabled));
+    }
+
+    $(document).ready(function () {
+
+        //$(window).height()
+        toggleAnlaegSection(@(!erNy || Model.PostAttempts > 0 ? "true" : "false"));
+        
+        $("#imgSignaturForklaringColapse").click(function () {
+            $("#imgSignaturForklaringExpand").show();
+            $("#imgSignaturForklaringColapse").hide();
+            $("#imgSignaturForklaring").addClass("hideSignaturForklaring");
+        });
+
+        $("#imgSignaturForklaringExpand").click(function () {
+            $("#imgSignaturForklaringExpand").hide();
+            $("#imgSignaturForklaringColapse").show();
+            $("#imgSignaturForklaring").removeClass("hideSignaturForklaring");
+        });
+
+        $("#imgMaximise").click(function () {
+            
+            $("#divMapContainer").css({ "position": "fixed", "top": "0px", "left": "0px", "z-index": "1000" }); 
+
+            //Signaturforklaring placering ved max kort
+            $("#imgSignatur").addClass("maxMapSignatur");
+            $("#imgSignaturForklaring").addClass("maxMapSignaturForklaring");
+            $("#imgSignaturForklaringExpand").addClass("maxMapSignaturForklaringColapseExpand");
+            $("#imgSignaturForklaringColapse").addClass("maxMapSignaturForklaringColapseExpand");
+
+
+            $("#imgMaximise").toggle();
+            $("#imgMinimise").toggle();
+        });
+        $("#imgMinimise").click(function () {
+            $("#divMapContainer").css("position", "relative");
+
+            //Signaturforklaring placering ved min kort
+            $("#imgSignatur").removeClass("maxMapSignatur");
+            $("#imgSignaturForklaring").removeClass("maxMapSignaturForklaring");
+            $("#imgSignaturForklaringExpand").removeClass("maxMapSignaturForklaringColapseExpand");
+            $("#imgSignaturForklaringColapse").removeClass("maxMapSignaturForklaringColapseExpand");
+
+
+            $("#imgMaximise").toggle();
+            $("#imgMinimise").toggle();
+        });
+
+
+    });
+
+    function loadJordklassifikationerForKommune() {
+        if (!fundetAdresse)
+            return;
+        $.ajax({
+            data: {
+                kommunekode: parseInt(fundetAdresse.kommunekode, 10)
+            },
+            url: "@Url.Action("GetJordKlassifikationerForKommuneTilMidlertidigtAnlaeg", "Anmeldelser")",
+            method: 'GET',
+            success: function(data) {
+                var element = $("#ValgtJordKlassifikationId");
+                element.children('option').remove();
+                for (var i = 0; i < data.length; i++) {
+                    var item = data[i];
+                    element.append($("<option></option>")
+                        .attr("value", item.value)
+                        .attr("title", item.title)
+                        .text(item.text));
+                };
+            },
+            error: function(x,y,z) {
+            }
+        });
+    }
+
+    var getStatus = function (wkt) {
+        if (!fundetAdresse)
+            return;
+        $("#oplysninger").html("<b>Der foretages opslag i eksterne systemer. Vent venligst...</b>");
+        jQuery.ajax({
+            url: '/ModtagerAnlaeg/KonfliktSoegningMidlertidigtAnlaeg',
+            method: 'GET',
+            data: { wkt: wkt }
+        }).done(function (response) {
+
+            $("#btnEjendomMapDigPolygon").show();
+            //$.mobile.loading('hide');
+            if (response) {
+                $("#oplysninger").html(response);
+            }
+        }).fail(function () {
+            $("#oplysninger").html("<b>Opslag fejlede!</b>");
+        });
+
+    };
+
+    var mapSted;
+    var geoms = [];
+
+    //Redlining variable
+    var gfxLayer;
+    var gfxGeometryHighlight;
+
+    var gfxMatrikelLayer;
+    var gfxMatrikelGeometryHighlight;
+     
+    function mapInitSted(site, page) {
+        mapSted = new window.KortInfo.Instance(site, page);
+        mapSted.setUrlArg('ShowOverview', '0');
+        mapSted.setUrlArg('westpanel', 'collapse');
+        mapSted.setUrlArg('gfximpl', 'incubator');
+
+        //Når kortet er klar udføres følgende. TOK 18.1.2019: setTimeout er tilføjet da zoom til området ikke fungererede i Chrome
+        mapSted.setReadyListener(setTimeout(function () {
+            //evt zoom to eller digitaliser
+            var wkt = $("#hflWkt").val();
+            if (wkt != null & wkt != '') {
+                var center = getCenterFromWkt(wkt);
+                mapStedNavigateToBbox(center.x - 50, center.y - 50, center.x + 50, center.y + 50);
+
+                var tempAdr = { x: center.x, y: center.y };
+                udfyldMatrikel(tempAdr, function () {
+                    setMatrikelTekst(tempAdr);
+                }, function() {
+                    setMatrikelTekst({});
+                });
+
+                //mapStedNavigateToBbox(parseInt($("#LowerX").val()), parseInt($("#LowerY").val()), parseInt($("#UpperX").val()), parseInt($("#UpperY").val()));
+            }
+            mapStedRedlineWkt($("#hflWkt").val(), true);
+
+            //Når kortet er klar, skal min/max knap og signaturforklaring vises.
+            $("#imgMaximise").show();
+            $("#imgSignatur").show();
+            $("#imgSignaturForklaring").show();
+            $("#imgSignaturForklaringColapse").show();
+
+            $("#imgSignaturForklaringExpand").show();
+            $("#imgSignaturForklaringColapse").hide();
+            $("#imgSignaturForklaring").addClass("hideSignaturForklaring");
+
+
+        }, 2000));
+        mapSted.initializeNested(document.getElementById('divMapSted'));
+    }
+
+    function mapStedNavigateToBbox(lx, ly, ux, uy) {
+        mapSted.Map.navigateToArea(new window.KortInfo.Geometry.Rectangle2(lx, ly, ux, uy), false);
+    }
+
+    function mapStedDigitaliser() {
+        mapSted.Map.Tools.beginPolygonSelection(mapAfterDigi, null);
+    }
+
+    function mapAfterDigi(geom, kommunekode) {
+        var wkt = window.KortInfo.Ogc.Wkt.fromGeometry(geom);
+        $("#hflWkt").val(wkt);
+        mapStedRedlineWkt(wkt, true);
+        var center = getCenterFromWkt(wkt);
+        var adr = {
+            x: center.x,
+            y: center.y,
+            matrikelnr: null,
+            ejerlavkode: null,
+            ejerlavnavn: null
+        };
+
+        udfyldMatrikel(adr,
+            function() {
+                setMatrikelTekst(adr);
+                setMatrikel(adr);
+            },
+            function() {
+                setMatrikelTekst({});
+                setMatrikel({});
+            });
+
+        $("#oplysningerContainer").show();
+
+        // Slå anlæg sektion til
+        toggleAnlaegSection(true);
+
+        getStatus(wkt);
+        loadJordklassifikationerForKommune();
+    }
+
+    function mapStedClearRedline() {
+        if (!mapSted.isReady()) {
+            return;
+        }
+
+        if (geoms.length != 0)
+            geoms = [];
+
+        if (gfxLayer == null) {
+            gfxLayer = mapSted.Map.addGraphicsLayer();
+        }
+
+        gfxLayer.beginManipulate();
+        gfxLayer.clear();
+        gfxLayer.endManipulate();
+    }
+
+    function mapStedRedlineWkt(redliningWkt, clear) {
+        if (!mapSted.isReady()) {
+            return;
+        }
+        if (redliningWkt != '') {
+            if (gfxLayer == null) {
+                gfxLayer = mapSted.Map.addGraphicsLayer();
+            }
+
+            gfxLayer.beginManipulate();
+            if (clear)
+                gfxLayer.clear();
+
+            gfxGeometryHighlight = null;
+
+            var color = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.55, 0.0, 1.0);
+            var interiorStyleColor = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.55, 0.0, 0.5);
+            var interiorStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidInteriorStyle(interiorStyleColor);
+            var lineStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidLineStyle(color, 2.0);
+            var radius = 5.0;
+            var pointSymbolStyle = new window.KortInfo.Map.GraphicsLayer.GfxCircleSymbolStyle(color, radius, color, 0);
+            var parser = new window.KortInfo.Ogc.Wkt.Parser(redliningWkt);
+            var geometry = parser.parse();
+            var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+            for (var j = 0; j < geometryArray.length; j++) {
+                var g = geometryArray[j];
+                if (g instanceof window.KortInfo.Geometry.Region2) {
+                    gfxLayer.addPolygon(g, interiorStyle, lineStyle);
+                }
+                if (g instanceof window.KortInfo.Geometry.Polyline2) {
+                    gfxLayer.addPolyline(g, lineStyle, null);
+                }
+                if (g instanceof window.KortInfo.Geometry.Vector2) {
+                    gfxLayer.addSymbol(g, pointSymbolStyle);
+                }
+            }
+            gfxLayer.endManipulate();
+        }
+    }
+
+    function mapStedRedlineMatrikelWkt(redliningWkt) {
+        if (!mapSted.isReady()) {
+            return;
+        }
+
+        if (redliningWkt != '') {
+            if (gfxMatrikelLayer == null) {
+                gfxMatrikelLayer = mapSted.Map.addGraphicsLayer();
+            }
+            gfxMatrikelLayer.beginManipulate();
+            gfxMatrikelLayer.clear();
+            gfxMatrikelGeometryHighlight = null;
+
+            var color = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 1.0);
+            var interiorStyleColor = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 0.2);
+            var interiorStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidInteriorStyle(interiorStyleColor);
+            var lineStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidLineStyle(color, 2.0);
+            var radius = 5.0;
+            var pointSymbolStyle = new window.KortInfo.Map.GraphicsLayer.GfxCircleSymbolStyle(color, radius, color, 0);
+            var parser = new window.KortInfo.Ogc.Wkt.Parser(redliningWkt);
+            var geometry = parser.parse();
+            var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+            for (var j = 0; j < geometryArray.length; j++) {
+                var g = geometryArray[j];
+                if (g instanceof window.KortInfo.Geometry.Region2) {
+                    gfxMatrikelLayer.addPolygon(g, interiorStyle, lineStyle);
+                }
+                if (g instanceof window.KortInfo.Geometry.Polyline2) {
+                    gfxMatrikelLayer.addPolyline(g, lineStyle, null);
+                }
+                if (g instanceof window.KortInfo.Geometry.Vector2) {
+                    gfxMatrikelLayer.addSymbol(g, pointSymbolStyle);
+                }
+            }
+            gfxMatrikelLayer.endManipulate();
+        }
+    }
+
+    function mapStedNavigateToWkt(wkt) {
+        var parser = new window.KortInfo.Ogc.Wkt.Parser(wkt);
+        var geometry = parser.parse();
+
+        var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+        if (geometryArray != null & geometryArray.length == 1) {
+            var g = geometryArray[0];
+            mapSted.Map.navigateToArea(g, false);
+        }
+    }
+
+    setMatrikel = function (adresse) {
+        var adr = (adresse || {});
+        $("#ejerlav").val(adr.ejerlavkode || '');
+        $("#ejerlavsnavn").val(adr.ejerlavnavn || '');
+        $("#matrikelnummer").val(adr.matrikelnr || '');
+        $("#esrejendomsnummer").val(adr.esrejendomsnr || '');
+    };
+
+    function adresseFundet(adr) {
+        adresseValgt(adr);
+        if ((adr.x && adr.y) && (!adr.matrikelnr) || (adr.matrikelnr.length === 0)) {
+            udfyldMatrikel(adr, function () {
+                setMatrikel(adr);
+                setMatrikelTekst(adr);
+            });
+        }
+    }
+
+    function setMatrikelTekst(adresse) {
+        var adr = (adresse || {});
+        $("#matrikelVisning").html("Ejerlavskode: "
+            + (adr.ejerlavkode || '') + "<br />"
+            + "Ejerlav: " + (adr.ejerlavnavn || '') + "<br />"
+            + "Matrikelnummer: " + (adr.matrikelnr || '') + "<br />"
+            + "ESR ejendomsnummer: " + (adr.esrejendomsnr || '') + "<br />");
+    }
+
+    function adresseValgt(adr) {
+        fundetAdresse = adr;
+
+        //Kort
+        mapSted.setReadyListener(function () {
+            if (adr.x != null) {
+                mapStedNavigateToBbox(Math.round(adr.x) - 50, Math.round(adr.y) - 50, Math.round(adr.x) + 50, Math.round(adr.y) + 50);
+
+                $("#LowerX").val(Math.round(adr.x) - 50);
+                $("#LowerY").val(Math.round(adr.y) - 50);
+                $("#UpperX").val(Math.round(adr.x) + 50);
+                $("#UpperY").val(Math.round(adr.y) + 50);
+
+                $("#hflWkt").val("POINT(" + Math.round(adr.x) + " " + Math.round(adr.y) + ")");
+            }
+        });
+
+        mapStedRedlineWkt($("#hflWkt").val(), true);
+        setMatrikel(adr);
+        setMatrikelTekst(adr);
+
+        $("#adresse").val(adr.vejnavn + " " + adr.husnr);
+        $("#kommune").val(adr.kommunenavn);
+        $("#postnummer").val(adr.postnummer);
+        $("#postdistrikt").val(adr.postdistrikt);
+        $("#kommunekode").val(adr.kommunekode);
+
+        $("#divStedJordforureningOpslag").show();
+        $("#divEjendomMapDigPolygon").show();
+        
+    }
+
+    //Kort - Resten af load er ikke afhængig af kortinfos hastighed
+    setTimeout('mapInitSted("@(Model.KortSite)","@(Model.KortPageSted)")', 10);
+
+</script>

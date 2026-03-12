@@ -1,0 +1,778 @@
+﻿@using Kendo.Mvc.UI.Fluent
+@using Niras.Jordflytning.ViewModels.Anmeldelse
+@model OpretModel
+
+@{
+    var erNy = !(Model.Anmeldelse != null && Model.Anmeldelse.Id != Guid.Empty);
+    var harMidlertidigModtager = (Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.AnmelderOprettetMidlertidigtAnlaeg);
+}
+
+<style>
+    #winRedigerMidlertidigtAnlaeg {
+        overflow: hidden !important;
+    }
+</style>
+
+<script type="text/javascript">
+
+    /* Lyt på window messaging, for at fange beskeder fra f.eks. opdateringer i et modal / iframe vindue */
+    if (window.addEventListener) {
+        window.addEventListener("message", receiveMessage, false);
+    } else {
+        window.attachEvent("onmessage", receiveMessage, false);
+    };
+
+    function receiveMessage(event) {
+        var data = event.data;
+        if (event.data && event.data.command)
+        {
+            switch (event.data.command) {
+                case "anvendMidlertidigModtager":
+                    anvendMidlertidigModtager(event.data);
+                    break;
+            }
+        };
+    };
+
+    function anvendMidlertidigModtager(data) {
+        /* Opdater med nyt id, gem og gennemtving en reload af siden */
+        var anlaegId = data["anlaegId"];
+        var dialog = $("#winRedigerMidlertidigtAnlaeg").data("kendoWindow");
+        setTimeout(function () { dialog.close(); }, 1);
+        $("#hflSelectedModtagerAnlaegId").val(anlaegId);
+        if (@(harMidlertidigModtager ? "true" : "false")) {
+            midlertidigtModtagerAnlaegAendret(anlaegId);
+        } else {
+            var form = $("#anmeldelseForm").first("form");
+            form.one("submit",
+                function () {
+                    $(document).one("ajaxComplete", function (event, xhr, settings) {
+                        if (@erNy.ToString().ToLower()) {
+                            var anmeldelseId = $("#hflAnmeldelseId").val();
+                            window.location.replace('@Url.Action("Rediger", "Anmeldelser")?anmeldelseId='+anmeldelseId+'&tab=modtager-transportoer');
+                        } else {
+                            Jordflytning.url.setParameter('tab', 'modtager-transportoer', true);
+                        };
+                    });
+                    return true;
+                });
+            $("#btnGem").click();
+        };
+    };
+
+</script>
+
+<div class="controlsbox row" style="margin-top: 10px; width: 1003px">
+  <div class="cbheader">
+    <h5>Modtager</h5>
+  </div>
+  <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px;">
+      <div style="clear: both"></div>
+      <div class="row_line">
+          <p><b>Valgt modtageanlæg</b></p>
+      </div>
+      <div style="clear: both"></div>
+      <div class="row_line">
+          @(Html.Kendo().Grid(Model.SelectedModtagerAnlaeg)
+                      .Name("ValgtJordmodtagerGrid")
+                      .HtmlAttributes(new { style = "font-size:12px; min-height: 60px;" })
+                      .Events(e => e.DataBound("dataBound"))
+                      .Selectable()
+                      .DataSource(da => da.Ajax().Model(model => model.Id(p => p.Id)))
+                      .Columns(columns =>
+                      {
+                          columns.Bound(p => p.Id).Hidden();
+                          columns.Bound(p => p.Navn).Sortable(true);
+                          columns.Bound(p => p.Postnummer).Sortable(true).Title("Postnr.");
+                          columns.Bound(p => p.By).Sortable(true).Title("By");
+                          columns.Bound(p => p.Afstand).Sortable(true);
+                          columns.Bound(p => p.Forureningskategori).Sortable(true);
+                          columns.Bound(p => p.Affald).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= Affald ? checked='checked' :'' # />");
+                          columns.Bound(p => p.JF).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= JF ? checked='checked' :'' # />").Title("FlytJord.dk");
+                          columns.Bound(p => p.CentraltOprettetMidlertidigtAnlaeg).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= CentraltOprettetMidlertidigtAnlaeg || AnmelderOprettetMidlertidigtAnlaeg ? checked='checked' :'' # />").Title("Midlertidigt");
+                          columns.Bound(p => p.DocLink).Sortable(false).ClientTemplate("<div style='cursor: pointer;' onclick=\"showDocModalWindow('#= Id #','#= Navn #')\">Vis</div>");
+                          columns.Bound(p => p.KortLink).Encoded(false).Title("Kort").Sortable(false);
+                          columns.Bound(p => p.www).Encoded(false);
+                      })
+                          .ClientDetailTemplateId("kontaktTemplate")
+          )
+      </div>
+      <div style="clear: both"></div>
+
+      <br />
+
+      @* Midlertidig modtager anlæg editor - Se scrollbar fix i øverste CSS deklaration! *@
+      <script>
+          $(document).ready(function() {
+              $("#btnOpretMidlertidigtAnlaeg, #btnRedigerMidlertidigtAnlaeg").bind("click",
+                  function() {
+                      $("#winRedigerMidlertidigtAnlaeg").data("kendoWindow").center().open();
+                  });
+          });
+          var loadMidlertidigAnlaegEditor = function () {
+              var dialog = $("#winRedigerMidlertidigtAnlaeg").data("kendoWindow");
+              var anlaegId = $("#hflSelectedModtagerAnlaegId").val();
+              var jktid;
+              var lukDialog = function() {
+                  setTimeout(function () { dialog.close(); }, 1);
+              };
+              var kanGemme = function () {
+                  var ok = ($("#divValidering li:visible").length === 0);
+                  if (!ok) {
+                      setTimeout(function () {
+                          dialog.close();
+                          alert("Der er et eller flere problemer, som forhindrer at anmeldelsen gemmes.");
+                      }, 1);
+                  };
+                  return ok;
+              };
+              @if (!erNy)
+              {
+                  <text>jktid = '@Model.Anmeldelse.Jord.JordKlassifikationTypeId.ToString()';</text>
+              }
+              else
+              {
+                  <text>jktid = $("input[name='Anmeldelse.Jord.JordKlassifikationType.Id']:checked").val();</text>
+              }
+              if (!jktid) {
+                  lukDialog();
+                  @* Virker ikke ved direkte kald til dialog.close(); *@
+                  alert("Du skal først vælge en forureningskategori!");
+              } else {
+                  if (@(harMidlertidigModtager ? "true" : "false")) {
+                      dialog.refresh('@Url.Action("RedigerMidlertidigtBrugerAnlaeg", "ModtagerAnlaeg")/?id=' + anlaegId + '&jordKlassifikationTypeId=' + jktid + "&time=" + new Date().getTime());
+                  } else if (confirm("Det er nødvendigt at gemme anmeldelsen først.\nVil du fortsætte?") && kanGemme()) {
+                      dialog.refresh('about:blank');
+                      var form = $("#anmeldelseForm").first("form");
+                      /* Lyt 1 gang på submit, og håndter derefter det færdige ajax kald 1 gang */
+                      form.one("submit",
+                          function () {
+                              if (kanGemme()) {
+                                  $(document).one("ajaxComplete", function () {
+                                      /* Se efter om der er fejl, ellers er det fint at fortsætte */
+                                      if (kanGemme()) {
+                                          dialog.refresh('@Url.Action("RedigerMidlertidigtBrugerAnlaeg", "ModtagerAnlaeg")/?id=' + anlaegId + '&jordKlassifikationTypeId=' + jktid + "&time=" + new Date().getTime());
+                                      };
+                                  });
+                              };
+                              return true;
+                          });
+                      $("#btnGem").click();
+                  } else {
+                      lukDialog();
+                  };
+              };
+          };
+      </script>
+      
+      <div id="modtagerSektion">
+
+          <div class="row_line" style="@((harMidlertidigModtager && !Model.LockButtonGem) ? "" : "display:none;")">
+              <div>
+                  <input style="width: 175px;" id="btnRedigerMidlertidigtAnlaeg" type="button" name="command" value="Rediger midlertidigt anlæg" />
+              </div>
+          </div>
+      
+              <div style="@(harMidlertidigModtager ? "display:none;" : "")">
+                  <div class="row_line">
+                      <p>Vælg et modtageanlæg</p>
+                      <hr>
+                      <div class="filtering">
+                          @Html.RadioButtonFor(m => m.ModtagerAnlaegFiltrering, "1", new { Id = "chkModtagerAnlaegTidligereAnvendte", Checked = "checked", onchange = "radioModtagerAnlaegFiltreringMetodeSelected();", style = "padding-left: 0px; padding-top: 0px; padding-bottom: 0px;", data_tooltip = "Vis tidligere anvendte" })
+                          @Html.Label("lblModtagerAnlaegTidligereAnvendte", "Tidligere anvendte")
+                          @Html.RadioButtonFor(m => m.ModtagerAnlaegFiltrering, "4", new { Id = "chkModtagerAnlaegAlle", onchange = "radioModtagerAnlaegFiltreringMetodeSelected();", style = "padding-left: 0px; padding-top: 0px; padding-bottom: 0px;", data_tooltip = "Vis alle" })
+                          @Html.Label("lblModtagerAnlaegAlle", "Alle")
+                      </div>
+                      <div class="filteringFlytJord">
+                          @Html.CheckBoxFor(m => m.ModtagerAnlaegFiltreringAnvenderJf, new { Id = "chkModtagerAnlaegAnvenderJf", style = "padding-left: 0px; padding-top: 0px; padding-bottom: 0px;", Checked = "checked", data_tooltip = "Modtageanlæg som anvender FlytJord.dk.<br/>Anvender modtageranlægget FlytJord.dk, er det muligt online at følge afleveret jordmængde." })
+                          @Html.Label("lblAnvenderJF2", "Anvender FlytJord.dk")
+                      </div>
+                      <div>
+                          <!--
+                          http://demos.telerik.com/aspnet-mvc/window/ajax
+                          -->
+                          @(Html.Kendo().Window()
+          .Name("winRedigerMidlertidigtAnlaeg")
+          .Title(string.Format("{0} midlertidigt anlæg", (erNy ? "Opret" : "Rediger")))
+          .Content("Vent venligst...")
+          .Iframe(true)
+          .Scrollable(false)
+          .Draggable()
+          .Resizable()
+          .Width(1024)
+          .Height(725)
+          .Events(ev => ev.Open("loadMidlertidigAnlaegEditor"))
+                                )
+                          <input style="margin-left: 50px; width: 175px;@(Model.LockButtonGem ? " cursor: not-allowed;" : "")" id="btnOpretMidlertidigtAnlaeg"@(Model.LockButtonGem ? " disabled='disabled'" : "") type="button" name="command" value="Opret midlertidigt anlæg" />
+                      </div>
+                  </div>
+                  <div style="clear: both"></div>
+                  <div class="row_line">
+                      @(Html.Kendo().Grid<ModtagerAnlaegModel>()
+          .Name("GridMineJordmodtagere")
+          .HtmlAttributes(new { style = "font-size:12px;" })
+          .Columns(columns =>
+          {
+              columns.Bound(p => p.Id).Hidden();
+              columns.Bound(p => p.Navn).Sortable(true);
+              columns.Bound(p => p.Postnummer).Sortable(true).Title("Postnr.");
+              columns.Bound(p => p.By).Sortable(true).Title("By");
+              columns.Bound(p => p.Afstand).Sortable(true);
+              columns.Bound(p => p.Forureningskategori).Sortable(true);
+              columns.Bound(p => p.Affald).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= Affald ? checked='checked' :'' # />");
+              columns.Bound(p => p.JF).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= JF ? checked='checked' :'' # />").Title("FlytJord.dk");
+              columns.Bound(p => p.CentraltOprettetMidlertidigtAnlaeg).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= CentraltOprettetMidlertidigtAnlaeg ? checked='checked' :'' # />").Title("Midlertidigt");
+              columns.Bound(p => p.DocLink).Sortable(false).ClientTemplate("<div style='cursor: pointer;' onclick=\"showDocModalWindow('#= Id #','#= Navn #')\">Vis</div>");
+              columns.Bound(p => p.KortLink).Encoded(false).Title("Kort").Sortable(false);
+              columns.Bound(p => p.www).Encoded(false);
+          }
+          )
+          .Pageable(pager => pager.PageSizes(new[] { 5, 10, 20, 100 })) // Default page sizes are 5, 10 and 20
+          .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+          .Pageable()
+          .Sortable()
+          .AutoBind(false)
+          .DataSource(dataSource => dataSource
+              .Ajax() // Specify that the data source is of ajax type
+              .Read(read => read.Action("ReadModtagerAnlaeg", "Anmeldelser").Data("getModtagerAnlaegFiltreringsparametre")) // Specify the action method and controller name
+              .Model(model => model.Id(p => p.Id))
+              .PageSize(100))
+          .Events(e => e.Change("modtagerAnlaegSelected").DataBound("gridMineJordmodtagereHover"))
+                            )
+                  </div>
+              </div>
+          </div>
+      </div>
+</div>
+
+<div class="controlsbox row" style="margin-top: 10px; width: 1003px">
+
+  <div class="cbheader">
+    <h5>Transportør</h5>
+  </div>
+  <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
+    <div style="clear: both"></div>
+    <div class="row_line">
+        <p><b>Valgt transportør</b></p>
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line">
+      @(Html.Kendo().Grid(Model.SelectedTransportoer)
+      .Name("ValgtTransportoer")
+      .HtmlAttributes(new { style = "font-size:12px;" })
+      .Columns(columns =>
+      {
+          columns.Bound(p => p.Id).Title("Id").Hidden();
+          columns.Bound(p => p.Firma);
+          //columns.Bound(p => p.Navn);
+          columns.Bound(p => p.Adresse);
+          columns.Bound(p => p.PostNr).Title("Postnr.");
+          //columns.Bound(p => p.PostDistrikt).Title("By");
+          columns.Bound(p => p.Telefon);
+          columns.Bound(p => p.Kontakt);
+          columns.Bound(p => p.Mobiltelefon);
+          columns.Bound(p => p.Email);
+      }
+      )
+      .DataSource(dataSource => dataSource.Server())
+      )
+    </div>
+    <div style="clear: both"></div>
+    <p>
+        <input style="width: 175px;@(Model.LockButtonGem ? " cursor: not-allowed;" : "")" id="btnVaelgUkendtTransportoer" @(Model.LockButtonGem ? " disabled='disabled'" : "") type="button" name="command" value="Transportør ukendt" />
+        <br />
+    </p>
+    <br />
+
+    <div class="row_line">
+      <p>Vælg en transportør</p>
+        <hr>
+        <div class="filtering">
+            @Html.RadioButtonFor(m => m.TransportoerFiltrering, "1", new { Id = "chkTransportoerTidligereAnvendte", Checked = "checked", onchange = "radioTransportoerFiltreringMetodeSelected();", style = "padding-left: 0px; padding-top: 0px; padding-bottom: 0px;", data_tooltip = "Vis tidligere anvendte" })
+            @Html.Label("lblTransportoerTidligereAnvendte", "Tidligere anvendte", new { style = "margin-top: 0px" })
+            @Html.RadioButtonFor(m => m.TransportoerFiltrering, "2", new { Id = "chkTransportoerAlle", onchange = "radioTransportoerFiltreringMetodeSelected();", style = "padding-left: 0px; padding-top: 0px; padding-bottom: 0px;", data_tooltip = "Vis alle" })
+            @Html.Label("lblTransportoerAlle", "Alle", new { style = "margin-top: 0px" })
+        </div>
+    </div>
+
+    <div style="clear: both"></div>
+    <div class="row_line">
+      @(Html.Kendo().Grid<TransportoerModel>()//liste ind her 
+                  .Name("GridTransportoere")
+                  .Pageable()
+                  .HtmlAttributes(new { style = "font-size:12px;" })
+                  .Columns(columns =>
+                      {
+                        columns.Bound(p => p.Id).Title("Id").Hidden();
+                        columns.Bound(p => p.Firma);
+                        //columns.Bound(p => p.Navn);
+                        columns.Bound(p => p.Adresse);
+                        columns.Bound(p => p.PostNr).Title("Postnr.");
+                        //columns.Bound(p => p.PostDistrikt).Title("By");
+                        columns.Bound(p => p.Telefon);
+                        columns.Bound(p => p.Kontakt);
+                        columns.Bound(p => p.Mobiltelefon);
+                        columns.Bound(p => p.Email);
+                      })
+                  .Pageable(pager => pager.PageSizes(new[] { 5, 10, 20, 100 }) // Default page sizes are 5, 10 and 20
+                  )
+                  .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                  .Pageable()
+                  .Sortable()
+                  .AutoBind(false)
+                  .DataSource(dataSource => dataSource
+                                                .Ajax() // Specify that the data source is of ajax type
+                                                .Read(read => read.Action("ReadTransportoerer", "Anmeldelser").Data("getTransportoerFiltreringsparametre")) // Specify the action method and controller name
+                                                .Model(model => model.Id(p => p.Id))
+                                                .PageSize(100)
+                  ).Events(e => e.Change("transportoerSelected").DataBound("gridTransportoereHover")))
+    </div>
+    <div style="clear: both"></div>
+  </div>
+</div>
+
+<div class="controlsbox row" style="margin-top: 10px; width: 99%">
+  <div class="cbheader">
+    <h5>Info</h5>
+  </div>
+  <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
+    <div style="clear: both"></div>
+    <div class="row_line">
+      - Hvis jordmodtagerfirmaet ikke er i systemet, så kontakt kommunen for at få jordmodtagerfirmaet oprettet.
+    </div>
+    <div style="clear: both"></div>
+    <div class="row_line">
+      - Hvis transportøren ikke er i systemet, så kontakt transportøren og få vedkommende til at oprette sig.
+    </div>
+  </div>
+</div>
+
+@Html.HiddenFor(m => m.SelectedTransportoerId, new { id = "hflSelectedTransportoerId" })
+@Html.HiddenFor(m => m.SelectedModtagerAnlaegId, new { id = "hflSelectedModtagerAnlaegId" })
+
+<script type="text/javascript">
+    var fixTemplateText = function (txt) {
+        if (!txt || txt == null || txt == '')
+            return '&nbsp;';
+        return txt;
+    };
+
+
+    var fixMidlertidigtAnlaegText = function (txt) {
+        if (!txt || txt == null || txt == '')
+            return '&nbsp;';
+        return "MIDLERTIDIGT ANLÆG";
+    };
+</script>
+
+<script id="kontaktTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().TabStrip()
+            .Name("tabStrip_#=Id#")
+            .SelectedIndex(0)
+            .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+            .Items(items =>
+            {
+              items.Add().Text("Kontaktperson").Content(
+                  "<div class='employee-details'>" +
+                      "<ul>" +
+                           "<li><label class='employee-details-label'></label>#= fixMidlertidigtAnlaegText(AnmelderOprettetMidlertidigtAnlaeg) #</li>" +
+                          "<li><label class='employee-details-label'>Navn:</label>#= KontaktpersonNavn #</li>" +
+                          "<li><label class='employee-details-label'>Telefon:</label>#= KontaktpersonTlf #</li>" +
+                          "<li><label class='employee-details-label'>Email:</label>#= KontaktpersonEmail #</li>" +
+                      "</ul>" +
+                  "</div>"
+              );
+              items.Add().Text("Adresse").Content(
+                "<div class='employee-details'>" +
+                    "<ul>" +
+                        "<li><label class='employee-details-label'>Adresse:</label>#= fixTemplateText(Adresse) #</li>" +
+                        "<li><label class='employee-details-label'>By:</label>#= fixTemplateText(By) #</li>" +
+                        "<li><label class='employee-details-label'>Postnummer:</label>#= fixTemplateText(Postnummer) #</li>" +
+                    "</ul>" +
+                "</div>"
+              );
+              items.Add().Text("Matrikler").Content(
+                "<div class='employee-details'>" +
+                    "<ul>" +
+                        "<li><label class='employee-details-label'>Ejerlav:</label>#= fixTemplateText(Ejerlav) #</li>" +
+                        "<li><label class='employee-details-label'>Ejerlavsnavn:</label>#= fixTemplateText(Ejerlavsnavn) #</li>" +
+                        "<li><label class='employee-details-label'>Matrikelnummer:</label>#= fixTemplateText(Matrikelnr) #</li>" +
+                        "<li><label class='employee-details-label'>ESR Ejendomsnummer:</label>#= fixTemplateText(EsrEjendomsnummer) #</li>" +
+                    "</ul>" +
+                "</div>"
+                );
+            })
+            .ToClientTemplate())
+</script>
+
+<script>
+
+    function gridMineJordmodtagereHover() {
+        $("#GridMineJordmodtagere tbody tr").hover(
+            function () {
+                $(this).toggleClass("k-state-hover");
+            }
+        );
+    }
+
+    function gridTransportoereHover() {
+        $("#GridTransportoere tbody tr").hover(
+            function () {
+                $(this).toggleClass("k-state-hover");
+            }
+        );
+    }
+
+    function dataBound() {
+        this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+</script>
+
+<style scoped="scoped">
+    .k-detail-cell .k-tabstrip .k-content
+    {
+        padding: 0.2em;
+    }
+
+    .employee-details ul
+    {
+        list-style: none;
+        font-style: italic;
+        margin: 15px;
+        padding: 0;
+    }
+
+    .employee-details ul li
+    {
+        margin: 0;
+        /*line-height: 1.7em;*/
+    }
+
+    .employee-details-label
+    {
+        display: inline-block;
+        width: 90px;
+        height: 15px !important;
+        line-height: 15px !important;
+        padding-right: 10px;
+        text-align: right;
+        font-style: normal;
+        font-weight: bold;
+    }
+</style>
+
+<script type="text/javascript">
+
+    //////////////////////////////////////////// START KORTINFO API ///////////////////////////////////////////////////
+
+    var mapModtagere;
+    function mapInitModtagere(site, page) {
+        mapModtagere = new window.KortInfo.Instance(site, page);
+        mapModtagere.setUrlArg('westpanel', 'collapse');
+        mapModtagere.initializeNested(document.getElementById('divMapModtagere'));
+    }
+
+    function mapModtagereNavigateToBbox(lx, ly, ux, uy) {
+        mapModtagere.Map.navigateToArea(new window.KortInfo.Geometry.Rectangle2(lx, ly, ux, uy), false);
+    }
+
+    //////////////////////////////////////////// SLUT KORTINFO API ////////////////////////////////////////////////////
+
+    function isModtagerTransportoerLocked() {
+        // Hvis fanen Modtager og Transportør er låst, må man ikke vælge en ny modtager eller transportør, medmindre at der er tale om en revision
+        if ($("#hflRevision").val() == "True")
+            return false;
+        if ($("#hflLockModtagerTransportoer").val() == "True")
+            return true;
+        return false;
+    }
+
+    function transportoerSelected() {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem.Id != null & !isModtagerTransportoerLocked()) {
+            var grid = $("#ValgtTransportoer").data("kendoGrid");
+            var id = $("#hflSelectedTransportoerId").val();
+            if (id != '') {
+                //Fjern eksisterende række
+                var data = grid.dataSource.at(0);
+                grid.dataSource.remove(data);
+            }
+            $("#hflSelectedTransportoerId").val(currentSelectedItem.Id);
+            //Opdater valg betaler, hvis transportør er sat til betaler.
+            window.updateValgtTransportoerBetaler();
+            //Tilføj række til øverste grid
+            grid.dataSource.add({
+                Id: currentSelectedItem.Id,
+                Email: currentSelectedItem.Email,
+                Navn: currentSelectedItem.Navn,
+                Adresse: currentSelectedItem.Adresse,
+                Firma: currentSelectedItem.Firma,
+                PostNr: currentSelectedItem.PostNr,
+                Telefon: currentSelectedItem.Telefon,
+                Kontakt: currentSelectedItem.Kontakt,
+                Mobiltelefon: currentSelectedItem.Mobiltelefon
+            });
+        }
+    }
+
+    $("#btnVaelgUkendtTransportoer").bind("click", function () {
+        if (!isModtagerTransportoerLocked()) {
+            var ukendt = @Html.Raw(Json.Encode(Model.UkendtTransportoer));
+            var grid = $("#ValgtTransportoer").data("kendoGrid");
+            var id = $("#hflSelectedTransportoerId").val();
+            if (id != '') {
+                //Fjern eksisterende række
+                var data = grid.dataSource.at(0);
+                grid.dataSource.remove(data);
+            }
+            $("#hflSelectedTransportoerId").val(ukendt.Id);
+            //Opdater valgt betaler, hvis transportør er sat til betaler.
+            window.updateValgtTransportoerBetaler();
+            //Tilføj række til øverste grid
+            grid.dataSource.add({
+                Id: ukendt.Id,
+                Email: ukendt.Email,
+                Navn: ukendt.Navn,
+                Adresse: ukendt.Adresse,
+                Firma: ukendt.Firma,
+                PostNr: ukendt.PostNr,
+                Telefon: ukendt.Telefon,
+                Kontakt: ukendt.Kontakt,
+                Mobiltelefon: ukendt.Mobiltelefon
+            });
+        }
+    });
+
+    $(document).ready(function () {
+        $("#btnVaelgUkendtTransportoer").toggle($("#hflLockModtagerTransportoer").val() != "True");
+    });
+
+    @*function midlertidigtModtagerAnlaegSelected(anlaegId) {
+        var grid = $("#ValgtJordmodtagerGrid").data("kendoGrid");
+
+        //Fjern eksisterende række
+        var id = $("#hflSelectedModtagerAnlaegId").val();
+        if (id != '') {
+            var data = grid.dataSource.at(0);
+            grid.dataSource.remove(data);
+        }
+        $("#hflSelectedModtagerAnlaegId").val(anlaegId);
+
+        //Tilføj række til øverste grid
+        $.ajax({
+            dataType: "json",
+            url: '@Url.Action("HentMidlertidigtAnlaeg", "Anmeldelser")',
+            data: { anlaegId: anlaegId },
+            success: function(data) {
+                AddModtageAnlaegToGrid(grid, data);
+            }
+        });
+
+    };*@
+
+    function midlertidigtModtagerAnlaegAendret(anlaegId) {
+        /* Udskrift øverste række i grid */
+        var grid = $("#ValgtJordmodtagerGrid").data("kendoGrid");
+        var data = grid.dataSource.at(0);
+        grid.dataSource.remove(data);
+        $.ajax({
+            dataType: "json",
+            url: '@Url.Action("HentMidlertidigtAnlaeg", "Anmeldelser")',
+            data: { anlaegId: anlaegId },
+            success: function(data) {
+                AddModtageAnlaegToGrid(grid, data);
+            }
+        });
+
+    }
+
+    function modtagerAnlaegSelected() {
+        var currentSelectedItem = this.dataItem(this.select());
+        var lockModtagerTransportoer = ($("#hflLockModtagerTransportoer").val() == "True");//Hvis fanen Modtager og Transportør er låst, må man ikke vælge en ny modtager eller transportør
+        if (currentSelectedItem.Id != null & !lockModtagerTransportoer) {
+            var grid = $("#ValgtJordmodtagerGrid").data("kendoGrid");
+
+            //Fjern eksisterende række
+            var id = $("#hflSelectedModtagerAnlaegId").val();
+            if (id != '') {
+                var data = grid.dataSource.at(0);
+                grid.dataSource.remove(data);
+            }
+            $("#hflSelectedModtagerAnlaegId").val(currentSelectedItem.Id);
+
+            //Tilføj række til øverste grid
+            AddModtageAnlaegToGrid(grid, currentSelectedItem);
+
+
+            HideBetaler(currentSelectedItem.JF);
+        }
+    }
+
+    function AddModtageAnlaegToGrid(grid, currentSelectedItem) {
+        grid.dataSource.add({
+            Id: currentSelectedItem.Id,
+            Navn: currentSelectedItem.Navn,
+            Postnummer: currentSelectedItem.Postnummer,
+            By: currentSelectedItem.By,
+            Adresse: currentSelectedItem.Adresse,
+            Ejerlav: currentSelectedItem.Ejerlav,
+            Ejerlavsnavn: currentSelectedItem.Ejerlavsnavn,
+            Matrikelnr: currentSelectedItem.Matrikelnr,
+            EsrEjendomsnummer: currentSelectedItem.EsrEjendomsnummer,
+            Afstand: currentSelectedItem.Afstand,
+            Forureningskategori: currentSelectedItem.Forureningskategori,
+            Affald: currentSelectedItem.Affald,
+            Kommune: currentSelectedItem.Kommune,
+            JF: currentSelectedItem.JF,
+            DocLink: currentSelectedItem.DocLink,
+            KortLink: currentSelectedItem.KortLink,
+            www: currentSelectedItem.www,
+            KontaktpersonNavn: currentSelectedItem.KontaktpersonNavn,
+            KontaktpersonTlf: currentSelectedItem.KontaktpersonTlf,
+            KontaktpersonEmail: currentSelectedItem.KontaktpersonEmail,
+            CentraltOprettetMidlertidigtAnlaeg: currentSelectedItem.CentraltOprettetMidlertidigtAnlaeg,
+            AnmelderOprettetMidlertidigtAnlaeg: currentSelectedItem.CentraltOprettetMidlertidigtAnlaeg
+        });
+    }
+
+    function HideBetaler(visBetalerFane) {
+        //Hvis modtageranlæget ikke anvender flytJord skal betaler fanen ikke vises.
+        if (visBetalerFane) {
+            $("#divBetalerFane").show();
+            $("#tab_4").show();
+            $("#tab_5").html("5. Kommunikation");
+        }
+        else {
+            $("#divBetalerFane").hide();
+            $("#tab_4").hide();
+
+            $("#tab_5").html("4. Kommunikation");
+
+        }
+    }
+
+
+    function modtagerAnlaegReload() {
+        var grid = $("#ValgtJordmodtagerGrid").data("kendoGrid");
+        grid.select("tr:eq(1)");
+        var row = grid.select();
+        var data = grid.dataItem(row);
+        if (data != null) {
+            grid.dataSource.remove(data);
+            var currentSelectedItem = data;
+            //Tilføj række til øverste grid
+            AddModtageAnlaegToGrid(grid, currentSelectedItem);
+        }
+        grid.clearSelection();
+    }
+
+    function radioModtagerAnlaegFiltreringMetodeSelected() {
+        popModtagerAnlaeg();
+    }
+
+    function chkModtagerAnlaegChanged() {
+        popModtagerAnlaeg();
+    }
+
+    function radioTransportoerFiltreringMetodeSelected() {
+        //reload grid
+        popTransportoer();
+    }
+
+    function popModtagerAnlaeg() {
+        //var jkt = $("#hflJordKlassifikationType").val();
+        //if (jkt != '' & jkt != '00000000-0000-0000-0000-000000000000') {
+        $("#GridMineJordmodtagere").data("kendoGrid").dataSource.read();
+        //}
+    }
+
+    function popTransportoer() {
+        $("#GridTransportoere").data("kendoGrid").dataSource.read();
+    }
+
+    function getTransportoerFiltreringsparametre() {
+        //var filtrering = $("#ddlTransportoerFiltreringMetode").val();
+
+        var filteringAlle = $('#chkTransportoerAlle').is(':checked');
+        var filteringTidligere = $('#chkTransportoerTidligereAnvendte').is(':checked');
+
+        var filtrering = "1";
+
+        if (filteringAlle) {
+            filtrering = $('#chkTransportoerAlle').val();
+        } else if (filteringTidligere) {
+            filtrering = $('#chkTransportoerTidligereAnvendte').val();
+        }
+
+        return { filtreringMetode: filtrering };
+    }
+
+    function getModtagerAnlaegFiltreringsparametre() {
+        var filteringAlle = $('#chkModtagerAnlaegAlle').is(':checked');
+        var filteringTidligere = $('#chkModtagerAnlaegTidligereAnvendte').is(':checked');
+
+        var filtrering = "1";
+        if (filteringAlle) {
+            filtrering = $('#chkModtagerAnlaegAlle').val();
+        } else if (filteringTidligere) {
+            filtrering = $('#chkModtagerAnlaegTidligereAnvendte').val();
+        }
+
+        //var filtrering = $("#ddlModtagerAnlaegFiltreringMetode").val();
+        var chk = $("#chkModtagerAnlaegAnvenderJf");
+        var bolAnvenderJf = $(chk).prop("checked");
+
+        var jkt = "";
+        if ($("#hflJordKlassifikationType") !== undefined) {
+            if ($("#hflJordKlassifikationType").val() !== undefined) {
+                jkt = $("#hflJordKlassifikationType").val();
+            }
+        }
+        if (jkt == '' | jkt == '00000000-0000-0000-0000-000000000000') {
+            if ($("#hflJordKlassifikationTypeVedAndenOprindelse") !== undefined) {
+                if ($("#hflJordKlassifikationTypeVedAndenOprindelse").val() !== undefined) {
+                    jkt = $("#hflJordKlassifikationTypeVedAndenOprindelse").val();
+                }
+            }
+        }
+
+        var affaldIJord = $("#rbtAffaldJa").is(':checked');
+
+        var filtParam = {
+            filtreringMetode: filtrering,
+            wkt: $("#hflOprindelsesstedWkt").val(),
+            anvenderJf: bolAnvenderJf,
+            jordKlassifikationTypeId: jkt,
+            affald: affaldIJord
+        };
+        return filtParam;
+    }
+
+    function openModtagerAnlaegKort(id, modtageranlaegnavn) {
+        var wdiv = $("#winModtagerAnlaegKort").kendoWindow({
+            iframe: true,
+            content: "/ModtagerAnlaeg/Kort?modtagerAnlaegId=" + id,
+            type: "GET",
+            height: 600,
+            width: 900
+        });
+        wdiv.data("kendoWindow").title(modtageranlaegnavn);
+        wdiv.data("kendoWindow").center();
+        wdiv.data("kendoWindow").open();
+    }
+
+    function showDocModalWindow(modtageranlaegId, modtageranlaegnavn) {
+        var wdiv = $("#winModtagerAnlaegDokumenter").kendoWindow({
+            iframe: true,
+            content: "/ModtagerAnlaeg/Dokumenter?modtagerAnlaegId=" + modtageranlaegId,
+            type: "GET",
+            height: 600,
+            width: 900
+        });
+        wdiv.data("kendoWindow").title(modtageranlaegnavn);
+        wdiv.data("kendoWindow").center();
+        wdiv.data("kendoWindow").open();
+    }
+
+</script>

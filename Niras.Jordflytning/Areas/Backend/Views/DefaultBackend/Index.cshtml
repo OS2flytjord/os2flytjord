@@ -1,0 +1,218 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.ViewModels.IndexModel
+
+@{
+  ViewBag.Title = "Forside Administration";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackend.cshtml";
+}
+
+@section Styles {
+  @Styles.Render("~/bundles/Content/Css/Backend")
+}
+
+@section LeftMenu {
+  @(Html.Kendo().PanelBar()
+          .Name("panelbar")
+          .ExpandMode(PanelBarExpandMode.Single)
+          .HtmlAttributes(new { style = "width:200px;height:100%;min-height:100%;" })
+          .Events(events => events.Select("selectMenuItem"))
+          .Items(panelbar =>
+              {
+                foreach (var menuItem in Model.Menu.MenuItems)
+                {
+                  panelbar.Add().Text(menuItem.Text).Items(subitems =>
+                      {
+                        foreach (var subItem in menuItem.SubItems)
+                        {
+                          subitems.Add().Text(subItem.Text).Url(subItem.Url);
+                        }
+                      });
+                }
+              }))
+}
+
+@section TopBarBackend {
+  <div id="topBarBackend">
+    <div style="float: right; margin-right: 10px; margin-top: 0px; font-size: 28px; font-weight: normal">FlytJord.dk</div>
+
+    <div id="logoutContainer">
+      @using (Html.BeginForm("LogOff", "DefaultBackend", FormMethod.Post, new { id = "logoutForm" }))
+      {
+        @Html.AntiForgeryToken()
+        if (Request.IsAuthenticated)
+        {
+          //<a href="#" onclick="onUserSelected()">@User.Identity.Name </a> <img src="~/Content/Icons/Tandhjul_64px.png" style="vertical-align: bottom;width: 16px" onclick="onUserSelected()"/>
+        <a href="#" onclick="onUserSelected()" style="padding-right: 7px;">@User.Identity.Name
+          <img src="~/Content/Icons/Tandhjul_64px.png" style="vertical-align: bottom; width: 14px; border: none;" /></a> 
+        @Html.ActionLink("Log ud", "LogOff", "DefaultBackend", new { area = "" }, new { id = "logoutLink" })
+        }
+      }
+    </div>
+  </div>
+}
+
+<div id="contentTabs">
+  @(Html.Kendo().TabStrip()
+          .Name("contentTabstrip")
+          .Items(items =>
+          { items.Add().Text("Forside").Selected(false).Visible(false); })
+          )
+</div>
+
+<div id="RolePlaceHolder">
+  @Html.HiddenFor(p => p.CurrentRoles, new { Id = "hfCurrentRoles" })
+</div>
+
+@Html.HiddenFor(p => p.StikproeveDeepLink, new { Id = "hflStikproeveDeepLink" })
+@Html.HiddenFor(p => p.StikproeveFaneTekst, new { Id = "hflStikproeveFaneTekst" })
+
+<script type="text/javascript">
+
+  var tabStrip;
+
+  $(document).ready(function () {
+    tabStrip = $("#contentTabstrip").data("kendoTabStrip");
+
+    $("#logoutLink").click(function (e) {
+      e.preventDefault();
+      $("#logoutForm").submit();
+    });
+
+    var detailedMsg = "@Html.Raw(ViewBag.DetailedMessage)";
+    displayDetailedMessage(detailedMsg);
+
+    var msg = "@ViewBag.Message";
+    displayMessage(msg);
+
+    kendo.culture("da-DK");
+
+    addFirstTab();
+
+    //Deeplink - Stikproeve
+    var stikproevelink = $("#hflStikproeveDeepLink").val();
+    var stikproeveFaneTekst = $("#hflStikproeveFaneTekst").val();
+
+    if (stikproevelink != '' & stikproeveFaneTekst != '') {
+      addTab(stikproeveFaneTekst, stikproevelink);
+    }
+  });
+
+  function addFirstTab() {
+    var roleList = $("#hfCurrentRoles").val().split(";");
+    var forsideText = "Forside";
+
+    if ($.inArray("Sagsbehandler", roleList) != -1) {
+      addTab(forsideText + " (Sagsbehandler)", "/Backend/FrontPages/StartSagsbehandler");
+      return;
+    }
+    if ($.inArray("Miljømedarbejder", roleList) != -1) {
+      addTab(forsideText + " (Miljømedarbejder)", "/Backend/FrontPages/StartMiljoemedarbejder");
+      return;
+    }
+    if ($.inArray("Laboratorie", roleList) != -1) {
+      addTab(forsideText + " (Laboratorie)", "/Backend/FrontPages/StartLab");
+      return;
+    }
+    if ($.inArray("Prøvetager", roleList) != -1) {
+      addTab(forsideText + " (Prøvetager)", "/Backend/FrontPages/StartProevetager");
+      return;
+    }
+    if ($.inArray("Pladsmand", roleList) != -1) {
+      addTab(forsideText + " (Pladsmand)", "/Backend/FrontPages/StartPladsmand");
+      return;
+    }
+    if ($.inArray("Bogholder", roleList) != -1) {
+      addTab(forsideText + " (Bogholder)", "/Backend/FrontPages/StartBogholder");
+      return;
+    }
+  }
+
+  function hideLoadImg() {
+    //$(".clsProgress").hide('slow',function (){});
+    $(".clsProgress").hide();
+  }
+
+  function selectMenuItem(e) {
+    var link = $(e.item).find("> .k-link");
+    if (link != null && link.attr("href") != null) {
+      e.preventDefault();
+      addTab(link.text(), link.attr("href"));
+    }
+  }
+
+  //content: "<div id=\"loadImg\" style=\"text-align:center\"><div><img src=\"/Content/Icons/loading.gif\" /></div></div><iframe id=\"" + iframeId + "\" src=\"" + url + "\" width=\"100%\" height=\"100%\" border=\"0\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" style=\"border:none\" onload=\"hideLoadImg()\"></iframe>"
+  //content: "<iframe id=\"" + iframeId + "\" src=\"" + url + "\" width=\"100%\" height=\"100%\" border=\"0\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" style=\"border:none\" onload=\"hideLoadImg()\"></iframe>"
+  function addTab(text, url) {
+    var iframeId = new Date().getTime() / 1000;   @*// seconds since Jan 1, 1970*@
+        iframeId = iframeId.toString().replace(".", "");
+        var tabHeader = "<span>" + text + "</span><span id=\"closeTabId\" class=\"closeTabIcon\" onclick='tabStrip.remove($(this).closest(\"li\"));selectTab()'>&nbsp;&nbsp;&nbsp;&nbsp;X&nbsp;&nbsp;</span>";
+        var tab = {
+          text: tabHeader,
+          encoded: false,
+          content: "<div class=\"clsProgress\" style=\"text-align:center\"><img src=\"/Content/Icons/loading.gif\" /></div><iframe id=\"" + iframeId + "\" src=\"" + url + "\" width=\"100%\" height=\"100%\" border=\"0\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" style=\"border:none\" onload=\"hideLoadImg()\"></iframe>"
+        };
+        tabStrip.append([tab]);
+        selectTab();
+        $("iframe#" + iframeId).iframeAutoHeight({
+          callback: function (callbackObject) {
+            $("iframe#" + iframeId).parent("div[id ^= 'contentTabstrip-']").css("height", callbackObject.newFrameHeight + 50);
+          },
+          heightOffset: 20,
+          minHeight: $(window).height() - 200
+        });
+      }
+
+      function removeSelectedTab() {
+        //var index = tabStrip.tabGroup.children("li").length - 2;
+        var tab = tabStrip.select(), otherTab = tab.next();
+        otherTab = otherTab.length ? otherTab : tab.prev();
+        tabStrip.remove(tab);
+        tabStrip.select(otherTab);
+      }
+
+
+      function attachTabCloseHandlers() {
+        $(".closeTabIcon").each(function (i, obj) {
+          $(obj).off("click");
+          $(obj).click(function (obj) {
+            tabStrip.remove($(obj).closest("li").index());
+          });
+        });
+      }
+
+      function selectTab(index) {
+        if (!index) { // no index specified -> select last tab
+          index = tabStrip.tabGroup.children("li").length - 1;
+        }
+        if (index >= 0) {
+          var tab = tabStrip.tabGroup.children("li").eq(index);
+          if (tab) {
+            tabStrip.select(tab);
+          }
+        }
+      }
+
+      function displayMessage(msg) {
+        if (msg != '') {
+          var n = noty({ text: msg });
+          setTimeout(function () { n.close(); }, 5000);
+        }
+      }
+
+      function displayDetailedMessage(msg) {
+        $("#detailedMessageContent").html(msg);
+        $("#detailedMessage").show(600);
+      }
+
+      //TOOLTIPS
+      $("[data-tooltip]").each(function () {
+        $(this).kendoTooltip({
+          content: $(this).attr("data-tooltip"), position: "top",
+        });
+      });
+
+      function onUserSelected() {
+        addTab("Rediger bruger", "/Bruger/Profil");
+      }
+
+</script>

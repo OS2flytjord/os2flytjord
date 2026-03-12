@@ -1,0 +1,59 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+
+<script type="text/javascript"> </script>
+<div>
+        <div class="controlsbox" style="margin-top: 10px;height: auto">
+            <div class="cbheader">
+                <h5>Søgeparametre</h5>
+            </div>
+            <div class="row" style="margin: 10px; width: 90%">
+                <div class="row">
+                    <div class="column">
+                        <div class="row_line">
+                            <label>Periode</label>
+                            @(Html.Kendo().DatePickerFor(m => m.VognlaesEfterDato).HtmlAttributes(new { id = "VognlaesEfterDatoId", Class="classiclook_kendo_workaround", style = "width:120px" }).Value(DateTime.Now.AddDays(-30)))
+                            <img src="~/Content/Icons/arrow_right.png" alt="til" height="20" style="vertical-align: middle"/>
+                            @(Html.Kendo().DatePickerFor(m => m.VognlaesFoerDato).HtmlAttributes(new { id = "VognlaesFoerDatoId", Class="classiclook_kendo_workaround", style = "width:120px" }))        
+                        </div>
+                        <div class="row_line">                     
+                            <label>Resultat</label>
+                            <table>
+                                <tr>
+                                    <td>
+                                        @Html.RadioButtonFor(m => m.VognlaesReturnType, "0", new { id = "rbtVognlaesReturnTypeNormal", Checked = "checked" })
+                                        @Html.Label("Normal", new { style = "width:120px;" })
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        @Html.RadioButtonFor(m => m.VognlaesReturnType, "1", new { id = "rbtVognlaesReturnTypeOekonomi" })
+                                        @Html.Label("Udtræk til økonomisystem", new { style = "width:250px;" })
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        @Html.RadioButtonFor(m => m.VognlaesReturnType, "2", new { id = "rbtVognlaesReturnTypeMaengder" })
+                                        @Html.Label("Vis mængder", new { style = "width:150px;" })
+                                    </td>
+                                </tr>
+                            </table>                                    
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="row_line">
+                        </div>
+                        <div class="row_line">
+                        </div>
+                        <div class="row_line">
+                        </div>
+                    </div>
+                </div>
+                <div class="row_line">&nbsp;</div>
+                <div class="row_line">
+                    <input id="btnSoeg" name="btnSoegVognlaes" onclick="onSoegVognlaes()" type="submit" value="Søg" class="toolbarButton" />
+                </div>
+            </div>
+            <div style="clear: both"></div>
+        </div>
+</div>

@@ -1,0 +1,81 @@
+﻿@model Niras.Jordflytning.ViewModels.LoginModel
+@{
+	ViewBag.Title = "FlytJord.dk ®";
+	Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+ @using (Html.BeginForm("MobileLoginPage", "Default", FormMethod.Post, new { id = "loginForm" }))
+ {
+	 @Html.AntiForgeryToken()
+	 @Html.ValidationSummary(true)
+
+
+	 <div data-role="page" data-control-title="Log ind" id="loginPage">
+		 <div data-role="content">
+			 <div data-role="navbar" data-iconpos="left">
+				 <ul>
+					 <li>
+						 <a href="/Default/FrontPage/" data-transition="fade" data-theme="" data-icon="back"> @*// PAGE 4*@
+							 FlytJord
+						 </a>
+					 </li>
+				 </ul>
+			 </div>
+			 <h3>
+				 Log ind
+			 </h3>
+			 <div data-role="fieldcontain" data-controltype="textinput">
+
+				 @Html.LabelFor(m => m.UserName)
+				 @Html.TextBoxFor(m => m.UserName, new{id = "txtUserName"})
+
+			 </div>
+			 <div data-role="fieldcontain" data-controltype="textinput">
+
+				 @Html.LabelFor(m => m.Password)
+				 @Html.PasswordFor(m => m.Password, new {id="txtPassword"})
+
+			 </div>
+
+			 <input type="submit" value="Log ind" id="btnLogIndMobile"/>
+	
+				 <div style="margin-top:25px">
+					 <a class="link" href="#ResetPasswordMobile" data-transition="fade">
+						 Glemt koden?
+					 </a>
+				 </div>
+				 <div style="margin-top:25px">
+					 <a class="link" href="/Bruger/Profil/" rel="external" data-transition="fade">
+						 Opret bruger
+					 </a>
+				 </div>
+			 </div>
+			 </div>
+
+
+	 <div data-role="page" data-control-title="Reset bruger" id="ResetPasswordMobile">
+		 <div data-role="content">
+			 <div data-role="navbar" data-iconpos="left">
+				 <ul>
+					 <li>
+						 <a href="#loginPage" data-transition="none" data-theme="" data-icon="back">
+							 FlytJord
+						 </a>
+					 </li>
+				 </ul>
+			 </div>
+			 <h3>
+				 Nulstil password
+			 </h3>
+			 <div data-role="fieldcontain" data-controltype="textinput">
+				 <label for="textinput7">
+					 Email
+				 </label>
+					
+		@Html.TextBoxFor(m=>m.UserName, new{id = "txtResetPasswordUsername"})
+			 </div>
+			 <a data-role="button" href="#" id="btnResetPassword">
+				 Anmod om ny password
+			 </a>
+		 </div>
+	 </div>
+ }

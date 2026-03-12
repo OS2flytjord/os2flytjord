@@ -1,0 +1,143 @@
+﻿@{
+    ViewBag.Title = "StartMiljoemedarbejder";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+@section TopMenu {
+  <div>
+    <input type="submit" value="Genindlæs" class="toolbarButton" />
+
+  </div>
+}
+
+@section Scripts{
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+
+
+			//$("#betaler").click(function (e) {
+			//	openTab("Betaler", "/Backend/AdminBetaler");
+			//});
+
+			//$("#nulstil").click(function (e) {
+			//  e.preventDefault(); //stop default event (click på knap)
+			//  $("#soegeparametre").toggle();
+			//  $("#soegeresultat").toggle();
+			//});
+
+			$("td.anmeldelse", "#jordmodtagelse").click(function () {
+				openTab("Anmeldelse", "/Backend/Anmeldelse");
+			});
+
+			$("td.betaler", "#jordmodtagelse").click(function () {
+				openTab("Betaler", "/Backend/AdminBetaler");
+			});
+
+			$("td", "#stikproever").click(function () {
+				openTab("Stikprøve", "/Backend/Stikproeve");
+			});
+
+		});
+
+	</script>
+}
+
+<div class="row">
+	<h4>Accepter modtagelse af jord</h4>
+</div>
+<div class="row">
+	<table id="jordmodtagelse" border="1" cellpadding="3">
+		<tr>
+			<th class="gridheader">Anmeldelse</th>
+			<th class="gridheader">Oprindelsessted</th>
+			<th class="gridheader">Jordmængde</th>
+			<th class="gridheader">Kørselsperiode</th>
+			<th class="gridheader">Anmelder</th>
+			<th class="gridheader">Dato</th>
+			<th class="gridheader">Vis betaler</th>
+			<th class="gridheader">Godkend</th>
+			<th class="gridheader">Afvis</th>
+		</tr>
+		<tr>
+			<td class="anmeldelse">1245-2013</td>
+			<td>Vestre havnepromonade 9, 9000 Aalborg</td>
+			<td>1000 T</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>12-2-2013</td>
+			<td class="betaler">Shell</td>
+			<td>Godkend</td>
+			<td>Afvis</td>
+		</tr>
+		<tr>
+			<td class="anmeldelse">1245-2013</td>
+			<td>Vestre havnepromonade 9, 9000 Aalborg</td>
+			<td>1000 T</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>12-2-2013</td>
+			<td class="betaler">Shell</td>
+			<td>Godkend</td>
+			<td>Afvis</td>
+		</tr>
+		<tr>
+			<td class="anmeldelse">1245-2013</td>
+			<td>Vestre havnepromonade 9, 9000 Aalborg</td>
+			<td>1000 T</td>
+			<td>12-2-2013 - 24-5-2013</td>
+			<td>Grav A/S, Per Jensen</td>
+			<td>12-2-2013</td>
+			<td class="betaler">Shell</td>
+			<td>Godkend</td>
+			<td>Afvis</td>
+		</tr>
+	</table>
+</div>
+
+<div class="row">
+	<h4>Aktuelle stikprøver</h4>
+</div>
+<div class="row">
+	<table id="stikproever" border="1" cellpadding="3">
+		<tr>
+			<th class="gridheader">Stikprøver</th>
+			<th class="gridheader">Jordtip</th>
+			<th class="gridheader">Bås</th>
+			<th class="gridheader">Udtaget af</th>
+			<th class="gridheader">Analyseret af</th>
+			<th class="gridheader">Transportør</th>
+			<th class="gridheader">Status</th>
+			<th class="gridheader">Vis</th>
+		</tr>
+		<tr>
+			<td>12-2-2013</td>
+			<td>Århus Østhavn</td>
+			<td>1</td>
+			<td>Poul Jensen</td>
+			<td>jh@eurofinns.dk</td>
+			<td>K transp Aps.</td>
+			<td>Godkendt</td>
+			<td>Vis</td>
+		</tr>
+		<tr>
+			<td>22-2-2013</td>
+			<td>Århus Østhavn</td>
+			<td>2</td>
+			<td>Poul Jensen</td>
+			<td>jh@eurofinns.dk</td>
+			<td>K transp Aps.</td>
+			<td>Analyseres</td>
+			<td>Vis</td>
+		</tr>
+		<tr>
+			<td>29-2-2013</td>
+			<td>Århus Østhavn</td>
+			<td>3</td>
+			<td>Poul Jensen</td>
+			<td>jh@eurofinns.dk</td>
+			<td>K transp Aps.</td>
+			<td>Planlagt</td>
+			<td>Vis</td>
+		</tr>
+	</table>
+</div>

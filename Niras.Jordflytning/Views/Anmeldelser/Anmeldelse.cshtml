@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "Anmeldelse";
+    Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+@section BreadCrumb{
+    - <a href="~/Anmeldelser/Soeg">- SØG ANMELDELSE</a>
+}
+
+@section TopMenu {
+    @*  <div>
+    <input type="submit" value="Gem" class="toolbarButton" />
+    <input type="submit" value="Luk" class="toolbarButton" />
+    <input type="submit" value="Udtag jordprøve" class="toolbarButton" />
+    <input type="submit" value="Tildel lab." class="toolbarButton" />
+    <input type="submit" value="Jord afhentet" class="toolbarButton" />
+    
+  </div>*@
+}
+@section Scripts{
+    <script type="text/javascript">
+
+
+
+        $(document).ready(function () {
+            $("#statusheader").show();
+            $("#anmeldelseheader").hide();
+            $("#anlaegheader").hide();
+
+        });
+
+        function onTabSelect(e) {
+            var tabId = $(e.item).attr("id");
+            if (tabId == "status") {
+                $("#statusheader").show();
+                $("#anmeldelseheader").hide();
+                $("#anlaegheader").hide();
+            }
+            if (tabId == "anmeldelse") {
+                $("#statusheader").hide();
+                $("#anmeldelseheader").show();
+                $("#anlaegheader").hide();
+            }
+            if (tabId == "anlaeg") {
+                $("#statusheader").hide();
+                $("#anmeldelseheader").hide();
+                $("#anlaegheader").show();
+            }
+        }
+    </script>
+}
+<img id="statusheader" src="~/Content/WalkingSkeleton/Ekstern/EksternAnmeldelseStatusUdsnitHeader.png" />
+<img id="anmeldelseheader" src="~/Content/WalkingSkeleton/Ekstern/EksternAnmeldelseAnmeldelseUdsnitHeader.png" />
+<img id="anlaegheader" src="~/Content/WalkingSkeleton/Ekstern/EksternAnmeldelseJordmodtageranlaegUdsnitHeader.png" />
+
+@(Html.Kendo().TabStrip()
+              .Name("contentTabstrip").Events(events => events
+            .Select("onTabSelect"))
+              .Items(items =>
+                      {
+                          items.Add().Text("Status").HtmlAttributes(new { id = "status" }).Content(@<img src="~/Content/WalkingSkeleton/Ekstern/EksternAnmeldelseStatusUdsnit.png" />).Selected(true);
+                          items.Add().Text("Anmeldelse").HtmlAttributes(new { id = "anmeldelse" }).Content(@<img src="~/Content/WalkingSkeleton/Ekstern/EksternAnmeldelseAnmeldelseUdsnit.png" />);
+                          items.Add().Text("Modtageanlæg").Content(@<img src="~/Content/WalkingSkeleton/Ekstern/EksternAnmeldelseJordmodtageranlaegUdsnit.png" />).HtmlAttributes(new { id = "anlaeg" });
+
+                      })
+                      )

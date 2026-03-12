@@ -1,0 +1,220 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+@{
+  ViewBag.Title = "Søg";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        kendo.culture("da-DK");
+
+        //TOOLTIPS
+        $("[data-tooltip]").each(function () {
+            $(this).kendoTooltip({
+                content: $(this).attr("data-tooltip"),
+                position: "top",
+            });
+        });
+
+    });
+   
+    //Ingen = 0,
+    //AnmeldelserIgangvaerendeSager = 1,
+    //AnmeldelserSagerIkkeMeldtAfsluttet = 2,
+    //StikproeverDerErAktive = 3
+    function onSelectedSoegning(e) {
+        var currentSelectedItem = this.dataItem(this.select());
+        if (currentSelectedItem != null) {
+            var dataItem = this.dataItem(e.item.index());
+            var soegVal = dataItem.Value;
+            $("#hfSoegning").val(soegVal);
+            switch (soegVal) {
+            case "0":
+                break;
+            case "1":
+                onSoegAnmeldelse();
+                break;
+            case "2":
+                onSoegAnmeldelse();
+                break;
+            case "3":
+                onSoegStikproeve();
+                break;
+            default:
+            }
+            $("#hfSoegning").val(null);
+        }
+    }
+
+    function onSoegAnmeldelse() {
+        if (parent.addTab) {
+            var loebeNr = $('#loebeNr').val();
+            var adresse = $('#adresse').val();
+            var foerDate = $('#foerDate').val();
+            var efterDate = $('#efterDate').val();
+            var soegType = $('#hfSoegning').val();
+            var inclafsluttede = $('#InclAfsluttede:checked').val();
+            var modtagerId = $("#ModtagerId").val();
+            var transportoerId = $("#TransportoerId").val();
+            var anmelderId = $("#AnmelderId").val();
+            var andenOprindJordTypeId = $("#AndenOprindJordTypeId").val();
+            var andenOprindBeskrivelse = $("#AndenOprindBeskrivelse").val();
+            var forureningskategori = $('#Forureningskategori').val();
+
+            var link =
+                "/Backend/Search/AdminResultatAnmeld?" +
+                    "soegType=" + soegType +
+                    "&foerDate=" + foerDate +
+                    "&efterDate=" + efterDate +
+                    "&loebeNr=" + loebeNr +
+                    "&adresse=" + adresse +
+                    "&inclafsluttede=" + inclafsluttede +
+                    "&modtagerId=" + modtagerId +
+                    "&transportoerId=" + transportoerId +
+                    "&anmelderId=" + anmelderId + 
+                    "&andenOprindJordTypeId=" + andenOprindJordTypeId + 
+                    "&andenOprindBeskrivelse=" + andenOprindBeskrivelse + 
+                    "&forureningsKategori=" + forureningskategori;
+
+            parent.addTab("Søgeresultat - Anmeldelser", link);
+        }
+    }
+
+    function onSoegBetaler() {
+
+        if (parent.addTab) {
+            var firma = $('#BetalerFirmaId').val();
+            var navn = $('#BetalerNavnId').val();
+            var status = $('#BetalerStatusId').val();
+            var kernekunde = $('#BetalerKerneKundeId').val();
+            var soegType = $('#hfSoegning').val();
+
+            var link =
+                "/Backend/Search/AdminResultatBetaler?" +
+                    "soegType=" + soegType +
+                    "&firma=" + firma +
+                    "&navn=" + navn +
+                    "&status=" + status +
+                    "&kernekunde=" + kernekunde;
+
+            parent.addTab("Søgeresultat - Betaler", link);
+        }
+    }
+
+    function onSoegVognlaes() {
+        if (parent.addTab) {
+            var foerDate = $('#VognlaesFoerDatoId').val();
+            var efterDate = $('#VognlaesEfterDatoId').val();
+            var udtraekTilOkonimiSystem = $('#rbtVognlaesReturnTypeOekonomi:checked').val();        
+            var udtraekTilMaengder = $('#rbtVognlaesReturnTypeMaengder:checked').val();
+            var link;
+            if (udtraekTilMaengder) {
+                link =
+                    "/Backend/Search/AdminResultatVognlaes2?" +
+                        "foerDate=" + foerDate +
+                        "&efterDate=" + efterDate;
+            } else {
+                var oko = false;
+                if (udtraekTilOkonimiSystem) {
+                    oko = true;
+                }
+                link =
+                    "/Backend/Search/AdminResultatVognlaes1?" +
+                        "foerDate=" + foerDate +
+                        "&efterDate=" + efterDate +
+                        "&udtraekTilOkonimiSystem=" + oko;
+            }
+            parent.addTab("Søgeresultat - Vognlæs", link);
+        }
+    }
+
+    function onSoegStikproeve() {
+        if (parent.addTab) {
+            var efter = $('#StikproeveEfterDatoId').val();
+            var foer = $('#StikproeveFoerDatoId').val();
+            var status = $('#StikproeveStatusId').val();
+            var stikproeveId = $('#StikproeveIdId').val();
+            var soegType = $('#hfSoegning').val();
+
+            var link =
+                "/Backend/Search/AdminResultatStikproeve?" +
+                    "soegType=" + soegType +
+                    "&foerDate=" + foer +
+                    "&efterDate=" + efter +
+                    "&status=" + status +
+                    "&loebenummer=" + stikproeveId;
+
+            parent.addTab("Søgeresultat - Stikprøver", link);
+        }
+    }
+</script>
+
+
+<body style="height: 90%;">
+  @Html.HiddenFor(m => m.SelectedSoegeType, new { id = "hfSoegning" })
+
+  @Html.ValidationSummary(true)
+
+  <section id="soegForm">
+    <div class="controlsbox" style="margin-top: 10px">
+      <div class="cbheader">
+        <h5>Standardsøgninger</h5>
+      </div>
+      <div class="row_line" style="margin: 10px; margin-bottom: 0px; width: 90%">
+        @(Html.Kendo().DropDownListFor(m => m.SelectedSoegeType)
+                      .DataTextField("Text")
+                      .DataValueField("Value")
+                      .BindTo(Model.SoegeTyper)
+                      .Events(e => e.Select("onSelectedSoegning"))
+                      .HtmlAttributes(new { style = "width:450px" })
+                      )
+        @Html.TextBoxFor(m => m.SoegningBeskrivelse, new { Id = "soegDesc", Style = "border: none;color: #808080;width: 450px", ReadOnly = true })
+      </div>
+      <div style="clear: both"></div>
+    </div>
+
+    @(Html.Kendo().TabStrip()
+        .Name("contentTabstrip")
+        .HtmlAttributes(new { style = "padding-top:5px;" })
+        .Items(items =>
+        {
+          if (Model.ShowAnmeldFane)
+          {
+            items.Add().Text("Anmeldelser")
+                .Content(Html.Partial("~/Areas/Backend/Views/Search/_AdminSearchAnmeld.cshtml", Model)
+                .ToHtmlString())
+                .HtmlAttributes(new { id = "tabSearchAnmeld" }).Selected(true);
+          }
+          if (Model.ShowVognlaesFane)
+          {
+            var isSelected = !Model.ShowAnmeldFane;
+
+            items.Add().Text("Vognlæs")
+                .Content(Html.Partial("~/Areas/Backend/Views/Search/_AdminSearchVognlaes.cshtml", Model).ToHtmlString())
+                .HtmlAttributes(new { id = "tabSearchVognlaes" })
+                .Selected(isSelected);
+          }
+          if (Model.ShowStikproeveFane)
+          {
+            var isSelected = !Model.ShowAnmeldFane && !Model.ShowVognlaesFane;
+            items.Add().Text("Stikprøver")
+
+                .Content(Html.Partial("~/Areas/Backend/Views/Search/_AdminSearchStikproeve.cshtml", Model).ToHtmlString()).
+                HtmlAttributes(new { id = "tabSearchStikproeve" })
+                .Selected(isSelected);
+          }
+          if (Model.ShowBetalerFane)
+          {
+            var isSelected = !Model.ShowAnmeldFane && !Model.ShowVognlaesFane && !Model.ShowStikproeveFane;
+
+            items.Add().Text("Betaler")
+                .Content(Html.Partial("~/Areas/Backend/Views/Search/_AdminSearchBetaler.cshtml", Model).ToHtmlString())
+                .HtmlAttributes(new { id = "tabSearchBetaler" })
+                .Selected(isSelected);
+          }
+        }))
+  </section>
+</body>
+

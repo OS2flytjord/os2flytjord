@@ -1,0 +1,110 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+
+@{
+    ViewBag.Title = "Søg";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+<script type="text/javascript">
+
+    function GridSoegeresultaterDataBound() {
+        $("#GridSoegeresultaterBetaler tbody tr").hover(
+		 function () {
+		     $(this).toggleClass("k-state-hover");
+		 }
+	 );
+    }
+
+    $(document).ready(function () {
+
+        $("#GridSoegeresultaterBetaler tbody tr").hover(
+       function () {
+           $(this).toggleClass("k-state-hover");
+       });       
+    });
+
+
+    function GridSoegeresultaterOnChange() {
+        $("#GridSoegeresultaterBetaler tbody tr").hover(
+            function () {
+                $(this).toggleClass("k-state-hover");
+            }
+        );
+        var grid = $("#GridSoegeresultaterBetaler").data("kendoGrid");
+        var id;
+
+        grid.select().each(function () {
+            var dataItem = grid.dataItem($(this));
+            id = dataItem.PersonId;
+            if (parent.addTab) {
+                parent.addTab("Betaler", "/Backend/Administration/AdminBetaler?betalerId=" + id);
+            }
+        });
+    }
+
+    function GridSoegeresultateronDataBinding() {
+    }  
+    
+</script>
+
+
+<body style="height: 90%;">
+    
+        <div class="row_line" >
+        <div id="divSoegParam" class="controlsbox">
+            <div class="cbheader">
+                <h5>Søgeparametre</h5>
+            </div>
+            <div class="row_line" style="margin: 10px;">
+                 @Html.DisplayFor(m => m.SoegningBeskrivelseBetaler, new { Id = "soegBetalerNote", style = "width: 99%" })
+            </div>
+            <div style="clear: both"></div>
+        </div>
+    </div>
+
+    <div class="row_line" >
+        <div id="divSoegResult" class="controlsbox">
+            <div class="cbheader">
+                <h5>Søgeresultat betaler</h5>
+            </div>
+            <div class="row_line" style="margin: 10px;">              
+                <input type="button" value="Exportér til Excel" onclick="ExportToExcel('GridSoegeresultaterBetaler', 'Search')"/>
+            </div>
+            <div style="clear: both"></div>
+
+            <div class="row_line"> 
+                @(Html.Kendo().Grid(Model.SoegeResultatBetalerList)
+                    .Name("GridSoegeresultaterBetaler")                        
+                    .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 50, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))                          
+                    .Sortable()                            
+                    .Groupable()   
+                    .HtmlAttributes(new { style = "font-size:13px;" })  
+                    .Selectable(selectable => selectable
+                                                .Mode(GridSelectionMode.Single)
+                                                .Type(GridSelectionType.Row))
+                    .Events(events => events
+                        .Change("GridSoegeresultaterOnChange")
+                        .DataBound("GridSoegeresultaterDataBound")
+                        .DataBinding("GridSoegeresultateronDataBinding"))
+                    .Columns(columns =>
+                    {
+                        columns.Bound(a => a.BetalerId).Hidden(true);
+                        columns.Bound(a => a.PersonId).Hidden(true);
+                        columns.Bound(a => a.FirmaNavn).Title("Firma");
+                        columns.Bound(a => a.BetalerNavn).Title("Navn");
+                        columns.Bound(a => a.KerneKunde).Title("Kernekunde");
+                        columns.Bound(a => a.Status).Title("Status");
+                                
+                    })
+                    .DataSource(dataSource => dataSource.Ajax()
+                            .Model(model => model.Id(m => m.BetalerId))
+                            .ServerOperation(false)
+                            .PageSize(100))
+                        )
+
+            </div>
+            <div style="clear: both"></div>
+        </div>
+    </div>
+</body>

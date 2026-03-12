@@ -1,0 +1,94 @@
+﻿@model Niras.Jordflytning.Areas.Backend.ViewModels.PersonModel
+@{
+  ViewBag.Title = "Vis person";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+<div style="width: 540px;">
+  <div class="controlsbox row" style="margin-top: 10px">
+    <div class="cbheader">
+      <h5>Person</h5>
+    </div>
+    <div class="row_control">
+      <div class="row_line row">
+        @Html.Label("Navn")
+        <label>@Html.DisplayFor(m => m.Person.Navn) @Html.DisplayFor(m => m.Person.Efternavn)</label>
+      </div>
+      <div class="row_line row">
+        @Html.Label("Adresse")
+        <label>@Html.DisplayFor(m => m.Person.Adresse)</label>
+      </div>
+      <div class="row_line row">
+        @Html.Label("Postnummer")
+        <label>@Html.DisplayFor(m => m.Person.Postnummer) @Html.DisplayFor(m => m.Person.Postdistrikt)</label>
+      </div>
+      <div class="row_line row">
+        @Html.Label("Telefon")
+        <label>@Html.DisplayFor(m => m.Person.Telefon)</label>
+
+      </div>
+      <div class="row_line row">
+        @Html.Label("Mobiltelefon")
+        <label>@Html.DisplayFor(m => m.Person.Mobiltelefon)</label>
+      </div>
+      <div class="row_line row">
+        @Html.Label("Email")
+        <label>@Html.DisplayFor(m => m.Person.Email)</label>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+
+  @{
+    if (Model.Person.Firmaoplysninger != null)
+    {
+    <div class="controlsbox row" style="margin-top: 10px">
+      <div class="cbheader">
+        <h5>Firma</h5>
+      </div>
+      <div class="row_control">
+        <div class="row_line row">
+          @Html.Label("Firmanavn")
+          <label>@Html.DisplayFor(m => m.Person.Firmaoplysninger.Firmanavn)</label>
+        </div>
+        <div class="row_line row">
+          @Html.Label("Adresse")
+          <label>@Html.DisplayFor(m => m.Person.Firmaoplysninger.Adresse)</label>
+        </div>
+        <div class="row_line row">
+          @Html.Label("Postnummer")
+          <label>@Html.DisplayFor(m => m.Person.Firmaoplysninger.Postnummer) @Html.DisplayFor(m => m.Person.Firmaoplysninger.Postdistikt)</label>
+        </div>
+        <div class="row_line row">
+          @Html.Label("Telefon")
+          <label>@Html.DisplayFor(m => m.Person.Firmaoplysninger.Telefon)</label>
+        </div>
+        <div class="row_line row">
+          @Html.Label("CVR")
+          <label>@Html.DisplayFor(m => m.Person.Firmaoplysninger.CVR)</label>
+        </div>
+        <div class="row_line row">
+          @Html.Label("P nummer")
+          <label>@Html.DisplayFor(m => m.Person.Firmaoplysninger.PNummer)</label>
+        </div>
+        <div class="row_line row">
+          @Html.Label("EAN")
+          <label>@Html.DisplayFor(m => m.Person.Firmaoplysninger.EAN)</label>
+        </div>
+      </div>
+    </div>
+  
+    }
+
+  }
+</div>
+
+
+
+
+
+

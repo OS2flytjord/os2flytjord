@@ -1,0 +1,1254 @@
+﻿@using Niras.Jordflytning
+@using Niras.Jordflytning.ViewModels.Anmeldelse
+@using System.Configuration
+@model OpretModel
+@{
+    ViewBag.Title = "Anmeldelse";
+    Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+
+@section Scripts{
+    <script src='@(Model.KortApiUrl)' type='text/javascript'></script>
+    <script src="~/Scripts/Map/MapSted.js" type="text/javascript"></script>
+
+    @Scripts.Render("/bundles/proj4s")
+
+
+    <script type="text/javascript">
+        var visRevision = false;
+
+        var setCommand = function(value) {
+            $("#command").val(value);
+        }
+
+        $(document).ready(function() {
+
+            //Validering af dansk datoformat
+            $.validator.methods.date = function(value, element) {
+                return this.optional(element) || (/^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}(\s\d{2}:\d{2}(:\d{2})?)?$/.test(value) && !/Invalid|NaN/.test(new Date(value.replace("/", "-").split("-")[2], value.replace("/", "-").split("-")[1], value.replace("/", "-").split("-")[0])));
+            };
+
+            kendo.culture("da-DK");
+
+            var winRaadgiver = Jordflytning.ui.createModalWindow("winRaadgiver", 315, 400, "Send link til rådgiver", false);
+            var winJordmodtgaerAngivJordmaengdeIFJ = Jordflytning.ui.createModalWindow("winJordmodtgaerAngivJordmaengdeIFJ", 150, 400, "Angiv jordmængde", false);
+            var winNyBetaler = Jordflytning.ui.createModalWindow("winNyBetaler", 450, 1000, "Opret ny betaler", false);
+            var winInaktivtJordmodtageranlæg = Jordflytning.ui.createModalWindow("winInaktivtJordmodtageranlæg", 100, 300, "Inaktivt modtageanlæg", false);
+            var winOpdaterforureningskategori = Jordflytning.ui.createModalWindow("winOpdaterforureningskategori", 150, 400, "Opdater forureningskategori", false);
+            var winGennemse = Jordflytning.ui.createModalWindow("winGennemse", 600, 800, "Indsend anmeldelse", false);
+
+            $("#btnInaktivtJordmodtagerAnlaeg").click(function() {
+                winInaktivtJordmodtageranlæg.center();
+                winInaktivtJordmodtageranlæg.open();
+            });
+
+            $("#btnBetalerNy").click(function() {
+                if ($("#hflLockBetaler").val() != "True") {
+                    winNyBetaler.center();
+                    winNyBetaler.open();
+                    $('#chkValiderbetaler').prop('checked', true);
+                }
+            });
+
+            $("#btnGem").click(function() {
+                $("#divProgress").show();
+                $("#divValidering").hide();
+                $("#divValideringListe").empty();
+            });
+
+            $("#btnRevider").click(function() {
+
+                @if (Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.Aktiv && Model.Anmeldelse.ModtagerAnlaeg.Jordmodtager.Aktiv && Model.Anmeldelse.Transportoer != null && Model.Anmeldelse.Transportoer.Aktiv)
+                {
+                    @:$("#divProgress").show();
+                    @:return true;
+                }
+                else if (Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && (!Model.Anmeldelse.ModtagerAnlaeg.Aktiv || !Model.Anmeldelse.ModtagerAnlaeg.Jordmodtager.Aktiv))
+                {
+                    @:alert('Modtageanlægget eller jordmodtageren er ikke aktivt');
+                    @:return false;
+                }
+                else if (Model.Anmeldelse != null && Model.Anmeldelse.Transportoer != null && !Model.Anmeldelse.Transportoer.Aktiv)
+                {
+                    @:alert('Transportøren er ikke aktiv');
+                    @:return false;
+                }
+            });
+
+            $("#btnGennemse").click(function(e) {
+                e.preventDefault();
+                $("#divProgress").show();
+
+                // Hijack output
+                setCommand('Gennemse');
+                var params = $("#formOpretAnmeldelse").serialize();
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Opret", "Anmeldelser")",
+                    data: params,
+                    dataType: "html",
+                    success: function (data) {
+                        $("#divProgress").hide();
+                        // Hvis splitter strengen er med fra _Gennemse.cshtml filen, er det en visning af vinduet
+                        var splitterId = "#previewValideringSplitter#";
+                        var pvis = data.indexOf(splitterId)
+                        if (pvis > -1) {
+                            var parts = data.split(splitterId);
+                            $("#gennemseIndhold").html(parts[0]);
+                            $("#divValidering").html(parts[1]);
+                            winGennemse.center();
+                            winGennemse.open();
+                        }
+                        else {
+                            // Ellers er det ren validering
+                            $("#divValidering").html(data).show();
+                        }
+                    },
+                    error: function(err) {
+                        $("#divProgress").hide();
+                        console.log(err.responseText);
+                            alert('Bad server response');
+                    }
+                });
+            });
+            $("#btnGennemseLuk").click(function(e) {
+                winGennemse.close();
+            });
+
+            $("#btnAfsend").click(function(e) {
+                var c = confirm('Er du sikker på, at du vil afsende anmeldelsen?\n\nAnmeldelsen behandles automatisk af systemet. \nDer kan gå et stykke tid før du returneres til forsiden.');
+                if (c) {
+                    $("#divProgress").show();
+                    $("#divValidering").hide();
+                    $("#divValideringListe").empty();
+                    $("#btnIndsend").trigger('click');
+                    winGennemse.close();
+                }
+            });
+
+            $("#btnRaadgiver").click(function() {
+                var aid = $("#hflAnmeldelseId").val();
+                if (aid != '00000000-0000-0000-0000-000000000000') {
+                    winRaadgiver.center();
+                    winRaadgiver.open();
+                } else {
+                    window.displayMessage('Anmeldelsen skal gemmes, før den kan sendes til rådgiveren.');
+                }
+            });
+
+            $("#btnRaadgiverSend").click(function(e) {
+                e.preventDefault();
+                if ($("#emailForm").validate().form()) {
+                    var raadgiverEmail = $("#txtRaadgiverEmail").val();
+                    var raadgiverBesked = $("#txtRaadgiverBesked").val();
+                    var aid = $("#hflAnmeldelseId").val();
+                    if (raadgiverEmail != "") {
+                        $.post("/Anmeldelser/SendAnmeldelseTilRaadgiver",
+                            {
+                                anmeldelseId: aid,
+                                raadgiverEmail: raadgiverEmail,
+                                raadgiverBesked: raadgiverBesked
+                            },
+                            function(result) {
+                                if (result) {
+                                    $("#txtRaadgiverEmail").val("");
+                                    $("#txtRaadgiverBesked").val("");
+                                    winRaadgiver.close();
+                                }
+                            });
+                    } else {
+                        alert("Email adressen skal udfyldes.");
+                    }
+                } else {
+                    alert("Email adressen skal udfyldes.");
+                }
+            });
+
+
+            $("#btnVisAnmeldelse").click(function(e) {
+                //siden åbnes i et nyt browser vindue, så man kan se blankettetn samtidig med sagsbehandlings fanen.
+                e.preventDefault();
+                var aid = $("#hflAnmeldelseId").val();
+
+                window.open("https://" + "@MvcApplication.FlytjordDomain" + "/blanketter/" + aid, "_blank");
+            });
+
+            $("#btnStedNyEjendom").click(function(e) {
+                e.preventDefault();
+                if ($("#hflLockSted").val() != "True") {
+                    resetJordforureningOpslag();
+                    $("#divEjendomAdresseEdit").show();
+                    $("#divOffvejAdresseEdit").show();
+
+                    $("#divAdresseView").hide();
+                    $("#hvadvildunu").hide();
+
+                    $("#divEjendomMapDigPolygon").hide();
+                    $("#divOffVejMapDigPolygon").hide();
+
+                    //Reset adresse opslag
+                    $("#vejnavnAutoComplete").val("");
+
+                    //Show road name lookup
+                    $('#dawaAutoComplete').val('');
+                    $('#divEjendomAdresseOpslagEdit').show();
+                    $('#divOffvejAdresseOpslagEdit').show();
+
+                    if ($("#drpHusnummerComplete").data("kendoDropDownList") !== undefined && $("#drpHusnummerComplete").data("kendoDropDownList") !== null) {
+                        var ddl = $("#drpHusnummerComplete").data("kendoDropDownList");
+                        ddl.dataSource.data({}); // clears dataSource
+                        ddl.text(""); // clears visible text
+                        ddl.value(""); // clears invisible value
+                    }
+
+
+                    $("#vejnavnOpslag").val("");
+
+                }
+
+            });
+
+            $("#btnAfslut").click(function(e) {
+                e.preventDefault();
+
+                if ($('#hflLockButtonAfslut').val() == 'True') {
+                } else if (confirm('Anmeldelsen inaktiveres og kan ikke benyttes længere.\n\nEr du sikker på, at du vil afslutte anmeldelsen?')) {
+                    $("#divProgress").show();
+                    var aid = $("#hflAnmeldelseId").val();
+                    $.post("@Url.Action("AfslutAnmeldelse", "Anmeldelser")",
+                        { anmeldelsesId: aid },
+                        function(result) {
+                            onFormSuccess();
+                            window.displayMessage(result.Message);
+
+                            if (result.Success == true) {
+                                setTimeout('window.location = "../Default/Startside"', 1000);
+                            }
+                        });
+                }
+            });
+
+
+            $("#btnAfslutMedAnalysedocs").click(function(e) {
+                e.preventDefault();
+
+                if ($('#hflLockButtonAfslut').val() == 'True') {
+                } else {
+                    $("#divProgress").show();
+                    var aid = $("#hflAnmeldelseId").val();
+                    $.post("@Url.Action("AfslutAnmeldelse", "Anmeldelser")",
+                        { anmeldelsesId: aid },
+                        function(result) {
+                            onFormSuccess();
+                            window.displayMessage(result.Message);
+
+                            if (result.Success == true) {
+                                setTimeout('window.location = "../Default/Startside"', 1000);
+                            }
+                        });
+                }
+            });
+
+
+            $("#btnJordmodtgaerAngivJordmaengdeIFJ").click(function() {
+                var aid = $("#hflAnmeldelseId").val();
+                if (aid != '00000000-0000-0000-0000-000000000000') {
+                    winJordmodtgaerAngivJordmaengdeIFJ.center();
+                    winJordmodtgaerAngivJordmaengdeIFJ.open();
+                    setTimeout(function() { $("#txtTotalMaengdeJordIkkeFJ").focus(); }, 500);
+                } else {
+                    window.displayMessage('Anmeldelsen er ikke gemt.');
+                }
+            });
+
+            $("#btnJordmodtgaerAngivJordmaengdeIFJSend").click(function(e) {
+                e.preventDefault();
+                if ($("#jordmodtgaerAngivJordmaengdeIFJForm").validate().form()) {
+                    var jordmaengde = $("#txtTotalMaengdeJordIkkeFJ").val();
+                    var aid = $("#hflAnmeldelseId").val();
+                    if (jordmaengde != "") {
+                        $.post("/Anmeldelser/SendJordmodtgaerAngivJordmaengdeIFJ",
+                            {
+                                anmeldelseId: aid,
+                                jordmaengdeTons: jordmaengde
+                            },
+                            function(result) {
+                                if (result.Success) {
+                                    $("#txtTotalMaengdeJordIkkeFJ").val("");
+                                    winJordmodtgaerAngivJordmaengdeIFJ.close();
+                                } else {
+                                    alert(result.Message);
+                                }
+                            });
+                    } else {
+                        alert("Jordmængden skal angives");
+                    }
+                } else {
+                    alert("Jordmængden skal angives");
+                }
+            });
+
+            function SoegEksterneSystemer() {
+                $("#divStedJordforureningOpslag").show();
+                getJordForurening();
+                $("#hvadvildunu").show();
+                return false;
+            }
+
+            $("#stedTypeEjendom").click(function() {
+                if ($("#hflLockSted").val() == "True") {
+                    e.preventDefault();
+                } else {
+                    resetJordforureningOpslag();
+                    $("#divEjendom").show();
+                    $("#divOffentligVej").hide();
+                    $("#divStedOffVejLinkTilEksternsystem").hide();
+                    $("#divAndenOprindelse").hide();
+                    $("#vejnavnAutoComplete").focus();
+                    $("#btnStedNyEjendom").click();
+                    $("#divEjendomMapDigPolygon").hide();
+                    $("#divOffVejMapDigPolygon").hide();
+                }
+            });
+
+            $("#stedTypeOffentligVej").click(function() {
+                if ($("#hflLockSted").val() == "True") {
+                    e.preventDefault();
+                } else {
+                    //resetJordforureningOpslag();
+                    $("#divEjendom").hide();
+                    $("#divOffentligVej").show();
+                    $("#divStedOffVejLinkTilEksternsystem").show();
+
+
+                    $("#divAndenOprindelse").hide();
+                    $("#vejnavnOpslag").focus();
+                    $("#btnStedNyEjendom").click();
+                    $("#divEjendomMapDigPolygon").hide();
+                    $("#divOffVejMapDigPolygon").hide();
+                }
+            });
+
+            $("#stedTypeAndenOprindelse").click(function() {
+                    if ($("#hflLockSted").val() == "True") {
+                        e.preventDefault();
+                    } else {
+                        resetJordforureningOpslag();
+                        $("#divEjendom").hide();
+                        $("#divOffentligVej").hide();
+                        $("#divStedOffVejLinkTilEksternsystem").hide();
+                        $("#divAndenOprindelse").show();
+                        $("#btnStedNyEjendom").click();
+
+                        //Indlæs forureningskategorierne for den valgte kommune.
+                        window.loadAndenOprindelseJordklassifikationerForKommune();
+
+                    }
+                }
+            );
+
+            $("div[class*='tab_right_arrow']").click(function() {
+                var idx = $(this).attr("id").split("_")[1];
+                $("div[id*='tab_']").attr("class", "tab_right_arrow");
+                $(this).attr("class", "tab_right_arrow_active");
+                var tabContentId = "tabContent_" + idx;
+                $("div[id*='tabContent_']").attr("class", "tabContent disabled");
+                $("#" + tabContentId).attr("class", "tabContent");
+
+                if (idx == "1") {
+                    //Toolbarbuttons skal ike være synlig på første fane
+                    $("#divToolbarButtons").hide();
+                } else {
+                    $("#divToolbarButtons").show();
+                }
+            });
+
+            $("#imgSignaturForklaringColapse").click(function() {
+                $("#imgSignaturForklaringExpand").show();
+                $("#imgSignaturForklaringColapse").hide();
+                $("#imgSignaturForklaring").addClass("hideSignaturForklaring");
+            });
+
+            $("#imgSignaturForklaringExpand").click(function() {
+                $("#imgSignaturForklaringExpand").hide();
+                $("#imgSignaturForklaringColapse").show();
+                $("#imgSignaturForklaring").removeClass("hideSignaturForklaring");
+            });
+
+            $("#imgMaximise").click(function() {
+                //Gemmer venstre kolonne.
+                $("#divStedLeft").hide();
+                $("#divStedHelpMap").hide();
+
+                $("#divStedRight").css('width', '100%');
+                $("#divMapSted").css('height', '600px');
+
+                //Signaturforklaring placering ved max kort
+                $("#imgSignatur").addClass("maxMapSignatur");
+                $("#imgSignaturForklaring").addClass("maxMapSignaturForklaring");
+                $("#imgSignaturForklaringExpand").addClass("maxMapSignaturForklaringColapseExpand");
+                $("#imgSignaturForklaringColapse").addClass("maxMapSignaturForklaringColapseExpand");
+
+
+                $("#imgMaximise").toggle();
+                $("#imgMinimise").toggle();
+            });
+            $("#imgMinimise").click(function() {
+                //Viser venstre kolonne.
+                $("#divStedLeft").show();
+                $("#divStedHelpMap").show();
+
+                $("#divStedRight").css('width', '500px');
+                $("#divMapSted").css('height', '410px');
+
+                //Signaturforklaring placering ved min kort
+                $("#imgSignatur").removeClass("maxMapSignatur");
+                $("#imgSignaturForklaring").removeClass("maxMapSignaturForklaring");
+                $("#imgSignaturForklaringExpand").removeClass("maxMapSignaturForklaringColapseExpand");
+                $("#imgSignaturForklaringColapse").removeClass("maxMapSignaturForklaringColapseExpand");
+
+
+                $("#imgMaximise").toggle();
+                $("#imgMinimise").toggle();
+            });
+
+            $("#rblJordproeverJa").click(function() {
+                $("#divJordProever").show();
+                $("#divJordAntalProever").show();
+                $("#divJordIntaktJord").show();
+                $("#chkIntaktJord").prop('checked', false);
+
+                //var forureningOpslagJordklassifikationTypeId = $("#hflForureningOpslagJordklassifikationTypeId").val();
+                ////Sætter forureningskategorien til det den var før.
+                ////Hvis der ikke er lavet et opslag i de eksterne services kan den selvfølgelig ikke sættes og det skal den heller ikke.
+                //$(".jordklassifikationTypeRadiolist").each(function() {
+                //  if ($(this).val() == forureningOpslagJordklassifikationTypeId) {
+                //    $(this).prop('checked', true);
+                //  } else {
+                //    $(this).removeAttr('checked');
+                //  }
+                //});
+            });
+
+            $("#rblJordproeverNej").click(function() {
+                $("#divJordProever").hide();
+                $("#divJordAntalProever").hide();
+                $("#divJordIntaktJord").show();
+            });
+
+            $("#rbtAffaldNej").click(function() {
+                var dropdownlist = $("#drpAffaldType").data("kendoDropDownList");
+                dropdownlist.text("");
+                dropdownlist.enable(false);
+            });
+
+            $("#rbtAffaldJa").click(function() {
+                var dropdownlist = $("#drpAffaldType").data("kendoDropDownList");
+                dropdownlist.enable();
+            });
+
+            $("#txtAntalProever").bind("change", window.beregnAntalProeverPrJordmaengde);
+            window.beregnAntalProeverPrJordmaengde();
+
+
+            $("#rbtAffaldJa").click(function() {
+                $("#divAffaldstype").show();
+                window.popModtagerAnlaeg();
+            });
+
+            $("#rbtAffaldNej").click(function() {
+                $("#divAffaldstype").hide();
+                window.popModtagerAnlaeg();
+            });
+
+            $("#rbtAlm").click(function() {
+                $("#txtAkutBaggrund").val("");
+                $("#txtAkutBaggrund").attr("readonly", true);
+                $("#divJordhaandteringsplan").hide();
+            });
+
+            $("#rbtAkut").click(function() {
+                $("#txtAkutBaggrund").removeAttr("readonly");
+                $("#divJordhaandteringsplan").hide();
+            });
+
+            $("#rbtStraks").click(function() {
+                $("#txtAkutBaggrund").val("");
+                $("#txtAkutBaggrund").attr("readonly", true);
+                $("#divJordhaandteringsplan").show();
+            });
+
+            $('#txtJordBemaerkning').change(function() {
+                //Bemærkningsfeltet skal også vises på kommunikationsfanen
+                $("#txtKommunikationJordBemaerkning").val($('#txtJordBemaerkning').val());
+            });
+
+            $('#txtJordBemaerkning_Revision').change(function() {
+                //Bemærkningsfeltet skal også vises på kommunikationsfanen
+                $("#txtKommunikationJordBemaerkning_Revision").val($('#txtJordBemaerkning_Revision').val());
+            });
+
+            //Modtager Transportør
+            $("#chkModtagerAnlaegAnvenderJf").change(function() {
+                window.popModtagerAnlaeg();
+            });
+
+            //Betaler
+            $("#btnBetalerSoeg").click(function() {
+                if ($("#hflLockBetaler").val() != "True") {
+                    $("#GridBetalere").data("kendoGrid").dataSource.read();
+                }
+            });
+
+            $("#betalerAnmelder").click(function() {
+                $("#divBetalerSoeg").hide();
+            });
+
+            $("#betalerTransportoer").click(function() {
+                $("#divBetalerSoeg").hide();
+            });
+
+            $("#betalerAnden").click(function() {
+                window.clearSelectedBetaler();
+                $("#divBetalerSoeg").show();
+                $("#txtBetalerSoeg").focus();
+            });
+
+            $("#btnBetalerNyOpret").click(function() {
+                $("#winNyBetaler").data("kendoWindow").close();
+                $('#chkValiderbetaler').prop('checked', false);
+            });
+
+            $("#txtBetalerSoeg").keypress(function(e) {
+                if (e.keyCode == '13') {
+                    e.preventDefault();
+                    $("#btnBetalerSoeg").click();
+                }
+            });
+
+            $("#btnNyBetaler").click(function(e) {
+                $("#divNyBetalerStatus").html("");
+                e.preventDefault();
+                if ($("#nyBetalerForm").validate().form()) {
+                    var email = $("#txtNyBetalerEmail").val();
+                    if (email != "") {
+                        //$.post("/Anmeldelser/OpretBetaler", { brugernavn: email },
+                        $.post("/Anmeldelser/OpretBetaler",
+                            $('#nyBetalerForm').serialize(),
+                            function(result) {
+                                if (result) {
+                                    if (result != '00000000-0000-0000-0000-000000000000') {
+                                        $("#txtNyBetalerEmail").val("");
+                                        winNyBetaler.close();
+                                        $('#chkValiderbetaler').prop('checked', false);
+                                        window.setAndenBetaler(result);
+                                    } else {
+                                        $("#divNyBetalerStatus").html("Person kunne ikke oprettes! <br/>Kontroller om personen allerede findes i systemet.");
+                                    }
+                                }
+                            });
+                    } else {
+                        alert("Email adressen skal udfyldes.");
+                    }
+                } else {
+                    alert("Email adressen skal udfyldes.");
+                }
+            });
+
+
+            //TOOLTIPS
+            $("[data-tooltip]").each(function() {
+                $(this).kendoTooltip({
+                    content: $(this).attr("data-tooltip"),
+                    position: "top",
+                });
+            });
+
+            //Lås brugerfladen
+            lockBrugerFlade();
+
+            //Revision
+            if ($("#hflRevision").val() == "True") {
+                var valg = confirm('Denne anmeldelse har en revision.\n' +
+                    'Ved revision af en anmeldelse er det kun jordmængde, kørselsperiode, transportør og diverse bemærkninger, der kan ændres.\n\n' +
+                    'Imens den reviderede anmeldelse behandles, kan den oprindelige anmeldelse anvendes, såfremt den er aktiv.\n' +
+                    'Når den reviderede anmeldelse godkendes, flettes oplysningerne fra den oprindelige anmeldelse og den reviderede anmeldelse sammen.\n\n' +
+                    'Vil du gå til Revision fanen ?');
+                if (valg) {
+                    visRevision = true;
+                }
+            }
+
+
+            setTimeout('popFileGrid();popHistoriskDokumentationGrid();', 3000);
+
+            //Kort - Resten af load er ikke afhængig af kortinfos hastighed
+            setTimeout('mapInitSted("@(Model.KortSite)","@(Model.KortPageSted)")', 10);
+
+            //KOMMUNIKATION
+            setTimeout('popInteressanter();', 3000);
+
+            //Indlæs Transportører og Modtageranlæg
+            //Hent data på transportør og modtager siden.
+            setTimeout('popModtagerAnlaeg()', 2000);
+            setTimeout('popTransportoer()', 2500);
+
+
+            setFirmaGroupDisplay();
+            $("#checkboxFirma").click(function() {
+                setFirmaGroupDisplay();
+            });
+
+
+            if ('@Model.OpdaterJordforureningsKategori' == 'True') {
+
+                var empty = '@Guid.Empty';
+                var oprindelig = $("#hflJordKlassifikationType").val();
+                var forureningOpslag = $("#hflForureningOpslagJordklassifikationTypeId").val();
+
+                var skip = false;
+                if ($("#hflRevision").val() == "True" && oprindelig != empty) {
+                    skip = true;
+                }
+
+                if ((oprindelig == empty || forureningOpslag == empty) && !skip) {
+                    SoegEksterneSystemer();
+                    return;
+                }
+
+                //Henter forureningskategorierne for kommunen. getJordForurening() kaldes efter der er blevet lavet et adresse eller vej opslag.
+                $.post("@Url.Action("GetJordKlassifikationerForKommune", "Anmeldelser")",
+                    $("#formOpretAnmeldelse").serialize(),
+                    function(resultJordKlassifikation) {
+                        if (resultJordKlassifikation) {
+
+                            //Laver opslag i eksterne datakilder for at finde jordforureningen
+                            $.post("@Url.Action("GetJordForurening", "Anmeldelser")",
+                                $("#formOpretAnmeldelse").serialize(),
+                                function(result) {
+                                    if (result) {
+                                        oprindelig = $("#hflJordKlassifikationType").val();
+                                        var nye = $("#hflForureningOpslagJordklassifikationTypeId").val();
+                                        var message = '';
+
+                                        //// MAKE HTML STRING JQuery friendly!
+                                        if ($("#hflRevision").val() == 'True') {
+                                            var resultAsHTML = document.createElement('div');
+                                            resultAsHTML.innerHTML = result;
+
+                                            nye = $(resultAsHTML).find("#hflForureningOpslagJordklassifikationTypeId").val();
+                                        }
+
+                                        if (oprindelig == empty && nye != empty) {
+                                            message = 'Det oprindelige opslag i miljødatabasen fejlede. Ønsker du at opdaterer den valgte forureningskategori?';
+                                        } else if (oprindelig != empty && nye == empty) {
+                                            message = 'Kontrollen af den valgte forureningskategori fejlede, og den tideligere valgte bibeholdes. Ønsker du at prøve igen?';
+                                        } else if (oprindelig == empty && nye == empty) {
+                                            message = 'Det automatiske forureningsopslag mislykkedes. Ønsker du at prøve igen?';
+                                        } else if (oprindelig != nye) {
+                                            message = 'Den tidligere valgte forureningskategori svarer ikke til kategorien i miljødatabasen. Vil du ændre den oprindelige forureningskategori?';
+                                        }
+
+                                        if (message != '') {
+                                            $('#opdaterJordforureningsKategoriMessage').text(message);
+                                            winOpdaterforureningskategori.open();
+                                        }
+                                    }
+                                });
+                        }
+                    });
+            }
+            $("#btnOpdaterJordforureningsKategoriJa").click(function() {
+                winOpdaterforureningskategori.close();
+                SoegEksterneSystemer();
+            });
+            $("#btnOpdaterJordforureningsKategoriNej").click(function() {
+                winOpdaterforureningskategori.close();
+            });
+
+        });
+
+        function setFirmaGroupDisplay() {
+            var firma = document.getElementById('checkboxFirma');
+            if (firma.checked) {
+                $("#firmaGroup").show();
+            } else {
+                $("#firmaGroup").hide();
+            }
+        }
+
+        function onFormSuccess() {
+            $("#divProgress").hide();
+            $("#divValidering").show();
+            $("btnRaadgiver").removeAttr('disabled'); //Når anmeldelsen er gemt, må der gerne sendes et link til rådgiveren
+            $("btnJordmodtgaerAngivJordmaengdeIFJ").removeAttr('disabled'); //Når anmeldelsen er gemt kan der angives jordmængde
+        }
+
+        function lockBrugerFlade() {
+            //Sted
+            if ($("#hflLockSted").val() == "True") {
+                $("#tabContent_1 :input").attr("readonly", true);
+                $('#tabContent_1 :radio:not(:checked)').attr('disabled', true);
+
+            }
+            //Jorden
+            if ($("#hflLockJorden").val() == "True") {
+                $("#tabContent_2 :input").attr("readonly", true);
+                $('#tabContent_2 :radio:not(:checked)').attr('disabled', true);
+                $('#tabContent_2 :radio:not(:checked)').attr('disabled', true);
+                $('#tabContent_2 :radio:not(:checked)').attr('disabled', true);
+                $('#tabContent_2 :radio:not(:checked)').attr('disabled', true);
+                //Disabler radiobuttons og checkbuttons
+                var deactivatorJord = function(event) { event.preventDefault(); };
+                $('tabContent_2 :radio, :checkbox').click(deactivatorJord);
+            }
+            //Modtage
+            if ($("#hflLockModtagerTransportoer").val() == "True") {
+                $("#tabContent_3 :input").attr("readonly", true);
+                $('#tabContent_3 :radio:not(:checked)').attr('disabled', true);
+
+            }
+            //Betaler
+            if ($("#hflLockBetaler").val() == "True") {
+                $("#tabContent_4 :input").attr("readonly", true);
+                $('#tabContent_4 :radio:not(:checked)').attr('disabled', true);
+            }
+            //Kommunikation
+            if ($("#hflLockKommunikation").val() == "True") {
+                $("#tabContent_5 :input").attr("readonly", true);
+                $('#tabContent_5 :radio:not(:checked)').attr('disabled', true);
+            }
+
+            //Revision - //Ved revision af en anmeldelse er det kun jordmængde, kørselsperiode og transportør og Link til godkendt anmeldelse der må kunne ændres. Derfor gør jeg det på denne måde.
+            if ($("#hflRevision").val() == "True") {
+                $("#drpDocType").removeAttr("readonly");
+                /*
+                $("#txtForventetJordmaengdeTon").removeAttr("readonly"); //Forventet jordmængde
+                $("#datStart").removeAttr("readonly"); //Kørselsperiode start
+                $("#datSlut").removeAttr("readonly"); //Kørselsperiode slut
+                //$("#btnStedSoegEksterneSystemer").removeAttr("readonly"); //Hent forureningsstatus i eksterne systemer.
+                $("#txtLinkTilGodkendtAnmeldelse").removeAttr("readonly"); //Link til godkendt anmeldelse
+
+                //Transportør
+                $("#ddlTransportoerFiltreringMetode").removeAttr("readonly");
+
+                //Note: Jordklassifikationen låses op på _jordjordopslag viewet (eller rettet sagt den låses ikke)
+                */
+
+                //Vedhæft dokumentation
+                $("#btnShowWinFileUpload").removeAttr("readonly");
+                $("#drpDocType").removeAttr("readonly");
+                $("#datDocDate").removeAttr("readonly");
+                $("#files").removeAttr("readonly");
+
+                /*
+                // Jorden
+                $("#Anmeldelse_Jord_TidligereErhvervsaktivitet").removeAttr("readonly");
+                $("#Anmeldelse_Jord_JordarbejdeBeskrivelse").removeAttr("readonly");
+                $("#txtJordBemaerkning").removeAttr("readonly");
+
+                // Kommunikation
+                $("#txtSagsbehandlingBemaerkningTilKommunen").removeAttr("readonly");
+                $("#txtSagsbehandlingBemaerkningTilJordmodtager").removeAttr("readonly");
+                $("#txtInternSagsnummer").removeAttr("readonly");
+                */
+            }
+
+        }
+
+        function resetJordforureningOpslag() {
+            $("#hflJordKlassifikationType").val(""); //den valgt jordklassifikation
+
+            $("#divStedJordforureningOpslag").empty();
+            $("#btnKvittering").hide();
+            $("#hvadvildunu").hide();
+            $("#btnTilJorden").hide();
+            $("#btnTilModtager").hide();
+
+            $("#labelResultatJord").empty();
+            $("#divResultat").empty();
+            $("#labelResultatJord").empty();
+        }
+
+        function GetJordKlassifikationerForKommune() {
+            //Henter forureningskategorierne for kommunen.
+            $.post("@Url.Action("GetJordKlassifikationerForKommune", "Anmeldelser")",
+                $("#formOpretAnmeldelse").serialize(),
+                function(resultJordKlassifikation) {
+                    if (resultJordKlassifikation) {
+                        var jordKlassifiktionId = '#divJordKlassifiktion';
+                        $(jordKlassifiktionId).html(resultJordKlassifikation); //Erstatter alt inde for div'en med det partial view som man ved GetJordForurening
+
+                        $("#rblJordKlassifikationType2").prop("checked", "checked");
+                        $("#hflJordKlassifikationType").val($("#rblJordKlassifikationType2").val());
+                    }
+                });
+        }
+    </script>
+}
+
+@section BreadCrumb{
+    - ANMELDELSE
+}
+
+<section id="anmeldelseForm">
+    @using (Ajax.BeginForm("Opret", "Anmeldelser",
+        new AjaxOptions { HttpMethod = "POST", OnSuccess = "onFormSuccess", UpdateTargetId = "divValidering" },
+        new { Id = "formOpretAnmeldelse" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="toolbarButtons">
+            <input style="width:125px;" id="btnGem" type="submit" name="execute" onclick="setCommand(this.value)" value="Gem" @{ if (Model.LockButtonGem) { <text> class="toolbarButton btnDisabled" disabled="disabled" </text>  } else { <text> class="toolbarButton" </text>  }} />
+
+            <input style="width:125px;" type="button" value="Send til rådgiver" id="btnRaadgiver" class="toolbarButton"
+                   @{ if ((Model.Anmeldelse != null && Model.Anmeldelse.Id != Guid.Empty) && !Model.LockButtonSendTilRaadgiver) { <text></text>  } else { <text> disabled="disabled" </text>  } } />
+
+            @*<input style="width:125px;" id="btnAfsend" name="execute" onclick="setCommand(this.value)" type="submit" value="Indsend" style="background-color: #BDBDBD !Important" @{ if (Model.LockButtonIndsend) { <text> class="toolbarButton btnDisabled" disabled="disabled" data-tooltip="Anmeldelsen kan ikke indsendes" </text>     } else { <text> class="toolbarButton" </text>     } } />*@
+            @* Se JavaScript til gennemsyn for at forstå hvad der sker i dette hijack af indsend *@
+            <input style="width:125px;" id="btnGennemse" name="execute" onclick="setCommand('')" type="button" value="Indsend" style="background-color: #BDBDBD !Important" @{ if (Model.LockButtonIndsend) { <text> class="toolbarButton btnDisabled" disabled="disabled" data-tooltip="Anmeldelsen kan ikke indsendes" </text>  } else { <text> class="toolbarButton" </text>  } } />
+            <input type="hidden" name="command" id="command" value="" />
+            <input type="submit" id="btnIndsend" name="execute" onclick="setCommand(this.value)" value="Indsend" style="display: none;" />
+
+            @if (!Model.LockButtonVisAnmeldelse)
+            {
+                <input type="button" value="Vis anmeldelse" class="toolbarButton" id="btnVisAnmeldelse" />
+            }
+
+
+            @if (!Model.LockButtonReviderAnmeldelse && !Model.JordmodtagerAnlaegErInaktiv)
+            {
+
+                <input id="btnRevider" name="execute" onclick="setCommand(this.value)" type="submit" value="Revider anmeldelse" class="toolbarButton" />
+
+
+                <a id="info-revider" style="float: left; height: 16px; width: 16px; border: 0; margin-top: 4px; margin-left: -7px; margin-right: 10px; cursor: pointer;" href="https://www.dropbox.com/s/5g0w77p2laxmrdo/Revision%20af%20godkendt%20anmeldelse%2C%20skriftlig%20vejledning.docx" target="_blank">
+                    <img src="/Content/Icons/info_button.png" style="height: 16px; width: 16px; border: 0px; margin-right: 10px;" />
+                </a>
+            }
+            else if (!Model.LockButtonReviderAnmeldelse && Model.JordmodtagerAnlaegErInaktiv)
+            {
+                <input id="btnInaktivtJordmodtagerAnlaeg" type="button" value="Revider anmeldelse" class="toolbarButton" />
+
+                <a id="info-revider" style="float: left; height: 16px; width: 16px; border: 0; margin-top: 4px; margin-left: -7px; margin-right: 10px; cursor: pointer;" href="https://www.dropbox.com/s/5g0w77p2laxmrdo/Revision%20af%20godkendt%20anmeldelse%2C%20skriftlig%20vejledning.docx" target="_blank">
+                    <img src="/Content/Icons/info_button.png" style="height: 16px; width: 16px; border: 0; margin-right: 10px;" />
+                </a>
+
+                //Jira JF-445
+                //Tilføj attributten data-tooltip med beskeden om at revision ikke kan
+                //Vis knappen disabled men med en data-tooltio attribut med besked om hvorfor anmeldelsen ikke kan revideres.
+            }
+
+            @if (!Model.LockButtonAfslut)
+            {
+                <input id="btnAfslut" type="button" value="Afslut anmeldelse" class="toolbarButton" style="display:none; visibility:hidden;" />
+            }
+
+            @if (!Model.LockButtonAfslut)
+            {
+                <input id="btnShowWinAfslutUpload" type="button" value="Afslut anmeldelse" class="toolbarButton" />
+            }
+
+            @if (Model.AnmelderErJordmodtager)
+            {
+                <input style="width: 135px;" type="button" value="Registrer tilkørt jord" id="btnJordmodtgaerAngivJordmaengdeIFJ" class="toolbarButton"
+                       @{ if (Model.Anmeldelse != null && Model.Anmeldelse.Id != Guid.Empty) { <text></text>  } else { <text> disabled="disabled" </text>  } } />
+            }
+            @if (Model.Anmeldelse != null && Model.Anmeldelse.Nummer != 0)
+            {
+                <div id="loebenr" style="float:right;margin-right: 12px;">Løbenr : @Model.Anmeldelse.Nummer</div>
+            }
+
+            @if (Model.Anmeldelse.Nummer == 0)
+            {
+                <div id="div-info-opret" style="float:right;margin-right: 12px;">
+                    <a id="info-opret" style="float: right; height: 16px; width: 16px; border: 0; margin-top: 6px; margin-left: -7px; margin-right: 10px; cursor: pointer;" href="https://youtu.be/wOsUV6kwFw4" target="_blank">
+                        <img src="/Content/Icons/info_button.png" style="height: 16px; width: 16px; border: 0px; margin-right: 10px;" />
+                    </a>
+                </div>
+            }
+        </div>
+        <div id="divProgress" style="text-align: center; display: none;">
+            <div style="text-align: center; border: 2px solid #E7E7E8; border-radius: 25px; position: absolute; top: 40%; left: 43%; background-color: whitesmoke; opacity: 0.8; z-index: 100">
+                <img src="~/Content/Icons/loading.gif" />
+            </div>
+        </div>
+
+        <div id="tabs" style="float: left;">
+            <div id="tab_1" data-tab="sted" class="tab_right_arrow_active">1. Sted</div>
+            <div id="tab_2" data-tab="jorden" class="tab_right_arrow">2. Jorden</div>
+            <div id="tab_3" data-tab="modtager-transportoer" class="tab_right_arrow" style="width: 210px;">3. Modtager og transportør</div>
+
+            <div id="tab_4" data-tab="betaler" class="tab_right_arrow" style="display:@(Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.AnvenderJF ? "block" : "none")">4. Betaler</div>
+            <div id="tab_5" data-tab="kommunikation" class="tab_right_arrow" style="width: 180px;">@(Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.AnvenderJF ? "5" : "4"). Kommunikation</div>
+            <div id="tab_6" data-tab="revision" class="tab_right_arrow" style="display:@(Model.Revision ? "block" : "none");">@(Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.AnvenderJF ? "6" : "5"). Revision</div>
+        </div>
+
+        <div id="divValidering" class="row" style="margin-left: 8px; color: red;">
+            @Html.ValidationSummary(false)
+            @Html.Partial("_Validering", Model)
+            @*
+                Det er MEGET vigtigt at alle Html.HiddenFor(m => m...) senedes med i _Validering.cshtml filen! 
+                Oprindeligt var de placeret her, men de fleste blev fjernet hver gang koden var vej af serveren. 
+            *@
+        </div>        
+
+        <div id="tabContents" class="tabContents">
+            <div id="tabContent_1" style="margin-top: -5px;">
+                @Html.Partial("_Sted", Model)
+            </div>
+            <div id="tabContent_2" class="disabled" style="margin-top: -5px;">
+                @Html.Partial("_Jorden", Model)
+            </div>
+            <div id="tabContent_3" class="disabled" style="margin-top: -5px;">
+                <div class="row">
+                    @Html.Partial("_ModtagerOgTransportoer", Model)
+                </div>
+            </div>
+            <div id="tabContent_4" class="disabled" style="margin-top: -5px;">
+                <div class="row">
+                    @Html.Partial("_Betaler", Model)
+                </div>
+            </div>
+            <div id="tabContent_5" class="disabled" style="margin-top: -5px;">
+                <div class="row">
+                    @Html.Partial("_Kommunikation", Model)
+                </div>
+            </div>
+            <div id="tabContent_6" class="disabled" style="margin-top: -5px;">
+                <div class="row">
+                    @if (@Model.Revision)
+                    {
+                        @Html.Partial("_Revision", Model)
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+<div id="winInaktivtJordmodtageranlæg" style="display: none">
+    <p>Det tilknyttede modtageanlæg er inaktivt, og der kan derfor ikke laves en revision af anmeldelsen</p>
+</div>
+
+<div id="winOpdaterforureningskategori" style="display: none">
+    <p id="opdaterJordforureningsKategoriMessage"></p>
+    <input type="button" id="btnOpdaterJordforureningsKategoriJa" value="Ja" class="toolbarButton" />
+    <input type="button" id="btnOpdaterJordforureningsKategoriNej" value="Nej" class="toolbarButton" />
+</div>
+
+
+<div id="winNyBetaler" style="display: none;">
+    @using (Html.BeginForm("OpretBetaler", "Anmeldelser", FormMethod.Post, new { id = "nyBetalerForm" }))
+    {
+        <div class="cbcontent" style="margin-left: 10px;">
+            <div class="column">
+                @Html.ValidationSummary(true)
+
+                <div class="row_line">
+                    @Html.CheckBoxFor(m => m.ValiderBetaler, new { Id = "chkValiderbetaler", style = "position:absolute;left:-500px" })
+                    @Html.Label("E-mail*")
+                    @Html.TextBoxFor(x => x.betalerNy, new { Id = "txtNyBetalerEmail", style = "width:265px;" })
+                    @Html.ValidationMessageFor(x => x.betalerNy)
+                </div>
+                <div class="row_line">
+                    @Html.Label("Fornavn*")
+                    @Html.TextBoxFor(x => x.betalerFornavn, new { Id = "nyBetalerFornavn", style = "width:265px;" })
+                    @Html.ValidationMessageFor(x => x.betalerFornavn)
+                </div>
+                <div class="row_line">
+                    @Html.Label("Efternavn*")
+                    @Html.TextBoxFor(x => x.betalerEternavn, new { Id = "nyBetalerEfternavn", style = "width:265px;" })
+                    @Html.ValidationMessageFor(x => x.betalerEternavn)
+                </div>
+                <div class="row_line">
+                    @Html.Label("Adresse*")
+                    @Html.TextBoxFor(x => x.betalerAdresse, new { Id = "nyBetalerAdresse", style = "width:265px;" })
+                    @Html.ValidationMessageFor(x => x.betalerAdresse)
+                </div>
+                <div class="row_line">
+                    @Html.Label("Postnummer og by*")
+                    @Html.TextBoxFor(m => m.betalerPostnummer, new { style = "width:35px;margin-right:5px;" })
+                    @Html.ValidationMessageFor(m => m.betalerPostnummer)
+
+                    @Html.TextBoxFor(m => m.betalerBy, new { style = "width:211px;" })
+                    @Html.ValidationMessageFor(m => m.betalerBy)
+                </div>
+                <div class="row_line">
+                    @Html.Label("Telefon*")
+                    @Html.TextBoxFor(x => x.betalerTelefon, new { Id = "nyBetalerTelefon", style = "width:265px;" })
+                    @Html.ValidationMessageFor(x => x.betalerTelefon)
+                </div>
+                <div class="row_line">
+                    @Html.Label("Mobiltelefon*")
+                    @Html.TextBoxFor(x => x.betalerMobiltelefon, new { Id = "nyBetalerMobiltelefon", style = "width:265px;" })
+                    @Html.ValidationMessageFor(x => x.betalerMobiltelefon)
+                </div>
+            </div>
+
+            <div class="column" style="display: block; ">
+                <div class="row_line" style="margin-right:10px;">
+                    @Html.Label("Firma", new { id = "labelFirma" })
+                    @Html.CheckBoxFor(m => m.betalerCompany, new { id = "checkboxFirma" })
+                </div>
+                <div style="clear: both"></div>
+                <div id="firmaGroup">
+                    <div class="row_line">
+                        @Html.Label("Firmanavn*")
+                        @Html.TextBoxFor(m => m.firmaNavn, new { style = "width:265px;" })
+                        @Html.ValidationMessageFor(m => m.firmaNavn)
+                    </div>
+                    <div class="row_line">
+                        @Html.Label("Firmaadresse*")
+                        @Html.TextBoxFor(m => m.firmaAdresse, new { style = "width:265px;" })
+                        @Html.ValidationMessageFor(m => m.firmaAdresse)
+                    </div>
+                    <div class="row_line">
+                        @Html.Label("Postnummer og by*")
+                        @Html.TextBoxFor(m => m.firmaPostnummer, new { style = "width:35px;margin-right:5px;" })
+                        @Html.ValidationMessageFor(m => m.firmaPostnummer)
+
+                        @Html.TextBoxFor(m => m.firmaBy, new { style = "width:211px;" })
+                        @Html.ValidationMessageFor(m => m.firmaBy)
+                    </div>
+                    <div class="row_line">
+                        @Html.Label("CVR*")
+                        @Html.TextBoxFor(m => m.firmaCVR, new { style = "width:265px;" })
+                        @Html.ValidationMessageFor(m => m.firmaCVR)
+                    </div>
+                    <div class="row_line">
+                        @Html.Label("P-nummer")
+                        @Html.TextBoxFor(m => m.firmaPNummer, new { style = "width:265px;" })
+                    </div>
+                    <div class="row_line">
+                        @Html.Label("EAN")
+                        @Html.TextBoxFor(m => m.firmaEAN, new { style = "width:265px;" })
+                    </div>
+                </div>
+
+            </div>
+
+            <input type="submit" id="btnNyBetaler" value="Opret" class="toolbarButton" />
+            <div id="divNyBetalerStatus"></div>
+            <div class="column"><br>Betaler bliver nu oprettet i FlytJord.dk og vil modtage en mail med link til aktivering af sin brugerprofil. Betaler kan kun godkende betalingen for denne anmeldelse/jordflytning, hvis vedkommende har aktiveret sin bruger i FlytJord.dk</div>
+        </div>
+    }
+</div>
+
+<div id="winRaadgiver" style="display: none">
+    @using (Html.BeginForm("SendAnmeldelseTilRaadgiver", "Anmeldelser", FormMethod.Post, new { id = "emailForm" }))
+    {
+        @Html.ValidationSummary(true)
+        <div class="row">
+            @Html.Label("Rådgivers email")
+            @Html.TextBoxFor(x => x.RaadgiverEmail, new { id = "txtRaadgiverEmail", style="width:100%;" })
+            @Html.ValidationMessageFor(x => x.RaadgiverEmail)
+        </div>
+        <div class="row">
+            @Html.Label("Besked", new { style = "width:50px;" })
+            @Html.TextAreaFor(x => x.RaadgiverBesked, new { id = "txtRaadgiverBesked", style = "width:100%; height:85px;" })
+        </div>
+        <div class="row">
+            <br />
+            Der vil blive sendt et link til ovenstående email adresse.
+            <br />
+            Rådgiveren vil herefter kunne redigere og afsende denne anmeldelse.
+            <br /><br />
+        </div>
+        <div class="row">
+            <input type="submit" id="btnRaadgiverSend" value="Send" class="toolbarButton" />
+        </div>
+    }
+</div>
+
+<div id="winJordmodtgaerAngivJordmaengdeIFJ" style="display: none">
+    @using (Html.BeginForm("SendJordmodtgaerAngivJordmaengdeIFJ", "Anmeldelser", FormMethod.Post, new { id = "jordmodtgaerAngivJordmaengdeIFJForm" }))
+    {
+        @Html.ValidationSummary(true)
+        <div class="row">
+
+            @Html.Label("Total jordmængde (t)")
+            @Html.TextBoxFor(x => x.Anmeldelse.TotalMaengdeJordIkkeFJ, new { id = "txtTotalMaengdeJordIkkeFJ", type = "number" })
+            @Html.ValidationMessageFor(x => x.Anmeldelse.TotalMaengdeJordIkkeFJ)
+        </div>
+        <div class="row">
+
+            <br />
+            Den totale jordmængde i hele tons der er modtaget.
+            <br />
+            <br />
+        </div>
+        <div class="row">
+            <input type="submit" id="btnJordmodtgaerAngivJordmaengdeIFJSend" value="Gem" class="toolbarButton" />
+        </div>
+    }
+</div>
+
+<div id="winSendAfslutEvtMedDokumenterForm" style="display: none">
+    @using (Html.BeginForm("SendAfslutEvtMedDokumenter", "Anmeldelser", FormMethod.Post, new { id = "sendAfslutEvtMedDokumenterFormForm" }))
+    {
+        @Html.ValidationSummary(true)
+        <div class="row">
+            Når anmeldelsen afslutttes, bliver den inaktiv, og den kan ikke anvendes mere. <br />Der er mulighed for at vedhæfte et vilkårligt antal analysedokumenter, som bliver tilknyttet anmeldelsen.
+            <br />
+
+            @(Html.Kendo().Grid(Model.DokumentationAnalyse)
+                    .Name("GridAnalyseDokumenter")
+                    .Columns(columns =>
+                        {
+                            columns.Bound(p => p.Id).Hidden();
+                            columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter").Visible(false);
+                            columns.Bound(p => p.DisplayFilename).ClientTemplate("<div title=\"#=FilNavn#\">#=DisplayFilename#</div>").Title("Dokumenter");
+                            columns.Bound(p => p.Type).Sortable(true).Title("Type");
+                            columns.Bound(p => p.OprindelseDato).Sortable(true).Title("Dato").Format("{0:dd-MM-yyyy}");
+                            //columns.Bound(p => p.Id).ClientTemplate(Html.ActionLink("Åben", "DownloadDokumentation", new { anmeldelseId = Model.Anmeldelse.Id, filnavn = "#=FilNavnUrlEncode#", target = "_blank" }).ToHtmlString()).Title("");
+                            columns.Command(c => c.Destroy().Text("Fjern"));
+                        })
+                    .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                    .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne filen?"))
+                    .AutoBind(true)
+                    .HtmlAttributes(new { style = "min-height:65px; margin-top:5px" })
+                    .DataSource(dataSource => dataSource
+                                                .Ajax() // Specify that the data source is of ajax type
+                                                .Read(read => read.Action("ReadAnalyseDokumentation", "Anmeldelser")) 
+                                                .Model(model => model.Id(p => p.Id))
+                                                .Destroy(des => des.Action("RemoveFileAnalysedocs", "Anmeldelser"))
+                    ))
+
+            <input type="button" id="btnShowWinFileAfslutUpload" value="Vedhæft analysedokument" style="margin-top:10px; margin-bottom: 15px"/>
+  
+        </div>
+
+  
+        <input type="submit" id="btnAfslutMedAnalysedocs" value="Afslut" class="toolbarButton" style="margin-left:120px; width:60px; margin-right:20px;"/>
+        <input type="submit" id="btnCloseAfslutMedAnalysedocs" value="Annullér" class="toolbarButton" style="margin-left:0; width:60px; margin-right:20px;" />
+
+    }
+</div>
+
+<div id="uploadVedAfslutFilesWindow" style="display: none">
+    <div class="row_line" id="jorden_doctype" style="margin-left: 10px">
+        @Html.Label("lblDokumentationType", "Dokument type")
+        @(Html.Kendo().DropDownList()
+              .Name("drpAfslutDocType")
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .OptionLabel("Vælg")
+              .Value("-")
+              .BindTo(Model.DokumentationTypeListe.Where(x => x.Text.StartsWith("analyse", StringComparison.InvariantCultureIgnoreCase)).ToArray()))
+    </div>
+    <div class="row_line" style="margin-left: 10px">
+        @Html.Label("Dokument dato")
+        @Html.Kendo().DatePicker().Name("datAfslutDocDate").Value(DateTime.Now).HtmlAttributes(new { type = "text", data_tooltip = "Angiv dato for tilblivelsen af dokumentet" })
+    </div>
+    <div class="row_line" style="margin-left: 10px">
+        @Html.Label("lbSize", "Max. filstørrelse: 50 MB")
+        <br />
+    </div>
+    <div class="row_line" style="margin-left: 10px">
+        @(Html.Kendo().Upload()
+              .Name("files")
+              .HtmlAttributes(new { @onclick = "if($('#drpAfslutDocType').val().length <= 1) { alert('Før du kan upload dokument, skal du vælge dokument type.'); return false; }" })
+              .Messages(m => m.Select("Vælg fil..."))
+              .Async(a => a
+                              .Save("SaveFileAnalysedocs", "Anmeldelser")
+                              .Remove("RemoveFile", "Anmeldelser")
+                              .AutoUpload(true)
+              )
+              .Events(events => events
+                                    .Success("onAfslutFileSuccess")
+                                    .Upload("onAfslutFileUpload")
+                                    .Error("onAfslutError")
+              )
+              .ShowFileList(false)
+        )
+    </div>
+</div>
+
+<div id="winGennemse" style="display: none;">
+    <div id="gennemseIndhold">
+        <!-- Dynamisk indhold -->
+    </div>
+    <input style="width: 125px;" id="btnAfsend" name="execute" type="button" value="Indsend" class="toolbarButton" />
+    <input style="width: 125px;" id="btnGennemseLuk" type="button" value="Annullér" class="toolbarButton" />
+</div>
+
+<div id="winFinish" style="display: none;">
+    Anmeldelsen er nu afsend.<br />
+</div>
+
+<div id="winModtagerAnlaegKort" style="display: none">
+    @*Modal vindue til visning af modtagerAnlaeget i kortet.*@
+</div>
+
+<div id="winModtagerAnlaegDokumenter" style="display: none">
+    @*Modal vindue til visning af modtagerAnlaegets dokumenter.*@
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        if (@Model.Revision.ToString().ToLower() && visRevision) {
+            $("div[class*='tab_right_arrow']").each(function(index, element) {
+                var idx = $(this).attr("id").split("_")[1];
+                $("div[id*='tab_']").attr("class", "tab_right_arrow");
+                var tabContentId = "tabContent_" + idx;
+                $("#" + tabContentId).attr("class", "tabContent disabled");
+            });
+
+            $("div[id='tab_6']").attr("class", "tab_right_arrow_active");
+            $("#tabContent_6").attr("class", "tabContent");
+        }
+
+        var winAfslutUpload = Jordflytning.ui.createModalWindow("winSendAfslutEvtMedDokumenterForm", 223, 530, "Afslut anmeldelse", false);
+
+        $("#btnShowWinAfslutUpload").click(function (e) {
+            e.preventDefault();
+            winAfslutUpload.center();
+            winAfslutUpload.open();
+        });
+
+        var winFileUploadAfslut = Jordflytning.ui.createModalWindow("uploadVedAfslutFilesWindow", 180, 430, "Vedhæft analysedokument", false);
+
+        $("#btnShowWinFileAfslutUpload").click(function (e) {
+            e.preventDefault();
+            winFileUploadAfslut.center();
+            winFileUploadAfslut.open();
+        });
+
+        /* Parse the querystring */
+        var tabParameter = Jordflytning.url.getParameter("tab");
+        if (tabParameter != null) {
+            $('#tabs').find('[data-tab="' + tabParameter + '"]').click();
+        };
+    });
+
+
+
+    function onAfslutError(e) {
+        // Array with information about the uploaded files
+        if (e.operation == "upload") {
+            alert("Filen er for stor!");
+        }
+    }
+
+    function onAfslutFileUpload(e) {
+        e.data = {
+            dokumentationTypeId: $("#drpAfslutDocType").val(),
+            metadataDato: $("#datAfslutDocDate").val(),
+            anmeldelseId: $("#hflAnmeldelseId").val()
+        };
+    }
+
+    function onAfslutFileSuccess() { 
+        $("#GridAnalyseDokumenter").data("kendoGrid").dataSource.read();
+        $(".k-upload-files.k-reset").find("li").remove();
+        $("#uploadVedAfslutFilesWindow").data("kendoWindow").close();
+    }
+ 
+
+    $("#btnCloseAfslutMedAnalysedocs").click(function(e){
+        e.preventDefault();
+        $("#winSendAfslutEvtMedDokumenterForm").data("kendoWindow").close();
+    });
+
+
+</script>
