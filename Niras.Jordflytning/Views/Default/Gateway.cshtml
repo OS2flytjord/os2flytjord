@@ -1,0 +1,26 @@
+﻿@model Niras.Jordflytning.ViewModels.GateWayModel
+
+@{
+  ViewBag.Title = "Gateway";
+  Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    
+    
+  });
+
+</script>
+
+<div class="controlsbox row" style="margin-top: 10px">
+  <div class="cbheader">
+    <h5>@Model.GateWayHeader</h5>
+  </div>
+  <div class="row_control">
+    <div class="row">
+      @Model.GateWayMessage
+    </div>
+  </div>
+  <div style="clear: both"></div>
+</div>

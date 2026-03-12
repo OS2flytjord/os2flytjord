@@ -1,0 +1,82 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+@using Kendo.Mvc.UI
+
+<script type="text/javascript">
+
+  function GrdVognlaesRequestEnd(e) {
+    if (e.type === "create" | e.type === "update") {
+      if (!e.response.Errors) {
+        //vognlæs griddet.
+        e.sender.read();
+        //Stikprøve griddet
+        $("#AnmeldelseStikproeverGrid").data("kendoGrid").dataSource.read();
+      }
+    }
+  }
+
+  function editVognlaesForm(e) {
+    var buttonOpdater = $(e.container).parent().find(".k-grid-update");
+    var buttonAnnuller = $(e.container).parent().find(".k-grid-cancel");
+    buttonOpdater.text("OK");
+    buttonAnnuller.text("Fortryd");
+    if (e.model.Id != "00000000-0000-0000-0000-000000000000") {
+      $("#divVognlaesCreate").hide();
+    }
+  }
+
+  function GridVognlaesListDataBound() {
+      //Selects all edit buttons
+      $("#GrdVognlaes tbody tr .k-grid-edit").each(function () {
+          var currentDataItem = $("#GrdVognlaes").data("kendoGrid").dataItem($(this).closest("tr"));
+
+          //Check in the current dataItem if the row is editable
+          if (currentDataItem.Afvist == true) {
+              $(this).remove();
+          }
+      });
+  }
+</script>
+
+<div>
+  @*<div style="clear: both"></div>*@
+  @(Html.Kendo().Grid(Model.VognlaesListe)
+          .Name("GrdVognlaes")
+          .Columns(columns =>
+          {
+            columns.Bound(p => p.Id).Hidden();
+            columns.Bound(p => p.DatoBom).Title("Dato").Format("{0:dd-MM-yyyy H:mm}");
+            columns.Bound(p => p.Transportoer).Title("Transportør");
+            columns.Bound(p => p.JordmaengdeTon).Title("Jordmængde (t)");
+            columns.Bound(p => p.JordmaengdeAksler).Title("Jordmængde (Aksler)");
+            columns.Bound(p => p.Afvist).Sortable(true).ClientTemplate(
+                "<div title=\"#=AfvistNote#\">" +
+                "<input type='checkbox' disabled='disabled' # if(Afvist) {# checked='checked' #} else {# '' #}# /></div>")
+                .Title("Afvist?");
+            columns.Command(p => { p.Edit().Text("Rediger").UpdateText("Gem").CancelText("Annuller"); }).Visible(!Model.RightTilKoertJordReadonly);
+          })
+          .Pageable()
+          .Sortable()
+          .Scrollable(a => a.Enabled(false))
+          .Events(e => e.Edit("editVognlaesForm").DataBound("GridVognlaesListDataBound"))
+          .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne vognlæsset?"))
+          .ToolBar(toolbar => { toolbar.Create().Text("Vognlæs"); })
+          .Editable(editable =>
+          {
+
+            editable.Mode(GridEditMode.PopUp).TemplateName("VognlaesCustomPopupEditor");
+            editable.Window(z => { z.Title("Opret vognlæs"); z.Width(500); });
+          })
+
+          .DataSource(dataSource => dataSource
+                                        .Ajax()
+                                        .Model(model => { model.Id(p => p.Id); model.Field(p => p.Id).DefaultValue(new Guid()); })
+                                        .PageSize(10)
+                                        .Events(e => e.RequestEnd("GrdVognlaesRequestEnd"))
+                                        .Create(create => create.Action("VognlaesCreate", "Anmeldelser").Data("additionalInfoVognlaes"))
+                                        .Read(r => r.Action("VognlaesRead", "Anmeldelser").Data("additionalInfoVognlaes"))
+                                        .Update(u => u.Action("VognlaesUpdate", "Anmeldelser").Data("additionalInfoVognlaes")))
+          )
+
+</div>
+<div style="clear: both"></div>
+

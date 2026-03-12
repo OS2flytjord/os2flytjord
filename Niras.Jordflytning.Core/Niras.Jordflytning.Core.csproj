@@ -1,0 +1,739 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BBAF3D72-F702-497D-BEC6-0E2125DB767F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Niras.Jordflytning.Core</RootNamespace>
+    <AssemblyName>Niras.Jordflytning.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AJE|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\AJE\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="antlr.runtime">
+      <HintPath>..\Niras.Jordflytning.Libraries\StringTemplate\antlr.runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.16.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.16.0\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.1.0.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelNumberFormat.1.1.0\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="Irony, Version=1.0.11.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <HintPath>..\packages\Irony.NetCore.1.0.11\lib\net461\Irony.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Binder, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Binder.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.Binder.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Options.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=2.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.2.1.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.14.0.1016.290\lib\net40\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="MVC Foolproof Validation">
+      <HintPath>..\Niras.Jordflytning.Libraries\MVC FoolProof\MVC Foolproof Validation.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.5.3.2\lib\net46\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog.Database, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.Database.5.3.2\lib\net46\NLog.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog.Extensions.Logging, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.Extensions.Logging.5.3.11\lib\net461\NLog.Extensions.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog.Web, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.Web.5.3.11\lib\net46\NLog.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.Fonts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>..\packages\SixLabors.Fonts.1.0.0\lib\netstandard2.0\SixLabors.Fonts.dll</HintPath>
+    </Reference>
+    <Reference Include="StringTemplate">
+      <HintPath>..\Niras.Jordflytning.Libraries\StringTemplate\StringTemplate.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Packaging, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Packaging.6.0.0\lib\net461\System.IO.Packaging.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Text.RegularExpressions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.RegularExpressions.4.3.1\lib\net463\System.Text.RegularExpressions.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="XLParser, Version=1.5.2.0, Culture=neutral, PublicKeyToken=63397e1e46bb91b4, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLParser.1.5.2\lib\net461\XLParser.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApplicationConstants.cs" />
+    <Compile Include="BusinessLogic\AdresseBusiness.cs" />
+    <Compile Include="BusinessLogic\AdviseringBusiness.cs" />
+    <Compile Include="BusinessLogic\AnmeldelserBusiness.cs" />
+    <Compile Include="BusinessLogic\BaseBusiness.cs" />
+    <Compile Include="BusinessLogic\BomSystemBusiness.cs" />
+    <Compile Include="BusinessLogic\BrugereBusiness.cs" />
+    <Compile Include="BusinessLogic\BetalerBusiness.cs" />
+    <Compile Include="BusinessLogic\AnmelderBusiness.cs" />
+    <Compile Include="BusinessLogic\BogholderOpslagstavleBusiness.cs" />
+    <Compile Include="BusinessLogic\AnalyseDokumentBusiness.cs" />
+    <Compile Include="BusinessLogic\AlarmBusiness.cs" />
+    <Compile Include="BusinessLogic\BemyndigedeAnmelderBusiness.cs" />
+    <Compile Include="BusinessLogic\Extensions.cs" />
+    <Compile Include="BusinessLogic\GebyrTidsregistreringBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IDawaOpslagBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IGebyrTidsregistreringBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ILastbilBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IOpgavetypeBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IFaktureringRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IGebyrTidsregistreringRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IOpgavetypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IPlansystemRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IKulturarvRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IDawaOpslagRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IInteresantRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IFirmaoplysningerRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IMatrikelOpslagRepository.cs" />
+    <Compile Include="BusinessLogic\LastbilBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IBemyndigedeAnmelderBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IMailBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IVognlaesBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\ILandsdelTypeRepository.cs" />
+    <Compile Include="BusinessLogic\LogBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ILogBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IAlarmBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IKommunikationBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\ILogRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IBeskedRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IKommunikationRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAlarmRepository.cs" />
+    <Compile Include="BusinessLogic\KommunikationBusiness.cs" />
+    <Compile Include="BusinessLogic\MailBusiness.cs" />
+    <Compile Include="BusinessLogic\OpgavetypeBusiness.cs" />
+    <Compile Include="BusinessLogic\SoegAdminBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ISoegAdminBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IAnalyseDokumentBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\ILastbilRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAnalyseDokumentRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IVognlaesRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAdvisRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAdvisTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IBomSystemBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IBemyndigedeAnmeldereRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IKommuneJordklassifikationRepository.cs" />
+    <Compile Include="BusinessLogic\JordforureningsopslagBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IJordforureningsopslagBusiness.cs" />
+    <Compile Include="BusinessLogic\StatusStikproeveBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IStatusStikproeveBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IAdviseringBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IBogholderOpslagstavleBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IJordforureningopslagRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IStatusStikproeveTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IStatusStikproeveRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IBogholderOpslagstavleRepository.cs" />
+    <Compile Include="BusinessLogic\StatusBetalerBusiness.cs" />
+    <Compile Include="BusinessLogic\SoegBusinessAccepterJord.cs" />
+    <Compile Include="BusinessLogic\SoegBusinessStikproeve.cs" />
+    <Compile Include="BusinessLogic\PlanlagteStikproeverBusiness.cs" />
+    <Compile Include="BusinessLogic\SoegBusinessOpslagsTavle.cs" />
+    <Compile Include="BusinessLogic\SoegBusinessBetaler.cs" />
+    <Compile Include="BusinessLogic\PdfBusiness.cs" />
+    <Compile Include="BusinessLogic\StikproeveBusiness.cs" />
+    <Compile Include="BusinessLogic\DokumenterBusiness.cs" />
+    <Compile Include="BusinessLogic\ForureningskomponentBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IStatusBetalerBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ISoegBusinessAccepterJord.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ISoegBusinessStikproeve.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IPlanlagteStikproeverBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ISoegBusinessOpslagsTavle.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ISoegBusinessBetaler.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IPdfBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IStikproeveBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IDokumenterBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IForureningskomponentBusiness.cs" />
+    <Compile Include="BusinessLogic\SoegBusiness.cs" />
+    <Compile Include="BusinessLogic\KonfigBusiness.cs" />
+    <Compile Include="BusinessLogic\StatusAnmeldelseBusiness.cs" />
+    <Compile Include="BusinessLogic\DokumentationBusiness.cs" />
+    <Compile Include="BusinessLogic\GenericBusiness.cs" />
+    <Compile Include="BusinessLogic\JordmodtagerBusiness.cs" />
+    <Compile Include="BusinessLogic\ForureningsOpslagBusiness.cs" />
+    <Compile Include="BusinessLogic\KodelisteBusiness.cs" />
+    <Compile Include="BusinessLogic\KommuneBusiness.cs" />
+    <Compile Include="BusinessLogic\MatrikelBusiness.cs" />
+    <Compile Include="BusinessLogic\ModtagerAnlaegBusiness.cs" />
+    <Compile Include="BusinessLogic\PersonBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IAnmelderBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IPlanlagteStikproeverRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IEnhedTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IJordanlaegTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IGraensevaerdierRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IPdfServiceRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IStikproeveRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\ISagsbehandler.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IPersonJordmodtagerRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IPersonKommuneRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\Iwebpages_RolesRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IDokumenterRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IForureningskomponentRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAnmelderRepository.cs" />
+    <Compile Include="BusinessLogic\VognlaesBusiness.cs" />
+    <Compile Include="BusinessLogic\DawaOpslagBusiness.cs" />
+    <Compile Include="Models\Advis.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AdvisType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AffaldType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Alarm.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AnalyseDokument.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AnalyseForureningskomponent.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AndenOprindJordType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Anmeldelse.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AnmeldelseEffektivStatus.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Anmelder.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BemyndigedeAnmeldere.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Besked.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Betaler.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Betaleringsoplysning.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BetingelserJordtip.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BogholderOpslagstavle.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BrugerProfil.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Cartographer_Layers.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Delta.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Dokumentation.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DokumentationType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Dokumenter.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Enhed.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\FaktureringUdtraek.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Firmaoplysninger.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Forureningskomponent.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Gebyr.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GebyrTidsregistrering.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Graensevaerdier.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Interesant.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JFModel.Context.cs">
+      <DependentUpon>JFModel.Context.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Models\JFModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JFModel.Designer.cs">
+      <DependentUpon>JFModel.edmx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Models\Adresse\Adresse.cs" />
+    <Compile Include="Models\Adresse\etrs89koordinat.cs" />
+    <Compile Include="Models\Adresse\Kommune.cs" />
+    <Compile Include="Models\Adresse\Postnummer.cs" />
+    <Compile Include="Models\Adresse\Vej.cs" />
+    <Compile Include="Models\Adresse\wgs84koordinat.cs" />
+    <Compile Include="Models\Jord.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JordanlaegType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JordflytningEntities.cs" />
+    <Compile Include="Models\JordflytningType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JordForureningskomponent.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Jordforureningsopslag.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\JordForurening\KonfliktsoegningResultat.cs" />
+    <Compile Include="Models\JordForurening\MiljoePortalKlassifikation.cs" />
+    <Compile Include="Models\BomSystem\BomAnmeldelse.cs" />
+    <Compile Include="Models\BomSystem\BomAnmeldelseList.cs" />
+    <Compile Include="Models\BomSystem\KoereToej.cs" />
+    <Compile Include="Models\BomSystem\VognlaesBom.cs" />
+    <Compile Include="Models\JordKlassifikationType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Jordmodtager.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Kommune.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\KommuneJordklassifikation.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Kommunikation.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Konfig.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\LandsdelType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Lastbil.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Log.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\LogHelpers\CompareHelper.cs" />
+    <Compile Include="Models\LogHelpers\Varience.cs" />
+    <Compile Include="Models\Matrikel.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MatrikelOpslag\DawaClasses.cs" />
+    <Compile Include="Models\MatrikelOpslag\Feature.cs" />
+    <Compile Include="Models\MatrikelOpslag\Polygon.cs" />
+    <Compile Include="Models\MatrikelOpslag\MatrikelOpslagResultat.cs" />
+    <Compile Include="Models\MatrikelOpslag\Properties.cs" />
+    <Compile Include="Models\MiljoeklasseType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ModtagerAnlaeg.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\NLogEntries.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Opgavetype.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Oprindelsessted.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\OprindelsesstedKlassifikationType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Partials\Betaler.cs" />
+    <Compile Include="Models\Partials\Betaleringsoplysning.cs" />
+    <Compile Include="Models\Partials\Alarm.cs" />
+    <Compile Include="Models\Partials\Dokumentation.cs" />
+    <Compile Include="Models\Partials\Interesant.cs" />
+    <Compile Include="Models\Partials\Kommune.cs" />
+    <Compile Include="Models\Partials\Matrikel.cs" />
+    <Compile Include="Models\Partials\Oprindelsessted.cs" />
+    <Compile Include="Models\Person.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PersonJordmodtager.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PersonKommune.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PlanlagteStikproever.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Sagsbehandler.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SoegeResultat\SoegeResultatVognlaes2.cs" />
+    <Compile Include="Models\SoegeResultat\SoegeResultatFakturaExport.cs" />
+    <Compile Include="Models\SoegeResultat\SoegeResultatVognlaes1.cs" />
+    <Compile Include="Models\SoegeResultat\SoegeResultatAccepterJord.cs" />
+    <Compile Include="Models\SoegeResultat\SoegeResultatStikproeve.cs" />
+    <Compile Include="Models\SoegeResultat\SoegeResultatOpslagsTavle.cs" />
+    <Compile Include="Models\SoegeResultat\SoegeResultatBetaler.cs" />
+    <Compile Include="Models\JordForurening\ForureningsOpslag2.cs" />
+    <Compile Include="Models\JordForurening\ForureningsOpslagResult.cs" />
+    <Compile Include="Models\JordForurening\GeoEnvironKlassifikation.cs" />
+    <Compile Include="Models\JordForurening\GeoEnvironRow.cs" />
+    <Compile Include="Models\Partials\JordModtager.cs" />
+    <Compile Include="Models\Partials\ModtagerAnlaeg.cs" />
+    <Compile Include="Models\StatusAnmeldelse.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\StatusAnmeldelseType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\StatusBetaler.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\StatusStikproeve.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\StatusStikproeveType.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Stikproeve.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Transportoer.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Vognlaes.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\webpages_Membership.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\webpages_OAuthMembership.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\webpages_Roles.cs">
+      <DependentUpon>JFModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NLog\ExceptionDetailsRenderer.cs" />
+    <Compile Include="PredicateBuilder.cs" />
+    <Compile Include="Models\SoegeResultat\SoegeResultat.cs" />
+    <Compile Include="BusinessLogic\TransportoerBusiness.cs" />
+    <Compile Include="ESortType.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ISoegBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IBetalerBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IDokumentationBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IGenericBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IJordmodtagerBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IForureningsOpslagBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IKonfigBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IStatusAnmeldelseBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IAnmeldelserBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IBrugereBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IKodelisteBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IKommuneBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IMatrikelBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IModtagerAnlaegBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\ITransportoerBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Infrastructure\IConfigService.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Infrastructure\IUnitOfWork.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IBrugerProfiler.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IStatusBetalerRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IKonfigRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IBetalerRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IStatusAnmeldelseTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IStatusAnmeldelseRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IDokumentationRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IMatrikelRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IJordmodtagerRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\IPersonBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IGeoEnvironRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IMiljoePortalRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IModtagerAnlaegRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\ITransportoerRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IJordflytningTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IJordKlassifikationTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAffaldTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAndenOprindJordTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IOprindelsesstedKlassifikationTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IKommuneRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IAnmeldelserRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IBrugereRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IDokumentationTypeRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IOprindelsesStedRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IPersonRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\IRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Common\ISecurityProvider.cs" />
+    <Compile Include="Models\JordForurening\ForureningsOpslag.cs" />
+    <Compile Include="Models\Partials\Anmeldelse.cs" />
+    <Compile Include="Models\Partials\Brugere.cs" />
+    <Compile Include="Models\Partials\Firmaoplysninger.cs" />
+    <Compile Include="Models\Partials\Lastbil.cs" />
+    <Compile Include="Models\Partials\Jord.cs" />
+    <Compile Include="Models\Partials\Personer.cs" />
+    <Compile Include="Models\Partials\Transportoer.cs" />
+    <Compile Include="Models\Resources\Personer.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Personer.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="SqlServerTypes\Loader.cs" />
+    <Compile Include="Web References\dk.niras.informatik.emailservice\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Models\Resources\Personer.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Personer.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config">
+      <SubType>Designer</SubType>
+    </None>
+    <EntityDeploy Include="Models\JFModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>JFModel.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>N</CustomToolNamespace>
+    </EntityDeploy>
+    <None Include="Models\JFModel.edmx.diagram">
+      <DependentUpon>JFModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\dk.niras.informatik.emailservice\EmailData.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\dk.niras.informatik.emailservice\emailservice.wsdl" />
+    <None Include="Web References\dk.niras.informatik.emailservice\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Niras.Jordflytning.Library\Niras.Jordflytning.Library.csproj">
+      <Project>{1a3c2da0-1cb9-481b-afe0-c9a17c9fe10a}</Project>
+      <Name>Niras.Jordflytning.Library</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://informatik.niras.dk/services/emailtest/emailservice.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\dk.niras.informatik.emailservice\</RelPath>
+      <UpdateFromURL>http://informatik.niras.dk/services/emailtest/emailservice.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>Niras_Jordflytning_Core_dk_niras_informatik_emailservice_EmailService</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\dk.niras.informatik.emailservice\emailservice.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Models\JFModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>JFModel.edmx</DependentUpon>
+      <LastGenOutput>JFModel.Context.cs</LastGenOutput>
+    </None>
+    <Content Include="Models\JFModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>JFModel.cs</LastGenOutput>
+      <DependentUpon>JFModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="SqlServerTypes\readme.htm" />
+    <Content Include="SqlServerTypes\x64\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x64\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

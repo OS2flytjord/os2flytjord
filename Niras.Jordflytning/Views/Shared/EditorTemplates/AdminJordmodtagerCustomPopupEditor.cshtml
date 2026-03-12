@@ -1,0 +1,181 @@
+﻿@model Niras.Jordflytning.ViewModels.GridBindingModels.BrugerProfilGridModel
+
+@Html.HiddenFor(model => model.BrugerId)
+@Html.HiddenFor(model => model.HfValgtOrganisation, new { id = "hfvo" })
+
+
+@*email*@
+<div class="editor-label">
+    @Html.LabelFor(model => model.Email)
+</div>
+<div class="editor-field">
+	@Html.EditorFor(model => model.Email)
+	@Html.ValidationMessageFor(model => model.Email)
+</div>
+
+@*adgangskode*@
+<div id="passwordDiv">
+<div class="editor-label">@Html.LabelFor(model => model.PasswordClearText)</div>
+<div class="editor-field">@Html.PasswordFor(model => model.PasswordClearText)@Html.ValidationMessageFor(model => model.PasswordClearText)</div>
+</div>
+
+
+
+@*fnavn*@
+<div class="editor-label">
+    @Html.LabelFor(model => model.Navn)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Navn)
+    @Html.ValidationMessageFor(model => model.Navn)
+</div>
+
+
+@*enavn*@
+<div class="editor-label">
+    @Html.LabelFor(model => model.Efternavn)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Efternavn)
+    @Html.ValidationMessageFor(model => model.Efternavn)
+</div>
+
+
+@*adr*@
+<div class="editor-label">
+    @Html.LabelFor(model => model.Adresse)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Adresse)
+    @Html.ValidationMessageFor(model => model.Adresse)
+</div>
+
+@*postnr|by*@
+<div class="editor-label">
+    @Html.LabelFor(m => m.Postnummer)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Postnummer)
+    @Html.ValidationMessageFor(model => model.Postnummer)
+</div>
+<div class="editor-label">
+    @Html.LabelFor(model => model.Postdistrikt)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Postdistrikt)
+    @Html.ValidationMessageFor(model => model.Postdistrikt)
+</div>
+
+@*tlf*@
+<div class="editor-label">
+    @Html.LabelFor(model => model.Telefon)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Telefon)
+    @Html.ValidationMessageFor(model => model.Telefon)
+</div>
+
+@*mtlf*@
+<div class="editor-label">
+    @Html.LabelFor(model => model.Mobiltelefon)
+</div>
+<div class="editor-field">
+    @Html.EditorFor(model => model.Mobiltelefon)
+    @Html.ValidationMessageFor(model => model.Mobiltelefon)
+</div>
+
+
+@*aktiv*@
+<div class="editor-label">
+    @Html.LabelFor(model => model.Aktiv)
+</div>
+<div class="editor-field">
+    @Html.CheckBoxFor(model => model.Aktiv)
+    @Html.ValidationMessageFor(model => model.Aktiv)
+</div>
+
+<div id="organisationDiv">
+    <div class="editor-label">
+        @Html.Label("Organisation*")
+    </div>
+    <div class="editor-field">
+        @(Html.Kendo().DropDownListFor(m => m.ValgtOrganisation)
+        .OptionLabel("Vælg")
+        .BindTo((IEnumerable<SelectListItem>)ViewData["organisationer"])
+        .DataValueField("Value")
+        .DataTextField("Text")
+        )
+        @Html.ValidationMessageFor(m => m.ValgtOrganisation)
+    </div>
+</div>
+
+<div class="editor-label">
+    @Html.Label("Roller")
+</div>
+
+<br/>
+
+<div id="kommuneRollerDiv">
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsKommuneAdmin)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsKommuneAdmin)
+        @Html.ValidationMessageFor(model => model.IsKommuneAdmin)
+    </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsSagsbehandler)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsSagsbehandler)
+        @Html.ValidationMessageFor(model => model.IsSagsbehandler)
+    </div>
+</div>
+
+<div id="jordmodtagerRollerDiv">
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsJordmodtagerAdmin)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsJordmodtagerAdmin)
+        @Html.ValidationMessageFor(model => model.IsJordmodtagerAdmin)
+    </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsBogholder)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsBogholder)
+        @Html.ValidationMessageFor(model => model.IsBogholder)
+    </div>
+
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsPladsmand)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsPladsmand)
+        @Html.ValidationMessageFor(model => model.IsPladsmand)
+    </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsMiljoemedarbejder)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsMiljoemedarbejder)
+        @Html.ValidationMessageFor(model => model.IsMiljoemedarbejder)
+    </div>
+
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsProevetager)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsProevetager)
+        @Html.ValidationMessageFor(model => model.IsProevetager)
+    </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IsLaboratorie)
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(model => model.IsLaboratorie)
+        @Html.ValidationMessageFor(model => model.IsLaboratorie)
+    </div>
+
+</div>

@@ -1,0 +1,5 @@
+Fra version 10 til 11 er 
+- der blevet tilføjet kolonnen Kode på alle Type tabeller. Hermed kan man mappe Enum sammen mend "Kodens" smalint.
+- Nummer på anmeldelse  og lastbil, så man kan taste et nummer ind på bomsystemet, hvis skanneren ikke virker.
+
+Ændringer i statusAnmeldelseTyper

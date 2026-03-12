@@ -1,0 +1,215 @@
+﻿@using Niras.Jordflytning.Core.Models
+@{
+	ViewBag.Title = "FlytJord.dk ®";
+	Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+
+@section Scripts
+{
+	<script type="text/javascript">
+
+	</script>
+}
+
+<div data-role="page" data-control-title="Forside" id="minSideForside">
+	<div data-role="content">
+		<div data-role="navbar" data-iconpos="left">
+			<ul>
+				<li>
+					<a href="/Default/MobileLoginPage/" data-transition="none" data-theme="" data-icon="back">FlytJord
+					</a>
+				</li>
+			</ul>
+		</div>
+		<h3>Min side
+		</h3>	
+
+		<p>Her kan du anmelde en simpel jordflytning som ikke kræver vedhæftet dokumentation.</p>
+		<p>Under "Mine anmeldelser" kan du bl.a. finde QR-koder til jordmodtageren. Desuden kan du se alle dine fremsendte anmeldelser samt dem i kladde.</p>
+
+		<ul data-role="listview" data-divider-theme="b" data-inset="true">
+			<li data-theme="c">
+				<a href="#minSide" data-transition="slide"> Mine anmeldelser
+				</a>
+			</li>
+			<li data-theme="c">
+				<a@* href="#anmeldelseOpret"*@ id="btnanmeldelseOpret" data-transition="slide">Opret anmeldelse
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div data-role="page" data-control-title="Anmeldelser" id="minSide">
+	<div data-role="content">
+		<div data-role="navbar" data-iconpos="left">
+			<ul>
+				<li>
+							<a href="#minSideForside" data-transition="none" data-theme="" data-icon="back">FlytJord</a>
+				</li>
+			</ul>
+		</div>
+		<h3>Find anmeldelse
+		</h3>
+		<div data-role="fieldcontain" data-controltype="selectmenu">
+			@*<label for="ddlAnmeldelserStatus">
+						Status
+				
+					</label>*@
+			@Html.DropDownList("ddlAnmeldelserStatus", new List<SelectListItem>() { new SelectListItem() { Text = "Aktive", Value = "aktive" }, new SelectListItem() { Text = "Afsluttede", Value = "afsluttede" }, new SelectListItem() { Text = "Fremsendte", Value = "fremsendte" }, new SelectListItem() { Text = "Kladder", Value = "kladder" } }, new { data_mini = "true", @onchange = "ddlAnmeldelserStatusOnChange()", id = "ddlAnmeldelserStatus" })
+
+		</div>
+		<div data-role="collapsible-set">
+			
+			<div id="mobileAnmeldelser">			
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Get, new { name = "redigerAnmeldelsefrm", id = "redigerAnmeldelsefrm" }))
+{ 
+	<div data-role="page" data-control-title="Anmeldelse rediger" id="anmeldelseRediger">
+		<div data-role="content">
+			<div data-role="navbar" data-iconpos="left">
+				<ul>
+					<li>
+						<a href="#minSide" data-transition="fade" data-theme="" data-icon="back">FlytJord
+						</a>
+					</li>
+				</ul>
+
+			</div>
+			<div id="partialMobileAnmeldelse">
+			</div>
+
+		</div>
+		@*<input type="button" value="Gem" id="btnGemMinSide" />*@
+					 @*<a data-role="button" href="#" id="btnGemMinSide" data-transition="slide">Gem </a>*@
+	</div>
+}
+
+
+<div data-role="page" data-control-title="Anmeldelse opret" id="anmeldelseOpretJordtjek">
+		<div data-role="content">
+			<div data-role="navbar" data-iconpos="left">
+				<ul>
+					<li>
+					<a href="#minSideForside" data-transition="none" data-theme="" data-icon="back">FlytJord</a>
+					</li>
+				</ul>
+			</div>
+			 @Html.Partial("../Mobile/_AdresseTjek")
+
+		</div>
+	</div>
+
+		<div data-role="page" data-control-title="Opret anmeldelse" id="anmeldelseOpretTjekJordSvar">
+			<div data-role="content">
+				<div data-role="navbar" data-iconpos="left">
+					<ul>
+						<li>
+							<a href="#anmeldelseOpretJordtjek" data-transition="none" data-theme="" data-icon="back">
+								FlytJord
+							</a>
+						</li>
+					</ul>
+				</div>
+				<h3>
+					Resultat
+				</h3>
+				<div id="anmeldelseOpretTjekJordSvarPartial">
+				</div>
+				<a id="btnOpretAnmeldelseTjekJordSvar" data-role="button" href="#">Videre </a>
+			</div>
+		</div>
+
+
+@using (Html.BeginForm(null, null, FormMethod.Get, new { name = "opretAnmeldelsefrm", id = "opretAnmeldelsefrm" }))
+{ 
+
+	<div data-role="page" data-control-title="Anmeldelse opret" id="anmeldelseOpret">
+		<div data-role="content">
+			<div data-role="navbar" data-iconpos="left">
+				<ul>
+					<li>
+						<a href="#anmeldelseOpretJordtjek" data-transition="fade" data-theme="" data-icon="back">FlytJord
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div id="partialMobileOpretAnmeldelse">
+			</div>
+			@*<a data-role="button" href="#" id="btnOpretAnmeldelse">Gem</a>*@
+		</div>
+	</div>
+
+}
+
+<div data-role="page" data-control-title="Kvittering" id="kvittering">
+	<div data-role="content">
+		<div data-role="navbar" data-iconpos="left">
+			<ul>
+				<li>
+						<a href="#minSide" data-transition="fade" data-theme="" data-icon="back">FlytJord
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div id="partialKvittering"></div>
+	</div>
+</div>
+
+<div data-role="page" data-control-title="Adgang" id="adgang">
+	<div data-role="content">
+		<div data-role="navbar" data-iconpos="left">
+			<ul>
+				<li>
+					<a href="#minSide" data-transition="none" data-theme="" data-icon="back">FlytJord
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div id="partialMobileAdgang">
+		</div>
+	</div>
+</div>
+
+
+<div data-role="page" data-control-title="Preview anmeldelse" id="previewAnmeldelse">
+	<div data-role="content">
+		<div data-role="navbar" data-iconpos="left">
+			<ul>
+				<li>
+
+							<a href="#minSide" data-transition="fade" data-theme="" data-icon="back">FlytJord
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div id="previewAnmeldelsePartial">
+		</div>
+
+	</div>
+</div>
+
+
+
+<div id="generic-dialog" data-role="dialog">
+    
+
+	<div data-role="header" data-theme="d">
+		<h1>Valideringsfejl!</h1>
+	</div>
+
+	<div data-role="content" data-theme="c" id="the-content">
+		
+	</div>
+	<a href="#" data-role="button" data-rel="back" data-theme="b">Tilbage til anmeldelse</a>
+
+</div>
+

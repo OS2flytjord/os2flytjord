@@ -1,0 +1,898 @@
+﻿@using System.Collections.ObjectModel
+@using System.Globalization
+@using System.Net.Configuration
+@using Niras.Jordflytning.Core.Models
+@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+
+
+@helper formatText(string[] parts)
+{
+    <text>
+        @Html.Raw(string.Join("<br />", parts))
+    </text>
+}
+
+@helper GetAnmelder()
+{
+    var parts = new[] { "", "", "" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Anmelder != null && Model.Anmeldelse.Anmelder.Person != null)
+    {
+        // Firma
+        if (Model.Anmeldelse.Anmelder.Person.Firmaoplysninger != null)
+        {
+            parts[0] = Model.Anmeldelse.Anmelder.Person.Firmaoplysninger.Firmanavn;
+            parts[1] = Model.Anmeldelse.Anmelder.Person.Navn + " " + Model.Anmeldelse.Anmelder.Person.Efternavn;
+        }
+        else // Privat
+        {
+            parts[0] = Model.Anmeldelse.Anmelder.Person.Navn + " " + Model.Anmeldelse.Anmelder.Person.Efternavn;
+            parts[1] = "";
+        }
+        if (Model.Anmeldelse.Anmelder.Person.Telefon != null)
+        {
+            parts[2] = Model.Anmeldelse.Anmelder.Person.Telefon.Value.ToString();
+        }
+    }
+    @formatText(parts);
+}
+
+@helper GetOprindelse()
+{
+    var parts = new[] { "", "", "", "", "" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Oprindelsessted != null)
+    {
+        if (Model.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType != null && Model.Anmeldelse.Kommune != null)
+        {
+            switch (Model.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType.Id.ToString().ToUpper())
+            {
+                case "BBB062F1-641A-45AD-BEDD-B0C126FCDFE6":
+                    {
+                        parts[0] = "Ejendom";
+                        parts[1] = Model.Anmeldelse.Oprindelsessted.Adresse + ", " + Model.Anmeldelse.Oprindelsessted.Postnummer + " " + Model.Anmeldelse.Oprindelsessted.PostDistrikt;
+                        break;
+                    }
+                case "295407E9-2182-4876-AE6F-50AFD00A6194":
+                    {
+                        parts[0] = "Offentlig vej";
+                        parts[1] = Model.Anmeldelse.Oprindelsessted.Adresse + ", " + Model.Anmeldelse.Oprindelsessted.Postnummer + " " + Model.Anmeldelse.Oprindelsessted.PostDistrikt;
+                        break;
+                    }
+                case "480738EC-4A9D-448E-9A18-5BA481A8A3C6":
+                    {
+                        parts[0] = "Anden oprindelse";
+                        parts[1] = Model.Anmeldelse.Oprindelsessted.Beskrivelse;
+                        break;
+                    }
+            }
+        }
+
+        if (Model.Anmeldelse.Oprindelsessted.Matrikel != null && Model.Anmeldelse.Oprindelsessted.Matrikel.Count > 0)
+        {
+            foreach (var m in Model.Anmeldelse.Oprindelsessted.Matrikel)
+            {
+                parts[2] += (parts[2] != "" ? "; " : "") + m.Matrikelnr + ", " + m.Ejerlavsnavn;
+            }
+        }
+        parts[3] = Model.Anmeldelse.Oprindelsessted.PostDistrikt;
+
+        if (Model.Anmeldelse.Oprindelsessted.AndenOprindJordTypeID != new Guid("295407E9-2182-4876-AE6F-50AFD00A6194")) // Alt andet end offentlig vej
+        {
+            if (Model.ForureningsKategoriTekster != null)
+            {
+                if (!Model.ForureningsKategoriTekster.Any())
+                {
+                    parts[4] = "(Der er ikke registreret oplysninger om jordforurening på arealet)";
+                }
+                else
+                {
+                    foreach (var text in Model.ForureningsKategoriTekster)
+                    {
+                        parts[4] += (!string.IsNullOrWhiteSpace(parts[4]) ? "<br>" : "") + text;
+                    }
+                }
+            }
+            else
+            {
+                parts[4] += "Fejl: Kunne ikke hente forureningsoplysninger!";
+            }
+        }
+    }
+    @formatText(parts);
+}
+
+@helper GetJordproever()
+{
+    var parts = new string[] { "" };
+    if (Model.Anmeldelse != null)
+    {
+        if (Model.Anmeldelse.Jord == null || Model.Anmeldelse.Jord.Jordproever.HasValue == false)
+        {
+            parts[0] = "Er ikke udtaget";
+        }
+        else
+        {
+
+            if (Model.Anmeldelse.Jord.Jordproever.Value)
+            {
+                parts[0] = "Er udtaget af " + Model.Anmeldelse.Jord.MiljoeTekniskTilsyn;
+
+                if (Model.Anmeldelse.Jord.JordproeverFoer.HasValue)
+                {
+                    if (Model.Anmeldelse.Jord.JordproeverFoer.Value)
+                    {
+                        parts[0] += " før opgravningen";
+                    }
+                    else
+                    {
+                        parts[0] += " efter opgravningen";
+                    }
+                }
+            }
+            else
+            {
+                parts[0] = "Er ikke udtaget";
+            }
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetForureningsKategori()
+{
+    var parts = new string[] { "" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.JordKlassifikationType != null)
+    {
+        parts[0] = Model.Anmeldelse.Jord.JordKlassifikationType.Navn;
+    }
+    @formatText(parts)
+}
+
+@helper GetJordDokumentation()
+{
+    var parts = new string[] { "", "", "" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null)
+    {
+        parts[0] = string.Format("<input type=\"checkbox\" onclick=\"return false;\" {0}>Intakt jord</checkbox>", Model.Anmeldelse.Jord.IntaktJord ? "checked=checked" : string.Empty);
+        parts[1] = string.Format("<input type=\"checkbox\" onclick=\"return false;\" {0}>Jordhåndteringsplan vedlagt</checkbox>", Model.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan ?? false ? "checked=checked" : string.Empty);
+        parts[2] = string.Format("<input type=\"checkbox\" onclick=\"return false;\" {0}>Anden dokumentation</checkbox>", Model.Anmeldelse.Jord.Dokumentation != null && Model.Anmeldelse.Jord.Dokumentation.Any() ? "checked=checked" : string.Empty);
+    }
+    @formatText(parts)
+}
+
+@helper GetAffald()
+{
+    var parts = new string[] { "" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.AffaldType != null)
+    {
+        parts[0] = "Jorden indeholder affald af typen <b>";
+        if (Model.Anmeldelse.Jord.AffaldType.Kode != 6 || (Model.Anmeldelse.Jord.AffaldType.Kode == 6 && string.IsNullOrWhiteSpace(Model.Anmeldelse.Jord.AndenAffaldType)))
+        {
+            parts[0] += Model.Anmeldelse.Jord.AffaldType.Navn.ToLower();
+        }
+        else
+        {
+            parts[0] += Model.Anmeldelse.Jord.AndenAffaldType;
+        }
+        parts[0] += "</b>";
+    }
+    else
+    {
+        parts[0] = "Jorden indeholder ikke affald";
+    }
+    @formatText(parts)
+}
+
+@helper GetJordflytningType()
+{
+    var parts = new List<string> { "" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.JordflytningType != null)
+    {
+        parts[0] = Model.Anmeldelse.Jord.JordflytningType.Navn;
+        if (Model.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan ?? false == true)
+        {
+            parts.Add("Jordhåndteringsplan er indsendt til kommunen");
+        }
+    }
+    @formatText(parts.ToArray())
+}
+
+
+@helper GetAntalProever()
+{
+    var parts = new string[] { "" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.AntalProever != null)
+    {
+        parts[0] = Model.Anmeldelse.Jord.AntalProever.Value.ToString();
+    }
+    else
+    {
+        parts[0] = "0";
+    }
+    @formatText(parts)
+}
+
+@helper GetJordMaengde()
+{
+    var parts = new string[] { "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse != null && Model.RevisionAnmeldelse.Jord != null && Model.RevisionAnmeldelse.Jord.ForventetJordmaengdeTon != null)
+        {
+            parts[0] = Model.RevisionAnmeldelse.Jord.ForventetJordmaengdeTon.Value.ToString() + " ton";
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.ForventetJordmaengdeTon != null)
+        {
+            parts[0] = Model.Anmeldelse.Jord.ForventetJordmaengdeTon.Value.ToString() + " ton";
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetKoerselsPeriode()
+{
+    var parts = new string[] { "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse != null && Model.RevisionAnmeldelse.Jord != null && Model.RevisionAnmeldelse.Jord.KoerselStart != null && Model.RevisionAnmeldelse.Jord.KoerselSlut != null)
+        {
+            parts[0] = Model.RevisionAnmeldelse.Jord.KoerselStart.Value.ToString("dd-MM-yyyy") + " til " + Model.RevisionAnmeldelse.Jord.KoerselSlut.Value.ToString("dd-MM-yyyy");
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.KoerselStart != null && Model.Anmeldelse.Jord.KoerselSlut != null)
+        {
+            parts[0] = Model.Anmeldelse.Jord.KoerselStart.Value.ToString("dd-MM-yyyy") + " til " + Model.Anmeldelse.Jord.KoerselSlut.Value.ToString("dd-MM-yyyy");
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetDokumenter()
+{
+    var parts = new List<string>();
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse != null && Model.RevisionAnmeldelse.Jord != null && Model.RevisionAnmeldelse.Jord.Dokumentation != null)
+        {
+            foreach (var dokument in Model.RevisionAnmeldelse.Jord.Dokumentation.GroupBy(x => x.Id).Select(x => x.First()))
+            {
+                parts.Add(dokument.Filnavn);
+            }
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.Dokumentation != null)
+        {
+            foreach (var dokument in Model.Anmeldelse.Jord.Dokumentation.GroupBy(x => x.Id).Select(x => x.First()))
+            {
+                parts.Add(dokument.Filnavn);
+            }
+        }
+    }
+    if (!parts.Any())
+    {
+        parts.Add("(Ingen dokumenter)");
+    }
+    @formatText(parts.ToArray())
+}
+
+@helper GetHistoriskeDokumenter()
+{
+    var parts = new List<string>();
+    if (Model.Anmeldelse != null && Model.HistoriskDokumentation != null)
+    {
+        foreach (var dokument in Model.HistoriskDokumentation.GroupBy(x => x.Id).Select(x => x.First()))
+        {
+            parts.Add(dokument.DisplayFilename);
+        }
+    }
+    if (!parts.Any())
+    {
+        parts.Add("(Ingen historiske oplysninger)");
+    }
+    @formatText(parts.ToArray())
+}
+
+@helper GetTransportoer()
+{
+    var parts = new string[] { "", "", "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse != null && Model.RevisionAnmeldelse.Transportoer != null && Model.RevisionAnmeldelse.Transportoer.Person != null && Model.RevisionAnmeldelse.Transportoer.Person.Firmaoplysninger != null)
+        {
+            parts[0] = Model.RevisionAnmeldelse.Transportoer.Person.Firmaoplysninger.Firmanavn;
+            parts[1] = Model.RevisionAnmeldelse.Transportoer.Person.Navn + " " + Model.Anmeldelse.Transportoer.Person.Efternavn;
+            parts[2] = Model.RevisionAnmeldelse.Transportoer.Person.Telefon.Value.ToString();
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse != null && Model.Anmeldelse.Transportoer != null && Model.Anmeldelse.Transportoer.Person != null && Model.Anmeldelse.Transportoer.Person.Firmaoplysninger != null)
+        {
+            parts[0] = Model.Anmeldelse.Transportoer.Person.Firmaoplysninger.Firmanavn;
+            parts[1] = Model.Anmeldelse.Transportoer.Person.Navn + " " + Model.Anmeldelse.Transportoer.Person.Efternavn;
+            parts[2] = Model.Anmeldelse.Transportoer.Person.Telefon.Value.ToString();
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetModtager()
+{
+    var parts = new string[] { "", "", "", "", "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse != null && Model.RevisionAnmeldelse.ModtagerAnlaeg != null && Model.RevisionAnmeldelse.ModtagerAnlaeg.Jordmodtager != null)
+        {
+            parts[0] = "<b>" + Model.RevisionAnmeldelse.ModtagerAnlaeg.Navn + "</b>";
+            parts[1] = Model.RevisionAnmeldelse.ModtagerAnlaeg.Jordmodtager.Telefon.ToString();
+            parts[2] = Model.RevisionAnmeldelse.ModtagerAnlaeg.KontaktpersonNavn;
+            parts[3] = Model.RevisionAnmeldelse.ModtagerAnlaeg.KontaktpersonTlf.ToString();
+            parts[4] = Model.RevisionAnmeldelse.ModtagerAnlaeg.KontaktpersonEmail;
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.Jordmodtager != null)
+        {
+            parts[0] = "<b>" + Model.Anmeldelse.ModtagerAnlaeg.Navn + "</b>";
+            parts[1] = Model.Anmeldelse.ModtagerAnlaeg.Jordmodtager.Telefon.ToString();
+            parts[2] = Model.Anmeldelse.ModtagerAnlaeg.KontaktpersonNavn;
+            parts[3] = Model.Anmeldelse.ModtagerAnlaeg.KontaktpersonTlf.ToString();
+            parts[4] = Model.Anmeldelse.ModtagerAnlaeg.KontaktpersonEmail;
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetJordarbejdeBeskrivelse()
+{
+    var parts = new string[] { "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.RevisionAnmeldelse.Jord.JordarbejdeBeskrivelse))
+        {
+            parts[0] = Model.RevisionAnmeldelse.Jord.JordarbejdeBeskrivelse.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.Anmeldelse.Jord.JordarbejdeBeskrivelse))
+        {
+            parts[0] = Model.Anmeldelse.Jord.JordarbejdeBeskrivelse.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetBemaerkningTilProjektet()
+{
+    var parts = new string[] { "" };
+    if (Model.Revision) 
+    {
+        if (Model.Anmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.Anmeldelse.Jord.Bemaerkning))
+        {
+            parts[0] = Model.Anmeldelse.Jord.Bemaerkning.Replace(Environment.NewLine, "<br />"); ;
+        }
+    }
+    else
+    {
+        if (Model.RevisionAnmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.RevisionAnmeldelse.Jord.Bemaerkning))
+        {
+            parts[0] = Model.RevisionAnmeldelse.Jord.Bemaerkning.Replace(Environment.NewLine, "<br />"); ;
+        }
+
+    }
+    @formatText(parts)
+}
+
+@helper GetBemaerkningTilKommunen()
+{
+    var parts = new string[] { "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.RevisionAnmeldelse.BemaerkningTilKommune))
+        {
+            parts[0] = Model.RevisionAnmeldelse.BemaerkningTilKommune.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.Anmeldelse.BemaerkningTilKommune))
+        {
+            parts[0] = Model.Anmeldelse.BemaerkningTilKommune.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetBemaerkningTilJordmodtager()
+{
+    var parts = new string[] { "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.RevisionAnmeldelse.BemaerkningTilJordmodtager))
+        {
+            parts[0] = Model.RevisionAnmeldelse.BemaerkningTilJordmodtager.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.Anmeldelse.BemaerkningTilJordmodtager))
+        {
+            parts[0] = Model.Anmeldelse.BemaerkningTilJordmodtager.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    @formatText(parts)
+}
+
+
+@helper GetSagsnummer()
+{
+    var parts = new string[] { "" };
+    if (Model.Revision)
+    {
+        if (Model.RevisionAnmeldelse != null && !string.IsNullOrWhiteSpace(Model.RevisionAnmeldelse.AnmelderSagsnummer))
+        {
+            parts[0] = Model.RevisionAnmeldelse.AnmelderSagsnummer.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    else
+    {
+        if (Model.Anmeldelse != null && !string.IsNullOrWhiteSpace(Model.Anmeldelse.AnmelderSagsnummer))
+        {
+            parts[0] = Model.Anmeldelse.AnmelderSagsnummer.Replace(Environment.NewLine, "<br />");
+        }
+    }
+    @formatText(parts)
+}
+
+@helper GetPoint()
+{
+    var parts = new string[] { "0.0", "0.0" };
+    if (Model.Anmeldelse != null && Model.Anmeldelse.Oprindelsessted != null && Model.Anmeldelse.Oprindelsessted.Geom != null)
+    {
+        parts[0] = (Model.Anmeldelse.Oprindelsessted.Geom.XCoordinate ?? 0.0).ToString(CultureInfo.InvariantCulture);
+        parts[1] = (Model.Anmeldelse.Oprindelsessted.Geom.YCoordinate ?? 0.0).ToString(CultureInfo.InvariantCulture);
+    }
+    @Html.Raw("{ x: " + parts[0] + ", y: " + parts[1] + " }")
+}
+
+<style>
+    .previewTable {
+        width: 100%;
+    }
+
+        .previewTable th,
+        .previewTable td {
+            vertical-align: top;
+            text-align: left;
+        }
+
+            .previewTable th h1,
+            .previewTable td h1 {
+                font-size: 150%;
+                color: #676767;
+                margin: 0 0 5px 0;
+            }
+
+            .previewTable th input[type=checkbox],
+            .previewTable td input[type=checkbox] {
+                height: 13px !important;
+                margin-left: 0px !important;
+            }
+</style>
+
+<div style="font-size: 200%">Resumé af anmeldelsen</div>
+<table class="previewTable">
+    <tr>
+        <td colspan="3"><hr /></td>
+    </tr>
+    <tr>
+        <td colspan="3"><h1>Ansøger / anmelder</h1></td>
+    </tr>
+    <tr>
+        <th>
+            Navn:<br />
+            Kontaktperson:<br />
+            Telefon:
+        </th>
+        <td colspan="2">
+            @GetAnmelder()
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3"><hr /></td>
+    </tr>
+    <tr>
+        <td colspan="3"><h1>Oprindelsessted</h1></td>
+    </tr>
+    <tr>
+        <th>
+            Type:<br />
+            Adresse:<br />
+            Matr. nr.:<br />
+            Kommune:<br />
+            Lokalitetens forureningsstatus:<br />
+        </th>
+        <td colspan="2">
+            @GetOprindelse()
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <div id="divReviewmapReviewSted" class="kiMap" style="width: 100%; height: 410px; margin-top: 10px;"></div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3"><hr /></td>
+    </tr>
+    <tr>
+        <td colspan="3"><h1>Oplysninger om projektet</h1></td>
+    </tr>
+
+    <tr>
+        <th>Forureningskategori:</th>
+        <th colspan="2">@GetForureningsKategori()</th>
+    </tr>
+    <tr>
+        <th>
+            Jordprøver:
+        </th>
+        <td colspan="2">
+            @GetJordproever()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Dokumentation:
+        </th>
+        <td colspan="2">
+            @GetJordDokumentation()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Affald:
+        </th>
+        <td colspan="2">
+            @GetAffald()
+        </td>
+    </tr>
+    <tr>
+        <th>Type:</th>
+        <td colspan="2">
+            @GetJordflytningType()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Jordmængde:
+        </th>
+        <th colspan="2">
+            @GetJordMaengde()
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Antal prøver:
+        </th>
+        <td colspan="2">
+            @GetAntalProever()
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Kørselsperiode:
+        </th>
+        <th colspan="2">
+            @GetKoerselsPeriode()
+        </th>
+    </tr>
+    <tr>
+        <th>
+            Beskrivelse af jordarbejdet:
+        </th>
+        <td colspan="2">
+            @GetJordarbejdeBeskrivelse()
+        </td>
+    </tr>
+    <tr>
+        <th>Vedhæftede dokumenter</th>
+        <td colspan="2">
+            @GetDokumenter()
+        </td>
+    </tr>
+    @*<tr>
+            <th>Historiske oplysninger</th>
+            <td colspan="2">
+                @GetHistoriskeDokumenter()
+            </td>
+        </tr>*@
+    <tr>
+        <td colspan="3"><hr /></td>
+    </tr>
+    <tr>
+        <td colspan="3"><h1>Transportør</h1></td>
+    </tr>
+    <tr>
+        <th>
+            Navn:<br />
+            Kontaktperson:<br />
+            Telefon:<br />
+        </th>
+        <td colspan="2">
+            @GetTransportoer()
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3"><hr /></td>
+    </tr>
+    <tr>
+        <td colspan="3"><h1>Modtager</h1></td>
+    </tr>
+    <tr>
+        <th>
+            Navn:<br />
+            Telefon:<br />
+            Kontaktperson:<br />
+            Telefon:<br />
+            Email:<br />
+        </th>
+        <td colspan="2">
+            @GetModtager()
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3"><hr /></td>
+    </tr>
+    <tr>
+        <td colspan="3"><h1>Kommunikation</h1></td>
+    </tr>
+    @if (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && !string.IsNullOrWhiteSpace(Model.Anmeldelse.Jord.Bemaerkning))
+    {
+        <tr>
+            <th>Bemærkning til projektet:</th>
+            <td colspan="2">@GetBemaerkningTilProjektet()</td>
+        </tr>
+    }
+    <tr>
+        <th>Bemærkning til kommunen:</th>
+        <td colspan="2">@GetBemaerkningTilKommunen()</td>
+    </tr>
+    <tr>
+        <th>Bemærkning til jordmodtager:</th>
+        <td colspan="2">@GetBemaerkningTilJordmodtager()</td>
+    </tr>
+    <tr>
+        <th>Sagsnummer:</th>
+        <th colspan="2">@GetSagsnummer()</th>
+    </tr>
+    <tr>
+        <td colspan="3"><hr /></td>
+    </tr>
+</table>
+<br />
+
+@Html.HiddenFor(m => m.OprindelsesstedWkt, new { Id = "mapWkt" })
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var mapReviewSted;
+        var gfxReviewLayer;
+        var gfxReviewGeometryHighlight;
+
+        setTimeout(function () {
+            mapReviewSted = new window.KortInfo.Instance('@(Model.KortSite)', '@(Model.KortPageSted)');
+            mapReviewSted.setUrlArg('ShowOverview', '0');
+            mapReviewSted.setUrlArg('westpanel', 'collapse');
+            mapReviewSted.setUrlArg('gfximpl', 'incubator');
+
+            mapReviewSted.setReadyListener(setTimeout(function () {
+                var wkt = '@Model.OprindelsesstedWkt';
+                if (wkt != '') {
+                    if (wkt.indexOf('POINT') == 0) {
+                        @{
+                            if (Model.Anmeldelse != null && Model.Anmeldelse.Oprindelsessted != null && Model.Anmeldelse.Oprindelsessted.Matrikel != null && Model.Anmeldelse.Oprindelsessted.Matrikel.Count > 0)
+                            {
+                                var gc = "";
+                                foreach (var m in Model.Anmeldelse.Oprindelsessted.Matrikel) {
+                                    gc += m.Geom.WellKnownValue.WellKnownText + ",";
+                                }
+                                gc = gc.Substring(0, gc.Length - 1);
+                                Model.MatrikelWkt = "GEOMETRYCOLLECTION(" + gc + ")";
+                            }
+                            else {
+                                Model.MatrikelWkt = "";
+                            }
+                        }
+                        if ('@Model.MatrikelWkt' != '') {
+                            wkt = '@Model.MatrikelWkt';
+                            mapReviewStedRedlineWkt(wkt, true);
+                        }
+                        var point = @GetPoint();
+                        mapReviewStedNavigateToBbox(point.x - 50, point.y - 50, point.x + 50, point.y + 50);
+                    }
+                    else if (wkt.indexOf("MULTILINESTRING") == 0) {
+                        var linestring = wkt.split("),");
+                        for (var i = 0; i < linestring.length; i++) {
+                            var points = linestring[i].replace("MULTILINESTRING ((", "").replace("(", "").replace("))", "").replace(")", "").trim();
+
+                            var wktEntry = "LINESTRING(" + points + ")";
+                            var center = getCenterFromWkt(wktEntry);
+                            mapReviewStedNavigateToBbox(center.x - 50, center.y - 50, center.x + 50, center.y + 50);
+                            mapReviewStedRedlineWkt(wktEntry, false);
+                        }
+                    }
+                    else // POLYGON probably
+                    {
+                        var center = getCenterFromWkt(wkt);
+                        mapReviewStedNavigateToBbox(center.x - 50, center.y - 50, center.x + 50, center.y + 50);
+                        mapReviewStedRedlineWkt(wkt, true);
+                    }
+                }
+            }, 3000));
+            mapReviewSted.initializeNested(document.getElementById('divReviewmapReviewSted'));
+
+        }, 500);
+
+        var getCentroid2 = function(arr) {
+            var twoTimesSignedArea = 0;
+            var cxTimes6SignedArea = 0;
+            var cyTimes6SignedArea = 0;
+
+            var length = arr.length;
+
+            var x = function(i) { return arr[i % length][0] };
+            var y = function(i) { return arr[i % length][1] };
+
+            for (var i = 0; i < arr.length; i++) {
+                var twoSA = x(i) * y(i + 1) - x(i + 1) * y(i);
+                twoTimesSignedArea += twoSA;
+                cxTimes6SignedArea += (x(i) + x(i + 1)) * twoSA;
+                cyTimes6SignedArea += (y(i) + y(i + 1)) * twoSA;
+            }
+            var sixSignedArea = 3 * twoTimesSignedArea;
+            return [cxTimes6SignedArea / sixSignedArea, cyTimes6SignedArea / sixSignedArea];
+        };
+
+        var getCenterFromWkt = function(wkt) {
+            var coordinateRaw = wkt.substring(wkt.indexOf('(') + 1).replace(/\(/g, '').replace(/\)/g, '');
+            var coordinateStrings = coordinateRaw.split(',');
+            var coordinates = [];
+            for (var i = 0; i < coordinateStrings.length; i++) {
+                var arr = coordinateStrings[i].trim().split(' ');
+                coordinates.push([parseFloat(arr[0]), parseFloat(arr[1])]);
+            };
+            var centroid = [0, 0];
+            if (wkt.indexOf('POLYGON') > -1)
+                centroid = getCentroid2(coordinates);
+            else if (wkt.indexOf('LINESTRING') > -1) {
+                var xmin = 0;
+                var ymin = 0;
+                var xmax = 0;
+                var ymax = 0;
+                for (var i = 0; i < coordinates.length; i++) {
+                    var x = coordinates[i][0];
+                    var y = coordinates[i][1];
+                    if (xmin === 0 || x < xmin)
+                        xmin = x;
+                    if (ymin === 0 || y < ymin)
+                        ymin = y;
+                    if (xmax === 0 || x > xmax)
+                        xmax = x;
+                    if (ymax === 0 || y > ymax)
+                        ymax = y;
+                }
+                if (xmin > 0 && xmax > 0)
+                    centroid[0] = xmin + (xmax - xmin) / 2;
+                if (ymin > 0 && ymax > 0)
+                    centroid[1] = ymin + (ymax - ymin) / 2;
+            }
+            return {
+                x: centroid[0],
+                y: centroid[1]
+            };
+        };
+
+        function mapReviewStedRedlineWkt(redliningWkt, clear) {
+            if (!mapReviewSted.isReady()) {
+                return;
+            }
+            if (redliningWkt != '') {
+                if (gfxReviewLayer == null) {
+                    gfxReviewLayer = mapReviewSted.Map.addGraphicsLayer();
+                }
+
+                gfxReviewLayer.beginManipulate();
+                if (clear)
+                    gfxReviewLayer.clear();
+
+                gfxReviewGeometryHighlight = null;
+                var color = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.55, 0.0, 1.0);
+                var interiorStyleColor = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.55, 0.0, 0.5);
+                var interiorStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidInteriorStyle(interiorStyleColor);
+                var lineStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidLineStyle(color, 2.0);
+                var radius = 5.0;
+                var pointSymbolStyle = new window.KortInfo.Map.GraphicsLayer.GfxCircleSymbolStyle(color, radius, color, 0);
+                var parser = new window.KortInfo.Ogc.Wkt.Parser(redliningWkt);
+                var geometry = parser.parse();
+                var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+                for (var j = 0; j < geometryArray.length; j++) {
+                    var g = geometryArray[j];
+                    if (g instanceof window.KortInfo.Geometry.Region2) {
+                        gfxReviewLayer.addPolygon(g, interiorStyle, lineStyle);
+                    }
+                    if (g instanceof window.KortInfo.Geometry.Polyline2) {
+                        gfxReviewLayer.addPolyline(g, lineStyle, null);
+                    }
+                    if (g instanceof window.KortInfo.Geometry.Vector2) {
+                        gfxReviewLayer.addSymbol(g, pointSymbolStyle);
+                    }
+                }
+                gfxReviewLayer.endManipulate();
+            }
+        }
+
+        function mapStedRedlineMatrikelWkt(redliningWkt) {
+            if (!mapSted.isReady()) {
+                return;
+            }
+
+            if (redliningWkt != '') {
+                if (gfxReviewLayer == null) {
+                    gfxReviewLayer = mapSted.Map.addGraphicsLayer();
+                }
+                gfxReviewLayer.beginManipulate();
+                gfxReviewLayer.clear();
+                gfxReviewGeometryHighlight = null;
+
+                var color = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 1.0);
+                var interiorStyleColor = new window.KortInfo.Map.GraphicsLayer.GfxColor(1.0, 0.27, 0.0, 0.2);
+                var interiorStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidInteriorStyle(interiorStyleColor);
+                var lineStyle = new window.KortInfo.Map.GraphicsLayer.GfxSolidLineStyle(color, 2.0);
+                var radius = 5.0;
+                var pointSymbolStyle = new window.KortInfo.Map.GraphicsLayer.GfxCircleSymbolStyle(color, radius, color, 0);
+                var parser = new window.KortInfo.Ogc.Wkt.Parser(redliningWkt);
+                var geometry = parser.parse();
+                var geometryArray = window.KortInfo.Geometry.Tools.getPrimitives(geometry);
+
+                for (var j = 0; j < geometryArray.length; j++) {
+                    var g = geometryArray[j];
+                    if (g instanceof window.KortInfo.Geometry.Region2) {
+                        gfxReviewLayer.addPolygon(g, interiorStyle, lineStyle);
+                    }
+                    if (g instanceof window.KortInfo.Geometry.Polyline2) {
+                        gfxReviewLayer.addPolyline(g, lineStyle, null);
+                    }
+                    if (g instanceof window.KortInfo.Geometry.Vector2) {
+                        gfxReviewLayer.addSymbol(g, pointSymbolStyle);
+                    }
+                }
+                gfxReviewLayer.endManipulate();
+            }
+        }
+
+        function mapReviewStedNavigateToBbox(lx, ly, ux, uy) {
+            mapReviewSted.Map.navigateToArea(new window.KortInfo.Geometry.Rectangle2(lx, ly, ux, uy), false);
+        }
+
+    });
+
+
+
+</script>
+
+@* Meget vigtigt at denne ikke ændres: *@
+#previewValideringSplitter#
+
+@Html.ValidationSummary(false)
+@Html.Partial("_Validering", Model)

@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Niras.Jordflytning.BatchJob", "Niras.Jordflytning.BatchJob\Niras.Jordflytning.BatchJob.csproj", "{6F52DF2C-C023-4489-AAD7-ACF17DB74431}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Niras.Jordflytning.Core", "..\Niras.Jordflytning.Core\Niras.Jordflytning.Core.csproj", "{BBAF3D72-F702-497D-BEC6-0E2125DB767F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Niras.Jordflytning.Infrastructure", "..\Niras.Jordflytning.Infrastructure\Niras.Jordflytning.Infrastructure.csproj", "{F4D2423F-9B3D-4495-BC62-D0C91650FB84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Niras.Jordflytning.Library", "..\Niras.Jordflytning.Library\Niras.Jordflytning.Library.csproj", "{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		AJE|Any CPU = AJE|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.AJE|Any CPU.ActiveCfg = Release|Any CPU
+		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.AJE|Any CPU.Build.0 = Release|Any CPU
+		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBAF3D72-F702-497D-BEC6-0E2125DB767F}.AJE|Any CPU.ActiveCfg = AJE|Any CPU
+		{BBAF3D72-F702-497D-BEC6-0E2125DB767F}.AJE|Any CPU.Build.0 = AJE|Any CPU
+		{BBAF3D72-F702-497D-BEC6-0E2125DB767F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBAF3D72-F702-497D-BEC6-0E2125DB767F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBAF3D72-F702-497D-BEC6-0E2125DB767F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBAF3D72-F702-497D-BEC6-0E2125DB767F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4D2423F-9B3D-4495-BC62-D0C91650FB84}.AJE|Any CPU.ActiveCfg = AJE|Any CPU
+		{F4D2423F-9B3D-4495-BC62-D0C91650FB84}.AJE|Any CPU.Build.0 = AJE|Any CPU
+		{F4D2423F-9B3D-4495-BC62-D0C91650FB84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4D2423F-9B3D-4495-BC62-D0C91650FB84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4D2423F-9B3D-4495-BC62-D0C91650FB84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4D2423F-9B3D-4495-BC62-D0C91650FB84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}.AJE|Any CPU.ActiveCfg = AJE|Any CPU
+		{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}.AJE|Any CPU.Build.0 = AJE|Any CPU
+		{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

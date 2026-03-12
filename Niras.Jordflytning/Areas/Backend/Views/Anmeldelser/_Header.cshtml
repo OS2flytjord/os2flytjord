@@ -1,0 +1,86 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+<script type="text/javascript">
+  function visPerson(personId, navn) {
+    var wdiv = $("#winModtagerAnlaegKort").kendoWindow({
+      iframe: true,
+      content: "/Bruger/VisPerson?personId=" + personId,
+      type: "GET",
+      height: 550,
+      width: 550
+      
+    });
+    wdiv.data("kendoWindow").title(navn);
+    wdiv.data("kendoWindow").center();
+    wdiv.data("kendoWindow").open();
+    
+  }
+
+</script>
+<div>
+    <table style="table-layout:fixed; border: 0; padding: 5px; width: 100%;  border-top: solid 1px #000; border-bottom: solid 1px #000; margin: 5px">
+        <tr  style="height: 20px">
+            <td class="AnmeldHeader" style="width: 16%; padding-left: 0px;">@Html.Label("Løbenummer: ", new { @class="headerLabelText", @style="width:70px"} )
+                @Html.DisplayFor(m => m.HeaderLoebenr)
+                @Html.HiddenFor(m => m.HeaderLoebenr)
+            </td>
+            <td class="AnmeldHeader" style="width: 34%">@Html.Label("Anmelder: ", new { @class="headerLabelText", @style="width:80px"})
+              <div onclick="visPerson('@Model.HeaderAnmelderPersonId','@Model.HeaderAnmelderNavn')" style="cursor: pointer">@Html.DisplayFor(m => m.HeaderAnmelderNavn)</div>
+                @Html.HiddenFor(m => m.HeaderAnmelderNavn)
+            </td>
+            <td class="AnmeldHeader" style="width: 25%">
+                @Html.Label("Betaler: ", new { @class="headerLabelText", @style="width:70px"})
+              <div onclick="visPerson('@Model.HeaderBetalerPersonId','@Model.HeaderBetalerNavn')" style="cursor: pointer">@Html.DisplayFor(m => m.HeaderBetalerNavn)</div>
+              @Html.HiddenFor(m => m.HeaderBetalerNavn)
+            </td>
+
+            <td class="AnmeldHeader" style="width: 35%">
+                @Html.Label("Oprettet: ", new { @class="headerLabelText", @style="width:70px"})
+                @Html.DisplayFor(m => m.HeaderIndsendt)
+                @Html.HiddenFor(m => m.HeaderIndsendt)
+            </td>
+        </tr>
+      <tr style="background-color: #FFFFFF; border: none; box-shadow: none;">
+        <td class="AnmeldHeader" style="padding-left: 0px;">
+          @Html.Label("Tilkørt jord: ", new { @class="headerLabelText", @style="width:70px"})
+          @Html.DisplayFor(m => m.HeaderTilkoertJord)
+          @Html.HiddenFor(m => m.HeaderTilkoertJord)
+        </td>
+
+        <td class="AnmeldHeader">
+          @Html.Label("Modtageanlæg: ", new { @class="headerLabelText", @style="width:80px"})
+          @Html.DisplayFor(m => m.HeaderModtagerAnlaegNavn)
+          @Html.HiddenFor(m => m.HeaderModtagerAnlaegNavn)
+        </td>
+
+        <td class="AnmeldHeader">
+          @Html.Label("Transportør: ", new { @class="headerLabelText", @style="width:70px"})
+          <div onclick="visPerson('@Model.HeaderTransportoerPersonId','@Model.HeaderTransportoerNavn')" style="cursor: pointer">@Html.DisplayFor(m => m.HeaderTransportoerNavn)</div>
+          @Html.HiddenFor(m => m.HeaderTransportoerNavn)
+        </td>
+
+        <td class="AnmeldHeader">
+          @Html.Label("Sagsbehandler: ", new { @class="headerLabelText", @style="width:70px"})
+          <div onclick="visPerson('@Model.HeaderSagsbehandlerPersonId','@Model.HeaderSagsbehandler')" style="cursor: pointer">@Html.DisplayFor(m => m.HeaderSagsbehandler)</div>
+          @Html.HiddenFor(m => m.HeaderSagsbehandler)
+        </td>
+      </tr>
+      @{
+        if (Model.AnmeldelseModel.Anmeldelse.RevisionAfAnmeldelse.HasValue)
+        {
+<text>
+  <tr>
+    <td class="AnmeldHeader" style="width: 15%; padding-left: 0px;">
+      @Html.Label("Revision af: ",new { @class="headerLabelText", @style="width:70px"})
+      <div onclick="openAnmeldelse('@Model.AnmeldelseModel.Anmeldelse.RevisionAfAnmeldelse.Value');" style="cursor: pointer">Åben</div>
+      
+    </td>
+    <td></td>
+    <td></td>
+      <td></td>
+  </tr>
+
+</text>
+        }
+      }
+    </table>
+</div>

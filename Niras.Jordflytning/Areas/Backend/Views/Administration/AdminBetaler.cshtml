@@ -1,0 +1,295 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.Areas.Backend.ViewModels
+@model AdminBetalerModel
+
+@{
+  ViewBag.Title = "Admin Betaler";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+    
+}
+@section Scripts{
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+
+      //Rights TODO
+      var winAdminBetalerAdvis = Jordflytning.ui.createModalWindow("winAdminBetalerAdvis", 300, 400, "Send besked til betaler", false);
+      var winAdvis = Jordflytning.ui.createModalWindow("winAdvis", 700, 900, "Advis", false);
+
+
+      $("#btnSendBeskedTilBetaler").click(function (e) {
+        e.preventDefault();
+
+        var _bid = $("#hflBetalerId").val();
+        var _jid = $("#hflJordmodtagerId").val();
+        var _besked = $("#txtBesked").val();
+        $.post("@Url.Action("AdviserBetaler", "Administration")", { besked: _besked, betalerId: _bid, jordmodtagerId: _jid }, function (result) {
+          if (result) {
+            //popAdvisGrid();
+            $("#txtBesked").val("");
+          }
+        });
+
+
+        winAdminBetalerAdvis.close();
+
+        //ReloadAdvisGrid
+        popAdvisGrid();
+
+      });
+
+      //function popAdvisGrid() {
+      //  alert('popAdvisGrid');
+      //  $("#grdAdvis").data("kendoGrid").dataSource.read();
+      //}
+
+
+      $("#btnAabenBeskedVindue").click(function (e) {
+        winAdminBetalerAdvis.center();
+        winAdminBetalerAdvis.open();
+        winAdminBetalerAdvis.visible;
+      }
+      );
+
+
+      //setTimeout('popAdvisGrid()', 2000);
+
+    });
+
+    function opslagstavleRequestEnd(e) {
+      if (e.type === "create") {
+        if (!e.response.Errors) {
+          e.sender.read();
+        } else {
+          alert("Opslagstavlen blev ikke oprettet");
+        }
+      }
+      if (e.type == "update") {
+        if (!e.response.Errors) {
+          e.sender.read();
+        } else {
+          alert("Opslagstavlen blev ikke opdateret");
+        }
+      }
+      if (e.type == "destroy") {
+        e.sender.read();
+      }
+    }
+
+    function opslagstavleGridError() {
+      var grid = $("#grdBogHolderOpslagstavle").data("kendoGrid");
+      // cancel changes
+      grid.cancelChanges();
+    }
+
+    function onFormSuccess(arg) {
+      if (arg.Message != '') {
+        //displayMessage(arg.Message);
+        alert(arg.Message);
+        
+
+      }
+      $("#grdBogHolderOpslagstavle").data("kendoGrid").dataSource.read();
+    }
+
+    function getBetalerJordmodtagerData() {
+      var bid = $("#hflBetalerId").val();
+      var jid = $("#hflJordmodtagerId").val();
+      return { betalerId: bid, jordmodtagerId: jid };
+    }
+
+    function openAdvis(id) {
+
+      //Genbrug af ReadAdvis metode
+      $.post("@Url.Action("ReadAdvis", "Anmeldelser")", { advisId: id }, function (result) {
+
+        if (result) {
+          var wdiv = $("#winAdvis");
+          wdiv.html(result);
+          wdiv.data("kendoWindow").center();
+          wdiv.data("kendoWindow").open();
+        }
+      });
+    }
+
+  </script>
+}
+
+@using (Ajax.BeginForm("GemBetaler", "Administration", new { area = "Backend" }, new AjaxOptions { HttpMethod = "POST", OnSuccess = "onFormSuccess" }, new { Id = "formAdminBetaler" }))
+{
+  <div class="row" style="margin-top: 5px">
+    <input type="button" value="Send besked" class="toolbarButton" id="btnAabenBeskedVindue" />
+
+  </div>
+
+    <div class="row">
+        <div class="column" style="margin-right: 10px; width: 38%">
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Betaler</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row_line">
+                        @Html.Label("Firma", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.Firmanavn, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("Navn", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.PersonNavn, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("Adresse", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.Adresse, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("Postnummer", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.Postnr, new { readOnly = "readonly", style = "width:35px;margin-right:5px;" }) 
+                        @Html.TextBoxFor(p => p.PostDistrikt, new { readOnly = "readonly", style = "width:215px" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("Telefon", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.Telefon, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("E-mail", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.Email, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        <label style = "width:95px;">CVR</label>
+                        @Html.TextBoxFor(p => p.Cvr, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("P nummer", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.Pnummer, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("EAN", new { style = "width:95px;"  })
+                        @Html.TextBoxFor(p => p.EAN, new { readOnly = "readonly" })
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+
+            <div class="controlsbox row" style="margin-top: 10px" id="divAdminBetaler">
+                <div class="cbheader">
+                    <h5>Administration af betaler</h5>
+                </div>
+                <div class="row_control">
+                    <div class=" row row_line">
+                        @Html.Label("Status betaler", new { style = "width:95px;"  })
+                        @Html.RadioButtonFor(m => m.StatusBetalerGodkendt, "true", new { id = "rbtStatusBetalerGodkendt" })
+                        @Html.Label("statusBetaler", "Godkendt", new { style = "width:70px;" })
+                        @Html.RadioButtonFor(m => m.StatusBetalerGodkendt, "false", new { id = "rbtStatusBetalerAfvist" })
+                        @Html.Label("statusBetaler", "Afvist", new { style = "width:70px;" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.Label("Kernekunde", new { style = "width:95px;"  })
+                        @Html.CheckBoxFor(m => m.Kernekunde, new { style = "height: 27px; padding-left: 0px; padding-top: 0px; padding-bottom: 0px;"})
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        <label>Intern bemærking</label>
+                        @Html.TextAreaFor(m => m.InternBemaerkning, new { style = "width:365px; height:50px;" })
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <input type="submit" value="Gem" class="toolbarButton" id="btnGem" />
+                </div>
+            </div>
+
+        </div>
+        <div class="column" style="margin-right: 10px; width: 58%">
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Opslagstavle</h5>
+                </div>
+                <div class="row_control">
+                    <div class=" row row_line">
+                        @(Html.Kendo().Grid<BogholderOpslagstavleModel>()
+                              .Name("grdBogHolderOpslagstavle")
+                              .Columns(columns =>
+                                  {
+                                      columns.Bound(p => p.Id).Hidden();
+                                      columns.Bound(p => p.Tid).Title("Dato").Format("{0:dd-MM-yyyy}");
+                                      columns.Bound(p => p.UdfoertAf).Title("Person");
+                                      columns.Bound(p => p.Tekst).Title("Tekst");
+                                      columns.Command(command =>
+                                          {
+                                              command.Edit().Text("Rediger").UpdateText("Gem").CancelText("Annuller");
+                                              command.Destroy().Text("Slet");
+                                          }).Width(180);
+                                  }
+                              )
+                              .ToolBar(toolbar => toolbar.Create().Text("Tilføj"))
+                              .Editable(editable => editable.Mode(GridEditMode.PopUp).Window(w => w.Title("Opslagstavle")).TemplateName("AdminBetalerBogholderOpslagstavlePopupEditor").DisplayDeleteConfirmation("Er du sikker på du vil slette denne note?"))
+                              .Selectable()
+                              .DataSource(dataSource => dataSource
+                                                            .Ajax()
+                                                            .ServerOperation(false)
+                                                            .Read(read => read.Action("ReadOpslagstavle", "Administration").Data("getBetalerJordmodtagerData"))
+                                                            .Model(model =>
+                                                                {
+                                                                    model.Id(p => p.Id);
+                                                                    //model.Field(p => p.Id).DefaultValue(new Guid());
+                                                                    model.Field(p => p.Tid).DefaultValue(DateTime.Now);
+                                                                })
+                                                            .Create(update => update.Action("CreateOpslagstavleItem", "Administration").Data("getBetalerJordmodtagerData"))
+                                                            .Update(update => update.Action("UpdateOpslagstavleItem", "Administration").Data("getBetalerJordmodtagerData"))
+                                                            .Destroy(update => update.Action("DeleteOpslagstavleItem", "Administration").Data("getBetalerJordmodtagerData"))
+                                                            .Events(events => events.RequestEnd("opslagstavleRequestEnd").Error("opslagstavleGridError"))
+                              )
+                              .HtmlAttributes(new { Id = "grdBogHolderOpslagstavle" })
+                              )
+                    </div>
+                </div>
+            </div>
+            <div class="controlsbox row" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Status hos øvrige jordmodtagerfirmaer</h5>
+                </div>
+                <div class="row_control">
+                    <div class=" row row_line">
+                        @(Html.Kendo().Grid(Model.StatusBetalerListe)
+                              .Name("grdStatusBetaler")
+                              .Columns(columns =>
+                                  {
+                                      columns.Bound(p => p.Id).Hidden();
+                                      columns.Bound(p => p.Dato).Title("Dato");
+                                      columns.Bound(p => p.Jordmodtager).Title("Jordmodtagerfirma");
+                                      columns.Bound(p => p.Godkend.Value).ClientTemplate("<input disabled='disabled' type='checkbox' #= Godkend.Value ? checked='checked' :'' # />").Title("Godkendt");
+                                  }
+                              )
+                              )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  @Html.HiddenFor(m => m.BetalerId, new { Id = "hflBetalerId" })
+  @Html.HiddenFor(m => m.JordmodtagerId, new { Id = "hflJordmodtagerId" })
+  @Html.HiddenFor(m => m.StatusBetalerId, new { Id = "hflStatusBetalerId" })
+}
+
+<div id="winAdminBetalerAdvis" style="display: none">
+
+  <div class="row">
+    @Html.Label("Besked")
+    @Html.TextArea("txtBesked", new { Id = "txtBesked" })
+  </div>
+  <div class="row">
+    <input type="button" value="Send" class="toolbarButton" id="btnSendBeskedTilBetaler" />
+  </div>
+</div>
+
+<div id="winAdvis" style="display: none;">
+</div>

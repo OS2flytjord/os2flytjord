@@ -1,0 +1,23 @@
+﻿div#contentTabs {
+	height: 100%;
+}
+
+div#contentTabstrip {
+	height: 100%;
+}
+
+span.closeTabIcon {
+	background-image: url(/content/icons/closetab_disabled.gif);
+	background-position: center right;
+	background-repeat: no-repeat;
+	padding-bottom: 3px;
+}
+
+span.closeTabIcon:hover {
+	background-image: url(/content/icons/closetab.gif);
+}
+
+
+/*div#contentTabstrip  div.k-content {
+	height: 100% !important;
+}*/

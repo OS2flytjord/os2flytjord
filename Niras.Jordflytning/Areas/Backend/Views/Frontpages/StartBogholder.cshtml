@@ -1,0 +1,160 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.StartBogholderViewModel
+
+@{
+  ViewBag.Title = "Kommune administration";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#GridKraeverHandlingList tbody tr").hover(
+                function () {
+                    $(this).toggleClass("k-state-hover");
+                }
+            );
+            $("#GridOpslag tbody tr").hover(
+                function () {
+                    $(this).toggleClass("k-state-hover");
+                }
+            );            
+        });
+
+        function GridKraeverHandlingListDataBound() {
+            $("#GridKraeverHandlingList tbody tr").hover(
+                function () {
+                    $(this).toggleClass("k-state-hover");
+                }
+            );
+        }    
+
+        function GridKraeverHandlingListOnChange() {
+            //$("#GridKraeverHandlingList tbody tr").hover(
+            //    function () {
+            //        $(this).toggleClass("k-state-hover");
+            //    }
+            //);
+            var grid = $("#GridKraeverHandlingList").data("kendoGrid");
+            var id;
+            var faneNavn;
+            grid.select().each(function () {
+                var dataItem = grid.dataItem($(this));
+                id = dataItem.BetalerId;
+                faneNavn = dataItem.BetalerNavn;
+                if (parent.addTab) {
+                    parent.addTab(faneNavn, "/Backend/Administration/AdminBetaler?betalerId=" + id);
+                }
+            });
+        }
+
+        function GridOpslagDataBound() {
+            $("#GridOpslag tbody tr").hover(
+                function () {
+                    $(this).toggleClass("k-state-hover");
+                }
+            );
+        }
+
+        function GridOpslagOnChange() {
+            //$("#GridOpslag tbody tr").hover(
+            //    function () {
+            //        $(this).toggleClass("k-state-hover");
+            //    }
+            //);
+            var grid = $("#GridOpslag").data("kendoGrid");
+            var id;
+            var faneNavn;
+            grid.select().each(function () {
+                var dataItem = grid.dataItem($(this));
+                id = dataItem.BetalerId;
+                faneNavn = dataItem.BetalerNavn;
+                if (parent.addTab) {
+                    parent.addTab(faneNavn, "/Backend/Administration/AdminBetaler?betalerId="+id);
+                }
+            });
+        }
+  
+    </script>
+}
+
+<div>
+    @*<div class="row"> 
+        <h4>Bogholder forside</h4>     
+    </div>*@
+
+    <div class="row"> 
+        <div class="controlsbox" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Betalere som kræver handling</h5>
+            </div>
+            <div class="row">
+                @(Html.Kendo().Grid(Model.KraeverHandlingList)
+                      .Name("GridKraeverHandlingList")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 20, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))   
+                      .Groupable()    
+                      .Sortable()
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.BetalerId).Hidden(true);
+                              columns.Bound(a => a.FirmaNavn).Title("Firma");
+                              columns.Bound(a => a.BetalerNavn).Title("Navn");
+                              columns.Bound(a => a.Dato).Title("Dato").Width(100);
+      
+                          })
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Model(model => model.Id(m => m.BetalerId))
+                                                          .ServerOperation(false)
+                                                          .PageSize(10))
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+                      .Events(events => events.Change("GridKraeverHandlingListOnChange")
+                                              .DataBound("GridKraeverHandlingListDataBound")))
+            </div>
+            <div style="clear: both"></div>
+        </div>     
+    </div>
+
+    <div class="row"> 
+        <div class="controlsbox" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Opslagstavle</h5>
+            </div>
+            <div class="row">
+                @(Html.Kendo().Grid(Model.OpslagstavleList)
+                      .Name("GridOpslag")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 20, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))   
+                      .Sortable()
+                      .Groupable()
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.NoteId).Hidden(true);
+                              columns.Bound(a => a.BetalerId).Hidden(true);
+                                
+                              columns.Bound(a => a.AendretAfId).Hidden(true);
+                              columns.Bound(a => a.BetalerNavn).Title("Betaler");
+                              columns.Bound(a => a.DatoAendret).Title("Sidst redigeret");
+                              columns.Bound(a => a.AendretAfNavn).Title("Redigeret af");
+                              columns.Bound(a => a.Besked).Title("Besked");
+  
+                          })
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Model(model => model.Id(m => m.NoteId))
+                                                          .ServerOperation(false)
+                                                          .PageSize(100))
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+                      .Events(events => events.Change("GridOpslagOnChange").DataBound("GridOpslagDataBound")))
+            </div>
+            <div style="clear: both"></div>
+        </div> 
+    </div>
+</div>
+
+
+
+
+

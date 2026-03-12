@@ -1,0 +1,125 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+
+<div>
+  <div id="resultatJord" class="controlsbox">
+    <div class="cbheader">
+      <h5>Resultat af opslag i eksterne systemer</h5>
+    </div>
+    <div class="row">
+      <div id="labelResultatJord"></div>
+    </div>
+    <div class="row" id="resultatJordProgress" style="display: none; padding-left: 150px;">
+      <img src="~/Content/Icons/loading.gif" width="20" alt="Loading" />
+    </div>
+    <div id="divResultat" style="Color: inherit; display: block; padding-left: 5px;">
+      <div class="row_control">
+        <div class="row">
+          <div id="divStedJordforureningopslagAdvarsel" style="display: none">@Model.AnmeldelseModel.ForureningOpslagFejlbesked</div>
+          @if (string.IsNullOrEmpty(Model.AnmeldelseModel.ForureningOpslagFejlbesked))
+          {
+
+            if (Model.AnmeldelseModel.ForureningOpslagKraeverAnmeldelse)
+            {
+            <text><b>Det ER nødvendig at lave en anmeldelse</b>.<br />
+            <br /></text>
+            }
+            else
+            {
+            <text>Ved opslag i eksterne systemer er der ingen oplysninger om jordforurening på ejendommen.
+            <br />
+            <b>Det er IKKE nødvendig at lave en anmeldelse.</b><br />
+            Jorden kan bortskaffes som ren jord.
+            <br /></text>
+            }
+            if (Model.AnmeldelseModel.ForureningOpslagResultatList != null && Model.AnmeldelseModel.ForureningOpslagResultatList.Count > 0)
+            {
+              foreach (var str in Model.AnmeldelseModel.ForureningOpslagResultatList)
+              {
+            @str <br />
+            <br />
+              }
+            }
+          }
+        </div>
+      </div>
+    </div>
+    <div style="clear: both"></div>
+  </div>
+
+  <div class="controlsbox row" id="hvadvildunu" style="margin-top: 10px; display: none;">
+    <div class="cbheader">
+      <h5>Hvad vil du nu?</h5>
+    </div>
+    <div style="Color: inherit; display: block; padding-left: 5px;">
+      <div class="row">
+        <input id="btnKvittering" style="display: block; float: left; margin-top: 0; border-right-width: 0" type="button" value="Udskriv forureningsstatus" title="Hvis du vil have udskrevet en kvittering." />
+        <input id="btnTilJorden" type="button" value="Anmelde flytning til kommunen" title="Det kræver, at du at er logget ind." style="display: none" />
+        <input id="btnTilModtager" type="button" value="Vælge et jordmodtageranlæg, der anvender JF" title="Det kræver, at du at er logget ind." style="display: none" />
+      </div>
+      <div>
+        <p>
+
+          @if (Model.AnmeldelseModel.OprindelsesKommuneAnvenderFlytJord)
+          {
+            <text>
+              <b>Bemærk:</b><br />
+              @*Ny tekst fra 31-10-2013*@
+              Jordflytning til jordmodtagere, der anvender FlytJord.dk, skal <b>ALTID</b> anmeldes/registreres i dette system. 
+              Det gælder også jordflytninger, som kommunen ikke skal godkende. 
+              En liste over disse modtager kan du se ved at klikke på ’Vælg jordmodtager..’ under fanen Modtager og transportør. 
+              Det kræver dog, at du er logget ind i systemet.
+        
+        
+              @* Jorden stammer fra en kommune, som anvender FlytJord.dk til anmeldelse af jordflytning. <br />
+            Jordflytning skal altid anmeldes i oprindelseskommunen og efterfølgende vedlægges (uploades i FlytJord.dk), hvis jorden skal levers til en jordmodtager der anvender FlytJord.dk. <br />
+            En liste over disse modtager kan du se fane 3! <br/><br/>
+            
+            Jordflytning til jordmodtagere, der anvender FlytJord.dk, skal <b>ALTID</b> anmeldes/registreres i dette system. Det gælder også jordflytninger kommunen ikke skal godkende. *@
+
+            </text>
+          }
+          else
+          {
+            <text>
+              <b>Bemærk:</b><br />
+              @*Ny tekst fra 31-10-2013*@
+              Ejendommen ligger i en kommune, som ikke anvender FlytJord.dk til anmeldelse af jordflytning. 
+              Jordflytning til jordmodtagere, der anvender FlytJord.dk, skal <b>ALTID</b> anmeldes/registreres i dette system. 
+              Det gælder også jordflytninger, som kommunen ikke skal godkende. En liste over disse modtager kan du se ved at klikke på ’Vælg jordmodtager..’ under fanen Modtager og transportør. 
+              Det kræver dog, at du er logget ind i systemet. 
+    
+              @*Jorden stammer fra en kommune, som ikke anvender FlytJord.dk til anmeldelse af jordflytning. <br />
+            Jordflytning skal altid anmeldes i oprindelseskommunen og efterfølgende vedlægges (uploades i FlytJord.dk), hvis jorden skal levers til en jordmodtager der anvender FlytJord.dk. <br />
+            En liste over disse modtager kan du se fane 3! <br/><br/>
+            
+            Jordflytning til jordmodtagere, der anvender FlytJord.dk, skal <b>ALTID</b> anmeldes/registreres i dette system. Det gælder også jordflytninger kommunen ikke skal godkende.*@
+
+            </text>
+          }
+
+        </p>
+      </div>
+      <div class="row">
+      @if (Model.AnmeldelseModel.ForureningOpslagOffentligvej)
+      {
+        <text>
+          <b>Offentlig vej:</b><br/>
+          Jord fra Offentlig vej kan som udgangspunkt bortskaffes som Kategori 2 jord (Let forurenet jord)
+        </text>
+      }
+    </div>
+      <div style="clear: both"></div>
+    </div>
+  </div>
+
+  @Html.HiddenFor(x => x.AnmeldelseModel.MatrikelWkt, new { id = "hflMatrikelWkt" })
+  @Html.HiddenFor(f => f.AnmeldelseModel.ForureningOpslagFejlbesked, new { id = "hflForureningOpslagFejlbesked" })
+    @Html.HiddenFor(f => f.AnmeldelseModel.ForureningOpslagJordklassifikationTypeId, new {id = "hflForureningOpslagJordklassifikationTypeId"}) <span>NMR</span>
+  @Html.HiddenFor(f => f.AnmeldelseModel.ForureningOpslagKraeverAnmeldelse, new { id = "hflForureningOpslagKraeverAnmeldelse" })
+  @Html.HiddenFor(f => f.AnmeldelseModel.ForureningOpslagOffentligvej, new { id = "hflForureningOpslagOffentligvej" })
+  
+  @*Den valgte forurenningskategori (radiobuttons)*@
+  @Html.HiddenFor(m => m.AnmeldelseModel.SelectedJordklassifikationType, new { Id = "hflJordKlassifikationType" })
+
+  <div style="clear: both"></div>
+</div>

@@ -1,0 +1,185 @@
+﻿@{
+  ViewBag.Title = "Adresse";
+  Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+
+<h1>Danmark web service JQuery Sample Code</h1>
+	<button>Adressesøgning</button>
+<div id="adresser"></div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("button").click(function(event) {
+            event.preventDefault();
+            var url = "http://oiorest.dk/danmark/adresser.json?postnr=2400&vejnavn=kilde&callback=?";
+            $.getJSON(url, function(adresser) {
+                $.each(adresser, function(i, adresse) {
+                    $("#adresser").append("<p>" + adresse.vej.navn + " " + adresse.husnr + ", " +
+                        adresse.postdistrikt.nr + " " + adresse.postdistrikt.navn + "</p>");
+                });
+            });
+        });
+    });
+    
+</script>
+
+<h2>Kento Veje Danmark</h2>
+<input id="vejDk"/>
+<h2>Kendo vs Geo.oiorest.dk </h2>
+<input id="vejnavnAutoComplete" />
+<input id="drpHusnummerComplete" />  
+<div id="divAdresse"></div>
+
+<script>
+    
+    function vejnavnChanged() {
+        if ($("#vejnavnAutoComplete").val().count() > 4) {
+            //Bind data
+            alert("5 tegn");
+        }
+    }
+
+    function getHusnummer(husnr) {
+
+        var values = [];
+    
+        $.each(husnr, function (i, hn) {
+            var adr = {
+                adgangsadresse : hn.id,
+                husnr: hn.husnr,
+                kommunenavn: hn.kommune.navn,
+                kommunekode: hn.kommune.kode,
+                ejerlavkode: hn.ejerlav.kode,
+                ejerlavnavn: hn.ejerlav.navn,
+                matrikelnr: hn.matrikelnr,
+                esrejendomsnr: hn.esrejendomsnr,
+                x: hn.etrs89koordinat.oest,
+                y: hn.etrs89koordinat.nord
+            };
+            values.push(adr);
+        });
+    
+        $("#drpHusnummerComplete").kendoDropDownList({
+            dataTextField: "husnr", // The widget is bound to the "name" field
+            dataValueField: "adgangsadresse",
+            dataSource: values,
+            optionLabel: "Husnr.",
+            select: function (e) {
+                var adr = this.dataItem(e.item.index());
+                $("#divAdresse").text("Kommune: " +
+                    adr.kommunenavn + "<br>Ejerlav: " +
+                    adr.ejerlavnavn + "<br>Matrikelnr: " +
+                    adr.matrikelnr + "<br>esrejendomsnr: " +
+                    adr.esrejendomsnr + "<br>X,Y: " +
+                    adr.x + " , " + adr.y);
+            }
+        });
+    }
+
+    function getveje(veje) {
+        var values = [];
+
+        $.each(veje, function (i, vej) {
+            var postdistikt;
+            var kommunenavn;
+
+            $.getJSON(vej.postnummer.href + "&callback=?", function (data) {
+                postdistikt = data[0].navn;
+                $.getJSON(vej.kommune.href + "&callback=?", function (d) {
+                    kommunenavn = d[0].navn;
+                });
+            });
+        
+            var adr = {
+                displayname: vej.navn + ", " + vej.postnummer.nr + " " + postdistikt + ", " + kommunenavn,
+                vejnavn: vej.navn,
+                vejkode: vej.kode,
+                postnr: vej.postnummer.nr,
+                postdistrikt: postdistikt,
+                kommunenavn: kommunenavn
+            };
+            values.push(adr);
+        });
+      
+        $("#vejnavnAutoComplete").kendoAutoComplete({
+            dataTextField: "displayname", // The widget is bound to the "name" field
+            dataValueField: "vejkode",
+            dataSource: values,
+            minLength: 4,
+            placeholder: "Vejnavn",
+            select: function (e) {
+                var vejkode = this.dataItem(e.item.index()).vejkode;
+                var postnr = this.dataItem(e.item.index()).postnr;
+                alert('vejkode:' + vejkode + " Postnr: " + postnr);
+                loadHusnumrene(vejkode,postnr);     
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('#vejDk').kendoAutoComplete({
+            minLength: 4,
+            filter: "contains",
+            dataValueField: "vej.navn",
+            dataSource: new kendo.data.DataSource({
+                transport: {
+                    read: getVejOnDemand
+                },
+                schema: {
+          
+                    /* object schema */
+                }
+            })
+        });
+    });
+
+    $(function () {   
+        var argumenter = {};
+        argumenter.kommunekode = 751;
+        $.ajax({
+            url: 'http://geo.oiorest.dk/vejnavne.json',
+            data: argumenter,
+            dataType: "jsonp",
+            error: fejlikommunikation,
+            jsonpCallback: 'getveje'
+        });     
+    });
+  
+    function getVejOnDemand(e) {
+        var text = $.trim(e.data.filter.filters[0].value);
+        //alert('getVej');
+        //alert(text);
+        if (text && text.length >= 5) {
+            var argumenter = {};
+            argumenter.kommunekode = 751;
+            argumenter.vejnavn = text;
+            $.ajax({
+                url: 'http://geo.oiorest.dk/vejnavne.json',
+                data: argumenter,
+                dataType: "jsonp",
+                error: fejlikommunikation,
+                jsonpCallback: e.success
+            });
+        }  
+    }
+
+    function loadHusnumrene(vejkode,postnr) {
+        var argumenter = {};
+        argumenter.vejkode = vejkode;
+        argumenter.postnr = postnr;
+        $.ajax({
+            url: 'http://geo.oiorest.dk/adresser.json',
+            data: argumenter,
+            dataType: "jsonp",
+            error: fejlikommunikation,
+            jsonpCallback: 'getHusnummer'
+        });
+    }
+
+    function fejlikommunikation(xhr, status, errorThrown) {
+        alert("Fejl i adresseopslaget: Status: " + status + ", ErrorThrown: " + errorThrown);
+    };
+
+</script>
+

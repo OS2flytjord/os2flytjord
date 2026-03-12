@@ -1,0 +1,79 @@
+﻿@{
+  ViewBag.Title = "Sagsbehandling";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@(Html.Kendo().Menu()
+      .Name("Menu")
+      .Items(items =>
+      {
+        items.Add().Text("Gem");
+        items.Add().Text("Annullér");
+        items.Add().Text("Vis blanket");
+        items.Add().Text("Afslut");
+        items.Add().Text("Send besked");
+      })
+    )
+
+<div class="row">
+  <h4>Vestre Havnepromenade 9, 9000 Aalborg</h4>
+  <div class="row">
+    <div class="column">
+      <label>Status</label><label>Under behandling</label>
+    </div>
+    <div class="column">
+      <label>Anmelder</label><label>Jens Jensen</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <label>Betaler</label><label>Jens Jensen</label>
+    </div>
+    <div class="column">
+      <label>Oprettet</label><label>14-12-2013 13:43</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <label>Tilkørt jord</label><label>146 tons (46%)</label>
+    </div>
+    <div class="column">
+      <label>Jordtip</label><label>Århus Østhavn</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <label>Transportør</label><label>Hansen Transport</label>
+    </div>
+    <div class="column">
+      <label>Sagsbehandler</label><label>Mads Andersen</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="column">
+      <label>Forureningstype</label><label>Olie</label>
+    </div>
+  </div>
+
+</div>
+<hr />
+<div class="row">
+
+  @(Html.Kendo().TabStrip()
+              .Name("contentTabstrip")
+              .Items(items =>
+                      {
+                        items.Add().Text("Anmeldelse");
+                        items.Add().Text("Sagsbehandling");
+                        items.Add().Text("Tilkørt jord");
+                        items.Add().Text("Kontrol");
+                        items.Add().Text("Historik og kommunikation");
+                        
+                      })
+                      )
+
+  )
+
+</div>
+
+

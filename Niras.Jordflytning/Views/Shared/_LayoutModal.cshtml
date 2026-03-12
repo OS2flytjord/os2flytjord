@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+
+        <title id="headerUrl">FlytJord.dk ® | @ViewBag.Title</title>
+
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <link href="@Url.Content("~/Content/Css/kendo/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/Css/kendo/kendo.uniform.min.css")" rel="stylesheet" type="text/css" />
+
+
+        @Styles.Render("~/bundles/Content/Css/Public")
+        @Styles.Render("~/bundles/Content/Css/jQueryUI")
+
+        @Scripts.Render("~/bundles/modernizr")
+        @Scripts.Render("~/bundles/eventLib")
+        @Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/jqueryval")
+        @Scripts.Render("~/bundles/kendo")
+        @Scripts.Render("~/bundles/noty")
+        @Scripts.Render("~/bundles/jordflytning")
+        @Scripts.Render("~/bundles/proj4s")
+
+        @RenderSection("Styles", false)
+        @RenderSection("Scripts", false)
+    </head>
+    <body class="modalBody">
+        <div id="container">
+            <div id="main">
+                <!-- Content -->
+                <div id="body" style="overflow: visible">
+                    <div id="content">
+                        <div id="detailedMessage" class="messageContainer">
+                            <div>
+                                <div id="detailedMessageContent" class="detailedMessage">
+                                </div>
+                            </div>
+                        </div>
+                        @RenderBody() @Html.Analytics()
+                        <div style="clear: both"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script id="style" type="text/javascript">
+            
+            $(document).ready(function () {
+                var detailedMsg = "@Html.Raw(ViewBag.DetailedMessage)";
+                if (detailedMsg != "") {
+                    displayDetailedMessage(detailedMsg);
+                }
+
+                var msg = "@ViewBag.Message";
+                if (msg != "") {
+                    displayMessage(msg);
+                }
+            });
+
+            function displayMessage(msg) {
+                var n = noty({ text: msg });
+                setTimeout(function () {
+                    n.close();
+                }, 5000);
+            }
+
+            function displayDetailedMessage(msg) {
+                $("#detailedMessageContent").html(msg);
+                $("#detailedMessage").show(600);
+            }
+
+        </script>
+  
+    
+    </body>
+</html>

@@ -1,0 +1,97 @@
+﻿
+@using Niras.Jordflytning.Areas.Backend.ViewModels
+
+@model Niras.Jordflytning.ViewModels.Anmeldelse.EksternVognlaesListeModel
+@{
+  ViewBag.Title = "Søg";
+  Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+@section BreadCrumb{
+- VOGNLÆS 
+}
+@section TopMenu {
+  <div class="toolbarButtons">
+    <input type="button" value="Exportér til Excel" onclick="ExportToExcel('GrdVognlaes', 'Search')" />
+  </div>
+    <div style="clear: both"></div>
+}
+<script type="text/javascript">
+    function additionalInfoVognlaes() {
+        return {
+            anmeldelseId: '@Model.AnmeldelseId'
+        };
+    }
+
+    //VOGNLAES
+
+    function vognlaesLastbilerSelect() {
+        $("#hfTransportoer").val($("#transportoere").val()).change();
+        $("#hfLastbil").val($("#lastbiler").val()).change();
+    }
+
+    function filterTransportoere() {
+        return {
+            transportoere: $("#transportoere").val()
+        };
+    }
+
+    function GrdVognlaesRequestEnd(e) {
+        if (e.type === "create" | e.type === "update") {
+            if (!e.response.Errors) {
+                //vognlæs griddet.
+                e.sender.read();
+            }
+        }
+    }
+
+   
+
+</script>
+
+<div class="row_line">
+    
+   @(Html.Kendo().Grid(Model.VognlaesListe.Cast<VognlaesModel>()).Name("GrdVognlaes")
+          .Columns(columns =>
+          {
+              columns.Bound(p => p.Id).Hidden();
+              columns.Bound(p => p.DatoBom).Title("Dato").Format("{0:dd-MM-yyyy H:mm}");
+              columns.Bound(p => p.Transportoer).Title("Transportør");
+              columns.Bound(a => a.JordmaengdeTon).Title(@"Jordmængde <br/>(t)")
+                  //.ClientGroupFooterTemplate("I alt: #=kendo.toString(sum, '0.00')# tons")
+                  .ClientFooterTemplate("I alt: #=kendo.toString(sum, '0.00')# tons");
+              columns.Bound(a => a.JordmaengdeAksler).Title("Jordmængde <br/>(Aksler)")
+                  //.ClientGroupFooterTemplate("I alt: #=kendo.toString(sum, '0.00')#")
+                  .ClientFooterTemplate("I alt: #=kendo.toString(sum, '0.00')#");
+          })
+          .Pageable()
+          .Sortable()
+          .Groupable()
+          .Scrollable(a => a.Enabled(false))
+          //.ToolBar(toolbar => { toolbar.Create().Text("Vognlæs"); })
+          .Editable(editable =>
+          {
+
+              editable.Mode(GridEditMode.PopUp).TemplateName("VognlaesCustomPopupEditor");
+              editable.Window(z => { z.Title("Opret vognlæs"); z.Width(500); });
+          })
+          .DataSource(dataSource => dataSource
+              .Ajax()
+              .Aggregates(aggregates =>
+              {
+                  aggregates.Add(p => p.JordmaengdeAksler).Sum();
+                  aggregates.Add(p => p.JordmaengdeTon).Sum();
+              })
+              .PageSize(10)
+              .ServerOperation(false)
+              .Events(e => e.RequestEnd("GrdVognlaesRequestEnd"))
+              .Model(model => { model.Id(p => p.Id); model.Field(p => p.Id).DefaultValue(new Guid()); })
+              .Create(create => create.Action("VognlaesCreate", "Anmeldelser", new { area = "Backend" }).Data("additionalInfoVognlaes"))
+              .Read(r => r.Action("VognlaesRead", "Anmeldelser", new { area = "Backend" }).Data("additionalInfoVognlaes"))
+              .Update(u => u.Action("VognlaesUpdate", "Anmeldelser", new { area = "Backend" }).Data("additionalInfoVognlaes")))
+      
+
+          )
+
+
+</div>
+<div style="clear: both"></div>

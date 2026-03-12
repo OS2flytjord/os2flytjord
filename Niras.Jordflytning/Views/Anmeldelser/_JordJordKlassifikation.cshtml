@@ -1,0 +1,140 @@
+﻿@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+<div class="row_line">
+    @if (Model.JordklassifikationTypeListe != null)
+    {
+        var styleWidth = Model.JordklassifikationTypeListe.Count() == 3 ? "width:130px !important" : "width:90px !important";
+        // KTW: Support for mange valgmuligheder, ved at placere maksimalt 3 per række:
+        if (Model.JordklassifikationTypeListe.Count() > 4)
+        {
+            styleWidth = "width:33%";
+        }
+
+        if (Model.Revision && Model.JordklassifikationTypeListe.Count() != 0)
+        {
+            var taeller = 0;
+            foreach (var c in Model.JordklassifikationTypeListe)
+            {
+                taeller = taeller + 1;
+                var jkId = "rblJordKlassifikationType" + taeller;
+
+
+                //var htmlAttributes = new Dictionary<string, object>();
+                //htmlAttributes.Add("Id", jkId);
+                //htmlAttributes.Add("class", "jordklassifikationRevisionTypeRadiolist");
+                //htmlAttributes.Add("data-tooltip", c.Tooltip);
+
+                var inputName = Model.GetPropertyName(m => m.Anmeldelse.Jord.JordKlassifikationType.Id);
+
+                <label for="@inputName" title="@c.Tooltip" class="jordklassifikationRevisionTypeLabels" style="@styleWidth">
+                    <input type="radio" name="@inputName" value="@c.Id" id="@jkId" class="jordklassifikationRevisionTypeRadiolist" data-tooltip="@c.Tooltip" />
+                    @c.Navn
+                </label>
+
+                @*@(
+                        Html.RadioButtonFor(m => m.Anmeldelse.Jord.JordKlassifikationType.Id, c.Id, htmlAttributes)
+                            .WithLabel(c.Navn, c.Tooltip, new { @class = "jordklassifikationRevisionTypeLabels", style = styleWidth })
+                    )*@
+            }
+
+            <div style="clear: both">
+                <p>
+                    Obs: For at kunne nedklassificere jorden, skal der vedlægges dokumentation
+                </p>
+            </div>
+        }
+
+        if (Model.JordklassifikationTypeListe.Count() != 0 && !Model.Revision)
+        {
+            var taeller = 0;
+            foreach (var c in Model.JordklassifikationTypeListe)
+            {
+                taeller = taeller + 1;
+                var jkId = "rblJordKlassifikationType" + taeller;
+
+
+                var htmlAttributes = new Dictionary<string, object>
+                    ();
+                htmlAttributes.Add("Id", jkId);
+                htmlAttributes.Add("class", "jordklassifikationTypeRadiolist");
+                htmlAttributes.Add("data-tooltip", c.Tooltip);
+
+                @(
+                    Html.RadioButtonFor(m => m.Anmeldelse.Jord.JordKlassifikationType.Id, c.Id, htmlAttributes)
+                        .WithLabel(c.Navn, c.Tooltip, new { @class = "jordklassifikationRevisionTypeLabels", style = styleWidth })
+                )
+            }
+
+            <div style="clear: both">
+                <p>
+                    Obs: For at kunne nedklassificere jorden, skal der vedlægges dokumentation
+                </p>
+            </div>
+        }
+        else if (!Model.Revision)
+        {
+            @:(Forureningskategorien hentes efter oprindelsesstedet er angivet)
+        }
+    }
+    else if (Model.SelectedJordklassifikationTypeNavn != null && ViewData["isRevisionView"] == null)
+    {
+        @Html.Label("Valgte forureningskategori", new { style = "width:178px;" }) @Html.Label(Model.SelectedJordklassifikationTypeNavn)
+    }
+    else if (Model.SelectedJordklassifikationTypeNavn == null)
+    {
+        @:(Forureningskategorien hentes efter oprindelsesstedet er angivet)
+    }
+
+    @if (ViewData["isRevisionView"] != null)
+    {
+        if (Model.Revision && Model.SelectedRevisionJordklassifikationTypeNavn != null)
+        {
+            @Html.Label("Valgte forureningskategori", new { style = "width:178px;" })
+            @Html.Label(Model.SelectedRevisionJordklassifikationTypeNavn)
+        }
+    }
+
+</div>
+@Html.HiddenFor(m => m.SelectedJordklassifikationTypeVedAndenOprindelse, new { id = "hflJordKlassifikationTypeVedAndenOprindelse" })
+
+<script type="text/javascript">
+    var jordklassifikationTypeRadiolistId = '.jordklassifikationTypeRadiolist';
+    var jordklassifikationTypeLabelsId = '.jordklassifikationTypeLabels';
+    if (@Model.Revision.ToString().ToLower()) {
+        jordklassifikationTypeRadiolistId = '.jordklassifikationRevisionTypeRadiolist';
+        jordklassifikationTypeLabelsId = '.jordklassifikationRevisionTypeLabels';
+    }
+
+    $(jordklassifikationTypeRadiolistId).change(function () {
+        $(jordklassifikationTypeRadiolistId).each(function () {
+            if ($(this).prop('checked') == true) {
+
+                //$("#hflForureningOpslagJordklassifikationTypeId").val($(this).val());//jordopslaget
+
+                //hflJordKlassifikationType anvendes ved ejendom og vej
+                if ($("#hflJordKlassifikationType") !== undefined) {
+                    $("#hflJordKlassifikationType").val($(this).val());
+                }
+
+                //hflJordKlassifikationTypeVedAndenOprindelse abvebdes ved andenopridelse
+                if ($("#hflJordKlassifikationTypeVedAndenOprindelse") !== undefined) {
+                    $("#hflJordKlassifikationTypeVedAndenOprindelse").val($(this).val());
+                }
+            }
+        });
+            
+        window.popModtagerAnlaeg();
+    });
+    
+    $(jordklassifikationTypeRadiolistId).each(function () {
+        $(this).kendoTooltip({
+            content: $(this).attr("data-tooltip"),
+            position: "top",
+        });
+    });
+    $(jordklassifikationTypeLabelsId).each(function() {
+        $(this).kendoTooltip({
+            content: $(this).attr("data-tooltip"),
+            position: "top",
+        });
+    });
+</script>

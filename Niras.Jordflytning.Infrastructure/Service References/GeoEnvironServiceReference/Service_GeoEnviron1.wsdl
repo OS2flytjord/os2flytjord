@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://tempuri.org/" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" name="Service_GeoEnviron" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://netforvaltning.aarhus.geoenviron.dk/Service_GeoEnviron.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://netforvaltning.aarhus.geoenviron.dk/Service_GeoEnviron.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://netforvaltning.aarhus.geoenviron.dk/Service_GeoEnviron.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/WsNetForvaltning" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IService_GeoEnviron_ConnectedTo_InputMessage">
+    <wsdl:part name="parameters" element="tns:ConnectedTo" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_ConnectedTo_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ConnectedToResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_ConnectedToUsingDataContract_InputMessage">
+    <wsdl:part name="parameters" element="tns:ConnectedToUsingDataContract" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_ConnectedToUsingDataContract_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ConnectedToUsingDataContractResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForEjendom_InputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForEjendom" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForEjendom_OutputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForEjendomResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForEjendomUsingDataContract_InputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForEjendomUsingDataContract" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForEjendomUsingDataContract_OutputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForEjendomUsingDataContractResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForMatrikel_InputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForMatrikel" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForMatrikel_OutputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForMatrikelResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForMatrikelUsingDataContract_InputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForMatrikelUsingDataContract" />
+  </wsdl:message>
+  <wsdl:message name="IService_GeoEnviron_HentOplysningerForMatrikelUsingDataContract_OutputMessage">
+    <wsdl:part name="parameters" element="tns:HentOplysningerForMatrikelUsingDataContractResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IService_GeoEnviron">
+    <wsdl:operation name="ConnectedTo">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService_GeoEnviron/ConnectedTo" message="tns:IService_GeoEnviron_ConnectedTo_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService_GeoEnviron/ConnectedToResponse" message="tns:IService_GeoEnviron_ConnectedTo_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ConnectedToUsingDataContract">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService_GeoEnviron/ConnectedToUsingDataContract" message="tns:IService_GeoEnviron_ConnectedToUsingDataContract_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService_GeoEnviron/ConnectedToUsingDataContractResponse" message="tns:IService_GeoEnviron_ConnectedToUsingDataContract_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForEjendom">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForEjendom" message="tns:IService_GeoEnviron_HentOplysningerForEjendom_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForEjendomResponse" message="tns:IService_GeoEnviron_HentOplysningerForEjendom_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForEjendomUsingDataContract">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForEjendomUsingDataContract" message="tns:IService_GeoEnviron_HentOplysningerForEjendomUsingDataContract_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForEjendomUsingDataContractResponse" message="tns:IService_GeoEnviron_HentOplysningerForEjendomUsingDataContract_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForMatrikel">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForMatrikel" message="tns:IService_GeoEnviron_HentOplysningerForMatrikel_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForMatrikelResponse" message="tns:IService_GeoEnviron_HentOplysningerForMatrikel_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForMatrikelUsingDataContract">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForMatrikelUsingDataContract" message="tns:IService_GeoEnviron_HentOplysningerForMatrikelUsingDataContract_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService_GeoEnviron/HentOplysningerForMatrikelUsingDataContractResponse" message="tns:IService_GeoEnviron_HentOplysningerForMatrikelUsingDataContract_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IService_GeoEnviron" type="tns:IService_GeoEnviron">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ConnectedTo">
+      <soap:operation soapAction="http://tempuri.org/IService_GeoEnviron/ConnectedTo" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConnectedToUsingDataContract">
+      <soap:operation soapAction="http://tempuri.org/IService_GeoEnviron/ConnectedToUsingDataContract" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForEjendom">
+      <soap:operation soapAction="http://tempuri.org/IService_GeoEnviron/HentOplysningerForEjendom" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForEjendomUsingDataContract">
+      <soap:operation soapAction="http://tempuri.org/IService_GeoEnviron/HentOplysningerForEjendomUsingDataContract" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForMatrikel">
+      <soap:operation soapAction="http://tempuri.org/IService_GeoEnviron/HentOplysningerForMatrikel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HentOplysningerForMatrikelUsingDataContract">
+      <soap:operation soapAction="http://tempuri.org/IService_GeoEnviron/HentOplysningerForMatrikelUsingDataContract" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service_GeoEnviron">
+    <wsdl:port name="BasicHttpBinding_IService_GeoEnviron" binding="tns:BasicHttpBinding_IService_GeoEnviron">
+      <soap:address location="http://netforvaltning.aarhus.geoenviron.dk/Service_GeoEnviron.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

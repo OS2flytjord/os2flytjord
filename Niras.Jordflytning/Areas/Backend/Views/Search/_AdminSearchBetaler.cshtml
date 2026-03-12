@@ -1,0 +1,74 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+
+<script type="text/javascript">
+
+
+</script>
+<div>
+    <div class="controlsbox" style="margin-top: 10px;height: auto ">
+        <div class="cbheader">
+            <h5>Søgeparametre</h5>
+        </div>
+        <div class="row" style="margin: 10px; width: 90%">
+            <div class="row">
+                <div class="column">
+                    <div class="row_line">
+                        <label>Firma</label>
+                        @Html.TextBoxFor(m => m.BetalerFirma, new { Id = "BetalerFirmaId", style = "width: 187px;" })
+                    </div>
+                    <div class="row_line">
+                        <label>Navn</label>
+                        @Html.TextBoxFor(m => m.BetalerNavn, new { Id = "BetalerNavnId", style = "width: 187px;" })
+                    </div>
+                    <div class="row_line">                    
+                        <label>Status</label>
+                        @(Html.Kendo().DropDownListFor(x => x.BetalerStatus)
+                              .Name("BetalerStatusId")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .HtmlAttributes(new {style = "width: 190px;"})
+                              .BindTo(new List<SelectListItem> {
+                                  new SelectListItem {Text = @"Vælg status... ", Value = "0" },
+                                  new SelectListItem {Text = @"Godkendt", Value = "1" },
+                                  new SelectListItem {Text = @"Afvist", Value = "2"},
+                                  new SelectListItem {Text = @"Anmoder om godkendelse", Value = "3"}
+                              })
+                              )
+                    </div>
+                    <div class="row_line">
+                        <label>Kernekunde</label>
+                                     
+                        @(Html.Kendo().DropDownListFor(x => x.BetalerKerneKunde)
+                              .Name("BetalerKerneKundeId")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .HtmlAttributes(new {style = "width: 190px;"})
+                              .BindTo(new List<SelectListItem> {
+                                  new SelectListItem {Text = @"Vælg værdi...", Value = "0" },
+                                  new SelectListItem {Text = @"Ja", Value = "1" },
+                                  new SelectListItem {Text = @"Nej", Value = "2"},
+                                  new SelectListItem {Text = @"Ikke registreret", Value = "3"}
+                              })
+                              )
+
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="row_line">
+                    </div>
+                    <div class="row_line">
+                    </div>
+                    <div class="row_line">
+                    </div>
+                </div>
+            </div>
+            <div class="row_line">&nbsp;</div>
+            <div class="row_line">
+                <input id="btnSoeg" name="btnSoegBetaler" onclick="onSoegBetaler()" type="submit" value="Søg" class="toolbarButton" />
+            </div>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+</div>
+

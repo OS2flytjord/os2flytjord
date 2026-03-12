@@ -1,0 +1,216 @@
+﻿@{
+    string style = "100%;";
+    if (ViewData["Style"] != null)
+    {
+        style = (string)ViewData["Style"];
+    }
+}
+
+<table>
+    <tr>
+        <td>
+            <input id="dawaAutoComplete" class="adrClassiclook_kendo_workaround" style="@style background-color: #FFFFFF;" />
+        </td>
+    </tr>
+</table>
+
+<script>
+    function dataSource_error() {
+        alert("Adresseservicen svarer desværre ikke!  \n\nPrøve evt. igen senere.");
+    }
+
+    $(function () {
+
+        var isadgangsadresse = false;
+
+        var dawaDatasourceVejnavn = new kendo.data.DataSource({
+            serverFiltering: true,
+            serverPaging: true,
+            pageSize: 2,
+            transport: {
+                read: '/Adresse/DawaAutocomplete',
+                dataType: "jsonp",
+                parameterMap: function (data) {
+                    var input = $("#dawaAutoComplete").val();
+
+                    var params = null;
+                    
+                    if (isadgangsadresse)
+                        {
+                        params =  { q: input, type: 'adgangsadresse', caretpos: input.length, adgangsadresserOnly: true, startfra: 'adgangsadresse' };
+                    } else {
+                        params =  { q: input, type: 'adgangsadresse', caretpos: input.length, adgangsadresserOnly: true };
+                    }
+
+                    return params;
+                }
+            },
+           
+
+        });
+        dawaDatasourceVejnavn.bind("error", dataSource_error);
+
+        $("#dawaAutoComplete").kendoAutoComplete({
+            dataTextField: "tekst", // The widget is bound to the "name" field
+            dataValueField: "data",
+            minLength: 4,//3
+            placeholder: "Vejnavn (indtast mindst 4 karakterer)",
+            filter: "contains",
+            lastcaretposition: 0,
+            select: function (e) {
+                var data = this.dataItem(e.item.index()).data;
+                
+
+                if ( data.husnr == null || data.postnr ==null || data.vejnavn == null) {
+                    isadgangsadresse = true;
+                    this.search();
+                }
+                else {
+
+                    $.ajax({
+                        type: "GET",
+                        url: data.href,
+                        dataType: "jsonp",
+                        data: {
+                            format: 'geojson'
+                        },
+                        success: function (d) {
+                            var dest = new Proj4js.Proj("EPSG:25832");
+                            var source = new Proj4js.Proj("EPSG:4326");
+
+                            var centerPoint = new Proj4js.Point(d.geometry.coordinates[0], d.geometry.coordinates[1]);
+                            Proj4js.transform(source, dest, centerPoint);
+                            var adresse = { x: centerPoint.x, y: centerPoint.y, husnr: d.properties.husnr, vejnavn: d.properties.vejnavn, kommunekode: d.properties.kommunekode, kommunenavn: d.properties.kommunenavn, postdistrikt: d.properties.postnrnavn, postnummer: d.properties.postnr, ejerlavkode: d.properties.ejerlavkode, ejerlavnavn: d.properties.ejerlavnavn, matrikelnr: d.properties.matrikelnr, esrejendomsnr: d.properties.esrejendomsnr };
+                            adresseFundet(adresse);
+                        },
+                        error: function (textStatus) {
+                            alert("Fejl: " + textStatus);
+                        }
+
+                        
+                    });
+
+                    isadgangsadresse = false;
+                }
+            },
+            dataSource: dawaDatasourceVejnavn
+        });
+    });
+
+    function fejlikommunikation(xhr, status, errorThrown) {
+        alert("Fejl i adresseopslaget. Status: " + status + ", errorThrown: " + errorThrown);
+    };
+
+</script>
+
+
+
+<script>
+
+    function getHusnummer(husnr) {
+        //json objektet laves om til et array af adresser
+        var values = [];
+        $.each(husnr, function (i, hn) {
+            var adr = {
+                adgangsadresse: hn.id,
+                vejnavn: hn.adgangsadresse.vejstykke.navn,
+                husnr: hn.adgangsadresse.husnr,
+                kommunenavn: hn.adgangsadresse.kommune.navn,
+                kommunekode: hn.adgangsadresse.kommune.kode,
+                ejerlavkode: (hn.adgangsadresse.ejerlav == null ? 0 : hn.adgangsadresse.ejerlav.kode),
+                ejerlavnavn: (hn.adgangsadresse.ejerlav == null ? '' : hn.adgangsadresse.ejerlav.navn),
+                matrikelnr: hn.matrikelnr,
+                esrejendomsnr: hn.esrejendomsnr,
+                x: hn.adgangsadresse.adgangspunkt.koordinater[0],
+                y: hn.adgangsadresse.adgangspunkt.koordinater[1],
+                postdistrikt: hn.adgangsadresse.postnummer.navn,
+                postnummer: hn.adgangsadresse.postnummer.nr,
+                wkt: "POINT(" + hn.adgangsadresse.adgangspunkt.koordinater[0] + " " + hn.adgangsadresse.adgangspunkt.koordinater[1] + ")"
+            };
+            values.push(adr);
+        });
+
+        //sortere først efter tal og så derefter husnummer+bogstav.
+        values.sort(function (a, b) {
+            return a.husnr.replace(/[^-.0-9]/g, '') - b.husnr.replace(/[^-.0-9]/g, '') || a.husnr.localeCompare(b.husnr);
+        });
+
+        ///Adresser arrayet bindes til webkontrollen
+        $("#drpHusnummerComplete").kendoDropDownList({
+            dataTextField: "husnr", // The widget is bound to the "name" field
+            dataValueField: "adgangsadresse",
+            dataSource: values,
+            //optionLabel: "Husnr.",
+            index: 1,
+            select: function (e) {
+                ///Binder resultatet af adresseopslaget til viewmodellen.
+                var adr = this.dataItem(e.item.index());
+                adresseFundet(adr);
+            }
+        });
+        var dropdownlist = $("#drpHusnummerComplete").data("kendoDropDownList");
+        dropdownlist.focus();
+        dropdownlist.open();
+    }
+
+    function dataSource_error() {
+        alert("Adresseservicen svarer desværre ikke!  \n\nPrøve evt. igen senere.");
+    }
+
+    $(function () {
+
+
+
+        $("#drpHusnummerComplete").kendoAutoComplete(
+            {
+                placeholder: "Husnr."
+            }
+        );
+
+        var vejnavnDatasource = new kendo.data.DataSource({
+            serverFiltering: true,
+            serverPaging: true,
+            pageSize: 2,
+            transport: {
+                read: "/Adresse/SearchVeje",
+                parameterMap: function (data) {
+                    return { wildcard: $("#vejnavnAutoComplete").val() };
+                }
+            }
+        });
+        vejnavnDatasource.bind("error", dataSource_error);
+
+        $("#vejnavnAutoComplete").kendoAutoComplete({
+            dataTextField: "displayname", // The widget is bound to the "name" field
+            dataValueField: "vejkode",
+            minLength: 4,//3
+            placeholder: "Vejnavn (indtast mindst 4 karakterer)",
+            filter: "contains",
+            select: function (e) {
+                var vejkode = this.dataItem(e.item.index()).vejkode;
+                var postnr = this.dataItem(e.item.index()).postnr;
+                loadHusnumrene(vejkode, postnr);
+            },
+            dataSource: vejnavnDatasource
+        });
+    });
+
+    function loadHusnumrene(vejkode, postnr) {
+        var argumenter = {};
+        argumenter.vejkode = vejkode;
+        argumenter.postnr = postnr;
+        argumenter.srid = 25832;
+        $.ajax({
+            url: 'https://dawa.aws.dk/adresser',
+            data: argumenter,
+            dataType: "jsonp",
+            error: fejlikommunikation,
+            jsonpCallback: 'getHusnummer'
+        });
+    }
+
+    function fejlikommunikation(xhr, status, errorThrown) {
+        alert("Fejl i adresseopslaget. Status: " + status + ", errorThrown: " + errorThrown);
+    };
+
+</script>

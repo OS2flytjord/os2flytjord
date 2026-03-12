@@ -1,0 +1,125 @@
+﻿@model  Niras.Jordflytning.Core.Models.Lastbil
+@{
+   
+    Layout = null;
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  @Scripts.Render("~/bundles/jquery")
+  @Scripts.Render("~/bundles/QR")
+  @Styles.Render("~/bundles/Content/Css/Public")
+
+  <script type="text/javascript">
+      
+
+      $(document).ready(function () {
+                //Prefix med 2 så bomsystemet kan se at det er et lastbil id og left pad med nuller op til 10 tegn
+                var bkvid = "2" + $("#hfLastbilId").val();
+                var pad = "0000000000";
+ 
+	       		$('#qrcodeholderlastbil').qrcode({
+	       		    text: (pad + bkvid).slice(-pad.length),
+	       			render: "image",  // 'canvas' or 'table'. Default value is 'canvas'
+	       			background: "#ffffff",
+	       			foreground: "#000000",
+	       			width: 100,
+	       			height: 100
+	       		});
+
+
+      window.print();
+    });
+
+  </script>
+  <style media="print,screen">
+
+    #divKort
+    {
+      border: 1px solid black;
+      width: 83mm;
+      height: 52mm;
+      border-radius: 15px;
+      margin: 5mm;
+      padding: 1mm;
+      position: absolute;
+      z-index: 100;
+    }
+
+    #divLastil {
+
+      position: absolute;
+      left: 10px;
+      top: 15px;
+      z-index: 1;
+    }
+
+    body {
+      color: #000000;
+    }
+  </style>
+
+  <title>Udskriv køretøjs ID kort</title>
+</head>
+<body style="max-width: 40em; max-height: 20em; background: white;">
+  @Html.HiddenFor(m=>m.Nummer,new{id="hfLastbilId"})
+  <div id="divLastil">
+    <img src="~/Content/images/Lastbil_flytjord_20.png" />
+  </div>
+  <div id="divKort" >
+    
+
+    <table>
+      <tr>
+        <td colspan="2">
+          <h2 style="color: black">FlytJord.dk</h2>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 60mm">
+          <table>
+            <tr><td>
+                   @Html.DisplayFor(m=>m.Transportoer.Person.Firmaoplysninger.Firmanavn)
+                </td></tr>
+            <tr><td>
+                  @Html.DisplayFor(m=>m.Transportoer.Person.Firmaoplysninger.Adresse)
+                </td></tr>
+            <tr><td>
+                  @Html.DisplayFor(m=>m.Transportoer.Person.Firmaoplysninger.Postnummer) @Html.DisplayFor(m=>m.Transportoer.Person.Firmaoplysninger.Postdistikt)
+                </td></tr>
+            <tr><td>
+                  @Html.DisplayTextFor(m=>m.Nummerplade)
+                </td></tr>
+            <tr><td>
+                  @Html.DisplayTextFor(m=>m.MiljoeklasseType.Navn)
+                </td></tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+          </table>
+          
+        </td>
+        <td>
+          <table>
+            <tr>
+              <td>
+                <div id="qrcodeholderlastbil"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>Id: @Html.DisplayTextFor(m => m.Nummer).ToString().Insert(0, "2")</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+</body>
+
+</html>
+
+

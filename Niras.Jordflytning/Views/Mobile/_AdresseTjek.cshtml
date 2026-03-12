@@ -1,0 +1,35 @@
+﻿@{
+    Layout = null;
+}
+@Html.Hidden("hflOprindelsesstedWktMobile")
+<div data-role="fieldcontain" data-controltype="searchinput">
+    <label for="txtAdresseSoeg">
+        Adresse
+    </label>
+
+    <p>
+        <input type="text" id="adresseSearchField" placeholder="Adresse">
+        <ul id="adresseSuggestions" data-role="listview" data-inset="true"></ul>
+    </p>
+
+    <label for="txtAdresseSoeg">
+        Husnr.
+    </label>
+    <p>
+        <input type="text" id="husnrSearchField" placeholder="Husnr.">
+        <ul id="husnrSuggestions" data-role="listview" data-filter-reveal="false" data-inset="true"></ul>
+    </p>
+</div>
+
+
+<div id="mobbileAdresseTjekOretDiv">
+    <a id="btnOpretAnmeldelseJordtjekVidere" data-role="button" href="#">Videre </a>
+</div>
+
+<div id="mobbileAdresseTjekDiv">
+    <a id="btnVisForureningsstatus" data-role="button" href="#tjekJordSvar">
+        Vis forureningsstatus
+    </a>
+</div>
+
+<div id="map-canvas" style="height: 280px; width: 288px"></div>

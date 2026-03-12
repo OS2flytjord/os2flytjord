@@ -1,0 +1,184 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.StartMiljoemedarbejderViewModel
+
+@{
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function ToggleHoverClass() {
+            $("#GridAktuelleStikproeverList tbody tr").hover(
+                function() {
+                    $(this).toggleClass("k-state-hover");
+                }
+            );
+        }
+
+        function GridAktuelleStikproeverListDataBound() {
+            ToggleHoverClass();
+        }
+
+        $(document).ready(function() {
+            ToggleHoverClass();
+
+        });
+
+        function GridAktuelleStikproeverListOnChange() {
+            //ToggleHoverClass();
+            var grid = $("#GridAktuelleStikproeverList").data("kendoGrid");
+
+            grid.select().each(function() {
+                var dataItem = grid.dataItem($(this));
+                var id = dataItem.StikproeveId;
+                var faneNavn = dataItem.LoebeNummer;
+                if (parent.addTab) {
+                    parent.addTab("Stikprøve: " + faneNavn, "/Backend/Stikproeve/Stikproeve?stikproeveId=" + id);
+                }
+            });
+        }
+
+        function ToggleHoverClass2() {
+            $("#GridAccepterJordList tbody tr").hover(
+                function() {
+                    $(this).toggleClass("k-state-hover");
+                }
+            );
+        }
+
+        function GridAccepterJordListDataBound() {
+            ToggleHoverClass2();
+        }
+
+        $(document).ready(function() {
+            ToggleHoverClass();
+        });
+
+        function GridAccepterJordListOnChange(e) {
+
+            //ToggleHoverClass();
+
+            //GET TRIGGER SOURCE TO DETERMINE IF ACTION CLICKED
+            if (!e) e = window.event;
+            
+            var eventTarget = (e.target) ? $(e.target) : $(e.srcElement);
+            var isBetAction = eventTarget.hasClass('colBetalerNavn');
+            e.preventDefault();
+         
+            var grid = $("#GridAccepterJordList").data("kendoGrid");
+            var faneNavn;
+     
+            grid.select().each(function() {
+                var dataItem = grid.dataItem($(this));
+                var id = dataItem.AnmeldelseId;
+                var betalerId = dataItem.BetalerId;
+                faneNavn = dataItem.OprindelsesSted;
+
+                if (!isBetAction) {
+                    
+                    if (parent.addTab) {
+                        parent.addTab(faneNavn, "/Backend/Anmeldelser/Index?anmeldelseId=" + id);
+                    }
+                }
+                else {
+                    faneNavn = dataItem.BetalerNavn;
+                    if (parent.addTab) {
+                        parent.addTab(faneNavn, "/Backend/Administration/AdminBetaler?betalerId=" + betalerId);
+                    }
+                }
+            });           
+        }
+    </script>
+
+}
+
+<div>
+    @*<div class="row"> 
+        <h4>Miljømedarbejder forside</h4>     
+    </div>*@
+
+    <div class="row"> 
+        <div class="controlsbox" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Accepter modtagelse af jord</h5>
+            </div>
+
+            <div class="row">
+                @(Html.Kendo().Grid(Model.AccepterJordList)
+                      .Name("GridAccepterJordList")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 20, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))   
+                      .Groupable(grouper=>grouper
+                        .Messages(messager=>messager.Empty("Træk en kolonneoverskrift og slip den her for at gruppere efter denne kolonne")) //Det står også i culture filen, men den renders først efter dataene er indlæst ! Derfor sætter jeg den også her.
+                        .Enabled(true)
+                        )    
+                      .Sortable()
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.AnmeldelseId).Hidden(true);
+                              columns.Bound(a => a.BetalerId).Hidden(true);
+                              columns.Bound(p => p.AnmeldLoebeNr).Title("Anmeldelse").HtmlAttributes(new { FontType = "Italic" });
+                              columns.Bound(a => a.OprindelsesSted).Title("OprindelsesSted");
+                              columns.Bound(a => a.JordMaengde).Title("Jordmængde");
+                              columns.Bound(a => a.KoerselsPeriode).Title("Kørselsperiode");
+                              columns.Bound(a => a.AnmelderNavn).Title("Anmelder");
+                              columns.Bound(p => p.BetalerNavn).Title("Betaler");
+                          })
+
+                      .Events(events => events.Change("GridAccepterJordListOnChange").DataBound("GridAccepterJordListDataBound"))
+                      .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                      .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Model(model => model.Id(m => m.AnmeldelseId))
+                                                    .ServerOperation(false)
+                                                    .Read(read => read.Action("GetAnmeldelserTilAcceptAjax","Frontpages","backend"))
+                                                    .PageSize(10))
+                      )
+            </div>
+            <div style="clear: both"></div>
+        </div>     
+    </div>
+
+    <div class="row"> 
+        <div class="controlsbox" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Aktuelle stikprøver</h5>
+            </div>
+            <div class="row">
+    
+                @(Html.Kendo().Grid(Model.AktuelleStikproeverList)
+                      .Name("GridAktuelleStikproeverList")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 20, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))   
+                      .Sortable()
+                      .Groupable(grouper=>grouper
+                        .Messages(messager=>messager.Empty("Træk en kolonneoverskrift og slip den her for at gruppere efter denne kolonne")) //Det står også i culture filen, men den renders først efter dataene er indlæst ! Derfor sætter jeg den også her.
+                        .Enabled(true)
+                        )
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.StikproeveId).Hidden(true);
+                              columns.Bound(a => a.LoebeNummer).Title("Nr.").Width(100);
+                              columns.Bound(a => a.ModtageAnlaegNavn).Title("Modtageanlæg");
+                              columns.Bound(a => a.BaasNr).Title("Bås");
+                              columns.Bound(a => a.AnmeldelseLoebenr).Title("Anmeldelse lbnr.");
+                              columns.Bound(a => a.Adresse).Title("Oprindelsesadresse");
+                              columns.Bound(a => a.TransportoerNavn).Title("Transportør");
+                              columns.Bound(a => a.Status).Title("Seneste status");
+
+                          })
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Model(model => model.Id(m => m.StikproeveId))
+                                                          .ServerOperation(false)
+                                                          .Read(read => read.Action("GetAktuelleStikproeveListAjax","Frontpages","backend"))
+                                                          .PageSize(100))
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+                      .Events(events => events.Change("GridAktuelleStikproeverListOnChange").DataBound("GridAktuelleStikproeverListDataBound"))
+                      )
+
+            </div>
+            <div style="clear: both"></div>
+        </div>     
+    </div>
+</div>

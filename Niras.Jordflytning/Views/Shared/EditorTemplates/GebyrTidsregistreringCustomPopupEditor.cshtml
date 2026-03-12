@@ -1,0 +1,69 @@
+﻿@model Niras.Jordflytning.ViewModels.Anmeldelse.GebyrTidsregistreringViewModel
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.AnmeldelseId)
+    <div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Dato) *
+        </div>
+        <div class="editor-field">
+            @(Html.Kendo().DatePickerFor(model => model.Dato)
+                .HtmlAttributes(new { type = "text", data_tooltip = "Angiv dato", style = "width: 125px", id = "dpOpgaveDato" }))
+        </div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Medarbejder) *
+        </div>
+        <div class="editor-field">
+            @(Html.Kendo().DropDownListFor(model => model.Medarbejder)
+                .DataTextField("Navn")
+                .DataValueField("Id")
+                .BindTo(Model.SagsbehandlerListe)
+                .HtmlAttributes(new { Style = "width:250px" }))
+        </div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Opgavetype) *
+        </div>
+        <div class="editor-field">
+            @(Html.Kendo().DropDownListFor(model => model.Opgavetype)
+                .DataTextField("Navn")
+                .DataValueField("Id")
+                .BindTo(Model.OpgavetyperListe)
+                .Events(e =>
+                {
+                    e.Change("onChangeOpgavetyperListe");
+                    e.Open("onOpenOpgavetyperListe");
+                })
+                .HtmlAttributes(new { Style = "width:250px" }))
+        </div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Beskrivelse)
+        </div>
+        <div style="float:left; position:absolute; padding-top:140px; padding-left:8px;">
+            (Tekst til faktura)
+        </div>
+        <div class="editor-field">
+            @(Html.TextAreaFor(model => model.Beskrivelse, new { Style = "width:244px; height: 100px" }))
+        </div>
+        <div id="divTidsregistrering">
+            <div class="editor-label">
+                @Html.Label("Forbrugt tid") *
+            </div>
+            <div class="editor-field time-inputs">
+                <table>
+                    <tr>
+                        <td>
+                            @(Html.Kendo().IntegerTextBoxFor(model => model.ForbrugtTid.Hours)
+                          .Min(0)
+                          .HtmlAttributes(new { Style = "width:50px" })
+                            ) timer
+                        </td>
+                        <td>
+                            @(Html.Kendo().IntegerTextBoxFor(model => model.ForbrugtTid.Minutes)
+                          .Min(0)
+                          .HtmlAttributes(new { Style = "width:50px" })
+                            ) minutter
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>

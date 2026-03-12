@@ -1,0 +1,39 @@
+﻿@model Niras.Jordflytning.Core.Models.SoegeResultat.SoegeResultatVognlaes1
+
+<div>
+    
+    @Html.HiddenFor(a => a.VognlaesId)
+    @Html.HiddenFor(a => a.AnmeldelseId)
+    @Html.HiddenFor(a => a.Adresse)
+                              
+ 
+    @Html.HiddenFor(a => a.Dato)
+
+    @Html.HiddenFor(a => a.BetalerNavn)
+    @Html.HiddenFor(a => a.ModtageAnlaegNavn)
+    @Html.HiddenFor(a => a.TransportoerNavn)
+    @Html.HiddenFor(a => a.JordmaengdeTons)
+    @Html.HiddenFor(a => a.JordmaengdeAksler)
+    @Html.HiddenFor(a => a.Status)
+   
+
+    <div class="editor-label">
+        @Html.Label("Begrundelse for afvisningen:")
+    </div>
+
+    <div class="editor-field">
+        @Html.TextAreaFor(model => model.AfvistNote, new { style = "width: 400px" }) 
+        @Html.ValidationMessageFor(model => model.AfvistNote)
+    </div>
+
+    <div >
+	            @Html.CheckBoxFor(model => model.Afvist, new { id = "idChkbxAfvist", style="display: none"})
+			        @*@Html.CheckBoxFor(model => model.Afvist, new { id = "idChkbxAfvist", disabled = "disabled"})*@
+    </div>
+    <div>
+        &nbsp;
+    </div>
+</div>
+
+
+

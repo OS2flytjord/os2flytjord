@@ -1,0 +1,14 @@
+Jordflytning
+1. "C:\projects\jordflytning\trunk\Database\V<XX.XX>\create_mssqlserver.sql"
+
+
+Brugerstyring
+
+2. "C:\projects\jordflytning\trunk\Database\Brugerstyring\create_brugerstyring.sql"
+3. "C:\projects\jordflytning\trunk\Database\Brugerstyring\create_brugerstyring_data.sql"
+
+
+Kodelister
+4. 
+
+5 Spatial

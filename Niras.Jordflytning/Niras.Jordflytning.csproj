@@ -1,0 +1,1354 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A5A5B9E2-5EDC-43C7-AB7B-421CBB6285CA}</ProjectGuid>
+    <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Niras.Jordflytning</RootNamespace>
+    <AssemblyName>Niras.Jordflytning</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort>44329</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
+    <Use64BitIISExpress>true</Use64BitIISExpress>
+    <UseGlobalApplicationHostFile />
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="antlr.runtime, Version=2.7.7.1, Culture=neutral, PublicKeyToken=d7701e059243744f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Niras.Jordflytning.Libraries\StringTemplate\antlr.runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.16.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.16.0\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.1.0.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelNumberFormat.1.1.0\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="Irony, Version=1.0.11.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <HintPath>..\packages\Irony.NetCore.1.0.11\lib\net461\Irony.dll</HintPath>
+    </Reference>
+    <Reference Include="Kendo.Mvc, Version=2013.2.716.340, Culture=neutral, PublicKeyToken=121fae78165ba3d4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Niras.Jordflytning.Libraries\Kendo\Kendo.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="MarkdownDeep, Version=1.5.4615.26275, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MarkdownDeep.NET.1.5\lib\.NetFramework 3.5\MarkdownDeep.dll</HintPath>
+    </Reference>
+    <Reference Include="MarkdownWeb, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MarkdownWeb.1.0.1\lib\net45\MarkdownWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.SqlServer.Types, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.14.0.1016.290\lib\net40\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Mvc.FixedDisplayModes">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.FixedDisplayModes.1.0.1\lib\net40\Microsoft.Web.Mvc.FixedDisplayModes.dll</HintPath>
+    </Reference>
+    <Reference Include="MVC Foolproof Validation">
+      <HintPath>..\Niras.Jordflytning.Libraries\MVC FoolProof\MVC Foolproof Validation.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject.3.0.1.10\lib\net45-full\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Web.Common">
+      <HintPath>..\packages\Ninject.Web.Common.3.0.0.7\lib\net45-full\Ninject.Web.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Web.Mvc">
+      <HintPath>..\packages\Ninject.MVC3.3.0.0.6\lib\net45-full\Ninject.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.5.3.2\lib\net46\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog.Database, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.Database.5.3.2\lib\net46\NLog.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.Fonts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>..\packages\SixLabors.Fonts.1.0.0\lib\netstandard2.0\SixLabors.Fonts.dll</HintPath>
+    </Reference>
+    <Reference Include="StringTemplate, Version=3.0.1.21733, Culture=neutral, PublicKeyToken=beee492b52c41e85, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Niras.Jordflytning.Libraries\StringTemplate\StringTemplate.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Entity">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Packaging, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Packaging.6.0.0\lib\net461\System.IO.Packaging.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Spatial, Version=5.8.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Spatial.5.8.4\lib\net40\System.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.RegularExpressions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.RegularExpressions.4.3.1\lib\net463\System.Text.RegularExpressions.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.30506.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.0.0\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebActivator">
+      <HintPath>..\packages\WebActivator.1.5.3\lib\net40\WebActivator.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease">
+      <HintPath>..\packages\WebGrease.1.1.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="WebMatrix.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.Data.2.0.20710.0\lib\net40\WebMatrix.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="WebMatrix.WebData, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.WebData.2.0.20710.0\lib\net40\WebMatrix.WebData.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="XLParser, Version=1.5.2.0, Culture=neutral, PublicKeyToken=63397e1e46bb91b4, processorArchitecture=MSIL">
+      <HintPath>..\packages\XLParser.1.5.2\lib\net461\XLParser.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdvisService.svc.cs">
+      <DependentUpon>AdvisService.svc</DependentUpon>
+    </Compile>
+    <Content Include="App_Code\HelperGoogleAnalytics.cs" />
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\NinjectWebCommon.cs" />
+    <Compile Include="App_Start\ViewEngineConfig.cs" />
+    <Compile Include="Areas\Backend\BackendAreaRegistration.cs" />
+    <Compile Include="Areas\Backend\Controllers\AdministrationController.cs" />
+    <Compile Include="Areas\Backend\Controllers\AnmeldelserController.cs" />
+    <Compile Include="Areas\Backend\Controllers\FrontpagesController.cs" />
+    <Compile Include="Areas\Backend\Controllers\SearchController.cs" />
+    <Compile Include="Areas\Backend\Controllers\FaktureringController.cs" />
+    <Compile Include="Areas\Backend\Controllers\StikproeveController.cs" />
+    <Compile Include="Areas\Backend\ViewModels\AdminBetalerModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\AnalyseDokumentModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\BogholderOpslagstavleModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\AdvisListeModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\PersonFileModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\GebyrUdtraek.cs" />
+    <Compile Include="Areas\Backend\ViewModels\HistorikAnmeldelseModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\AdminSoegModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\KommunikationModel.cs" />
+    <Compile Include="Controllers\MaintenanceController.cs" />
+    <Compile Include="Extensions\PersonExtensions.cs" />
+    <Compile Include="IO\Fakturering\ConfigProvider.cs" />
+    <Compile Include="IO\Fakturering\IConfigProvider.cs" />
+    <Compile Include="IO\Fakturering\KMDOpus\Attributes.cs" />
+    <Compile Include="IO\Fakturering\KMDOpus\Exporter.cs" />
+    <Compile Include="IO\Fakturering\FileSystemHelper.cs" />
+    <Compile Include="IO\Fakturering\KMDOpus\FileHandler.cs" />
+    <Compile Include="IO\Fakturering\KMDOpus\Line.cs" />
+    <Compile Include="IO\Fakturering\KMDOpus\OrderHeader.cs" />
+    <Compile Include="IO\Fakturering\KMDOpus\OrderLine.cs" />
+    <Compile Include="ViewModels\Backend\FaktureringUdtraekViewModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\GebyrViewModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\OpgavetypeViewModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\PersonModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StartPladsMandViewModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StartMiljoemedarbejderViewModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StartLabViewModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StartProevetagerViewModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StartBogholderViewModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StartSagsbehandlerViewModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StatusBetalerModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StikproeveListeModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StatusStikProeveModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StatusStikproeveTypeModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\StikproeveModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\VognlaesModel.cs" />
+    <Compile Include="BomSystemService.svc.cs">
+      <DependentUpon>BomSystemService.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Controllers\AdresseController.cs" />
+    <Compile Include="Controllers\AnmeldelserController.cs" />
+    <Compile Include="Areas\Backend\Controllers\DefaultBackendController.cs" />
+    <Compile Include="Controllers\BrugerController.cs" />
+    <Compile Include="Controllers\PlaceringController.cs" />
+    <Compile Include="Controllers\SoegController.cs" />
+    <Compile Include="Controllers\MobileController.cs" />
+    <Compile Include="Controllers\DefaultController.cs" />
+    <Compile Include="Controllers\ModtagerAnlaegController.cs" />
+    <Compile Include="Controllers\ValidationController.cs" />
+    <Compile Include="Entities\Menu.cs" />
+    <Compile Include="Entities\MenuItem.cs" />
+    <Compile Include="Enums\SaveState.cs" />
+    <Compile Include="Extensions\ModelHelper.cs" />
+    <Compile Include="Extensions\SelectListHelper.cs" />
+    <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Extensions\LabelHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlServerTypes\Loader.cs" />
+    <Compile Include="ViewModels\Anmeldelse\HistorikAnmeldelseModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\GebyrTidsregistreringViewModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\SagsbehandlerViewModel.cs" />
+    <Compile Include="ViewModels\Backend\FaktureringViewModel.cs" />
+    <Compile Include="ViewModels\IdListModel.cs" />
+    <Compile Include="ViewModels\MapBoundsModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\BemyndigetAnmelderModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\EksternVognlaesListeModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\HistorikKommunikationModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\InteresantModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\BetalerModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\DokumentationModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\HistoriskDokumentationModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\JordforureningopslagModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\ModtagerAnlaegModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\OpretModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\SoegModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\TransportoerModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\VejModel.cs" />
+    <Compile Include="ViewModels\Anmeldelse\EksternVognlaesModel.cs" />
+    <Compile Include="ViewModels\Backend\BrugerAdministrationModel.cs" />
+    <Compile Include="ViewModels\Backend\GraenseVaerdierViewModel.cs" />
+    <Compile Include="ViewModels\Backend\DokumenterViewModel.cs" />
+    <Compile Include="ViewModels\Backend\ForureningskomponentModel.cs" />
+    <Compile Include="ViewModels\Backend\ModtagerAnlaegViewModel.cs" />
+    <Compile Include="ViewModels\Backend\JordmodtagerListModel.cs" />
+    <Compile Include="ViewModels\Backend\JordmodtagerViewModel.cs" />
+    <Compile Include="ViewModels\Backend\ModtagerAnlaegAdminModel.cs" />
+    <Compile Include="ViewModels\Backend\SagsbehandlingModel.cs" />
+    <Compile Include="ViewModels\Bruger\BrugerModel.cs" />
+    <Compile Include="ViewModels\Bruger\BrugerProfilModel.cs" />
+    <Compile Include="ViewModels\Bruger\TransportoerModel.cs" />
+    <Compile Include="ViewModels\GateWayModel.cs" />
+    <Compile Include="ViewModels\GridBindingModels\BrugerProfilGridModel.cs" />
+    <Compile Include="ViewModels\GridBindingModels\PersonGridModel.cs" />
+    <Compile Include="ViewModels\GridBindingModels\LastbilModel.cs" />
+    <Compile Include="ViewModels\IndexModel.cs" />
+    <Compile Include="ViewModels\LoginModel.cs" />
+    <Compile Include="ViewModels\MatrikelInfoModel.cs" />
+    <Compile Include="ViewModels\Mobile\KvitteringModel.cs" />
+    <Compile Include="ViewModels\Mobile\MobileAdgangModel.cs" />
+    <Compile Include="ViewModels\Mobile\MobileAnmeldelseModel.cs" />
+    <Compile Include="ViewModels\Mobile\MobileAnmeldelseListModel.cs" />
+    <Compile Include="ViewModels\Mobile\MobileMinSideModel.cs" />
+    <Compile Include="ViewModels\Mobile\MobilePreviewAnmeldelseModel.cs" />
+    <Compile Include="ViewModels\Mobile\TjekJordSvarModel.cs" />
+    <Compile Include="ViewModels\ModtagerAnlaeg\KonfliktSoegningModel.cs" />
+    <Compile Include="ViewModels\Placering\IndtegnetPlaceringModel.cs" />
+    <Compile Include="ViewModels\ModtagerAnlaeg\ModtagerAnlaegDokumentModel.cs" />
+    <Compile Include="ViewModels\ModtagerAnlaeg\ModtagerAnlaegKortModel.cs" />
+    <Compile Include="ViewModels\ModtagerAnlaeg\RedgerMidlertidigtAnlaegModel.cs" />
+    <Compile Include="ViewModels\Placering\PlaceringsdataModel.cs" />
+    <Compile Include="ViewModels\SandboxViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="AdvisService.svc" />
+    <Content Include="App_Data\jobs\triggered\TjekForureningsStatus\Readme.txt" />
+    <Content Include="App_Data\Nyheder\readme.txt" />
+    <Content Include="App_Data\Skabeloner\temp_smid_ud_basicSkabelon.html" />
+    <Content Include="BomSystemService.svc" />
+    <Content Include="bundles\content\css\images\ajax-loader.gif" />
+    <Content Include="bundles\content\css\images\animated-overlay.gif" />
+    <Content Include="bundles\content\css\images\icons-18-black.png" />
+    <Content Include="bundles\content\css\images\icons-18-white.png" />
+    <Content Include="bundles\content\css\images\icons-36-black.png" />
+    <Content Include="bundles\content\css\images\icons-36-white.png" />
+    <Content Include="bundles\content\css\images\ios-pack-color%402x.png" />
+    <Content Include="bundles\content\css\images\ios-pack-color.png" />
+    <Content Include="bundles\content\css\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="bundles\content\css\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="bundles\content\css\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="bundles\content\css\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="bundles\content\css\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="bundles\content\css\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="bundles\content\css\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="bundles\content\css\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="bundles\content\css\images\ui-icons_222222_256x240.png" />
+    <Content Include="bundles\content\css\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="bundles\content\css\images\ui-icons_454545_256x240.png" />
+    <Content Include="bundles\content\css\images\ui-icons_888888_256x240.png" />
+    <Content Include="bundles\content\css\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="bundles\content\uniform\editor.png" />
+    <Content Include="bundles\content\uniform\imagebrowser.png" />
+    <Content Include="bundles\content\uniform\loading-image.gif" />
+    <Content Include="bundles\content\uniform\loading.gif" />
+    <Content Include="bundles\content\uniform\slider-h.gif" />
+    <Content Include="bundles\content\uniform\slider-v.gif" />
+    <Content Include="bundles\content\uniform\sprite.png" />
+    <Content Include="bundles\Icons\arrow_right.png" />
+    <Content Include="bundles\Icons\arrow_right.tif" />
+    <Content Include="bundles\Icons\closetab.gif" />
+    <Content Include="bundles\Icons\closetab_disabled.gif" />
+    <Content Include="bundles\Icons\Excel-icon.png" />
+    <Content Include="bundles\Icons\Hourglass_icon.gif" />
+    <Content Include="bundles\Icons\info_button.png" />
+    <Content Include="bundles\Icons\JordKategori\kat-1.png" />
+    <Content Include="bundles\Icons\JordKategori\kat-2.png" />
+    <Content Include="bundles\Icons\JordKategori\kat-u.png" />
+    <Content Include="bundles\Icons\Lastbil.png" />
+    <Content Include="bundles\Icons\loading.gif" />
+    <Content Include="bundles\Icons\LoginPage\Grænseværdier_64x64.png" />
+    <Content Include="bundles\Icons\LoginPage\Home_64x64.png" />
+    <Content Include="bundles\Icons\LoginPage\Kontakt_64x64.png" />
+    <Content Include="bundles\Icons\LoginPage\Login_64x64.png" />
+    <Content Include="bundles\Icons\LoginPage\Nyheder_64x64.png" />
+    <Content Include="bundles\Icons\LoginPage\Tjek_ejendomme_64x64.png" />
+    <Content Include="bundles\Icons\LoginPage\Tjek_regler_64x64.png" />
+    <Content Include="bundles\Icons\Obs.png" />
+    <Content Include="bundles\Icons\Obs_red.png" />
+    <Content Include="bundles\Icons\ProgressBar.gif" />
+    <Content Include="bundles\Icons\Revision.png" />
+    <Content Include="bundles\Icons\Tandhjul_64px.png" />
+    <Content Include="bundles\Icons\wait_loader.gif" />
+    <Content Include="Content\Css\Backend\backendSite.css" />
+    <Content Include="Content\Css\common.css" />
+    <Content Include="Content\Css\content.css" />
+    <Content Include="Content\Css\datepicker.css" />
+    <Content Include="Content\Css\FJ.kendo.css" />
+    <Content Include="Content\Css\jQueryMobile\images\ajax-loader.gif" />
+    <Content Include="Content\Css\jQueryMobile\images\icons-18-black.png" />
+    <Content Include="Content\Css\jQueryMobile\images\icons-18-white.png" />
+    <Content Include="Content\Css\jQueryMobile\images\icons-36-black.png" />
+    <Content Include="Content\Css\jQueryMobile\images\icons-36-white.png" />
+    <Content Include="Content\Css\jQueryMobile\images\ios-pack-color%402x.png" />
+    <Content Include="Content\Css\jQueryMobile\images\ios-pack-color.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\animated-overlay.gif" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\jquery-ui.css" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\jquery-ui.min.css" />
+    <Content Include="Content\Css\jQueryUI\themes\smoothness\jquery.ui.theme.css" />
+    <Content Include="Content\Css\Kendo\kendo.common.min.css" />
+    <Content Include="Content\Css\Kendo\kendo.uniform.min.css" />
+    <Content Include="Content\Css\Kendo\textures\brushed-metal.png" />
+    <Content Include="Content\Css\Kendo\textures\dots1.png" />
+    <Content Include="Content\Css\Kendo\textures\dots10.png" />
+    <Content Include="Content\Css\Kendo\textures\dots11.png" />
+    <Content Include="Content\Css\Kendo\textures\dots12.png" />
+    <Content Include="Content\Css\Kendo\textures\dots13.png" />
+    <Content Include="Content\Css\Kendo\textures\dots2.png" />
+    <Content Include="Content\Css\Kendo\textures\dots3.png" />
+    <Content Include="Content\Css\Kendo\textures\dots4.png" />
+    <Content Include="Content\Css\Kendo\textures\dots5.png" />
+    <Content Include="Content\Css\Kendo\textures\dots6.png" />
+    <Content Include="Content\Css\Kendo\textures\dots7.png" />
+    <Content Include="Content\Css\Kendo\textures\dots8.png" />
+    <Content Include="Content\Css\Kendo\textures\dots9.png" />
+    <Content Include="Content\Css\Kendo\textures\glass-lighter.png" />
+    <Content Include="Content\Css\Kendo\textures\glass.png" />
+    <Content Include="Content\Css\Kendo\textures\highlight.png" />
+    <Content Include="Content\Css\Kendo\textures\leather1.png" />
+    <Content Include="Content\Css\Kendo\textures\leather2.png" />
+    <Content Include="Content\Css\Kendo\textures\noise.png" />
+    <Content Include="Content\Css\Kendo\textures\stripe1.png" />
+    <Content Include="Content\Css\Kendo\textures\stripe2.png" />
+    <Content Include="Content\Css\Kendo\textures\stripe3.png" />
+    <Content Include="Content\Css\Kendo\textures\stripe4.png" />
+    <Content Include="Content\Css\Kendo\textures\stripe5.png" />
+    <Content Include="Content\Css\Kendo\textures\stripe6.png" />
+    <Content Include="Content\Css\Kendo\Uniform\editor.png" />
+    <Content Include="Content\Css\Kendo\Uniform\imagebrowser.png" />
+    <Content Include="Content\Css\Kendo\Uniform\loading-image.gif" />
+    <Content Include="Content\Css\Kendo\Uniform\loading.gif" />
+    <Content Include="Content\Css\Kendo\Uniform\slider-h.gif" />
+    <Content Include="Content\Css\Kendo\Uniform\slider-v.gif" />
+    <Content Include="Content\Css\Kendo\Uniform\sprite.png" />
+    <Content Include="Content\Css\logInSite.css" />
+    <Content Include="Content\Css\Mobile\mobile.css" />
+    <Content Include="Content\Css\modal.css" />
+    <Content Include="Content\Css\Public\Blanket.css" />
+    <Content Include="Content\Css\Public\publicSite_test.css" />
+    <Content Include="Content\Css\Public\TjekEjendom.css" />
+    <Content Include="Content\Css\Public\publicSite.css" />
+    <Content Include="Content\Css\TwitterHack.css" />
+    <Content Include="Content\Icons\arrow_right.png" />
+    <Content Include="Content\Icons\arrow_right.tif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Icons\blanket_64x64.png" />
+    <Content Include="Content\Icons\closetab.gif" />
+    <Content Include="Content\Icons\closetab_disabled.gif" />
+    <Content Include="Content\Icons\Excel-icon.png" />
+    <Content Include="Content\Icons\Hourglass_icon.gif" />
+    <Content Include="Content\Icons\info_button.png" />
+    <Content Include="Content\Icons\JordForurening.png" />
+    <Content Include="Content\Icons\JordKategori\kat-1.png" />
+    <Content Include="Content\Icons\JordKategori\kat-2.png" />
+    <Content Include="Content\Icons\JordKategori\kat-u.png" />
+    <Content Include="Content\Icons\Lastbil.png" />
+    <Content Include="Content\Icons\loading.gif" />
+    <Content Include="Content\Icons\LoginPage\Grænseværdier_64x64.png" />
+    <Content Include="Content\Icons\LoginPage\Home_64x64.png" />
+    <Content Include="Content\Icons\LoginPage\Kontakt_64x64.png" />
+    <Content Include="Content\Icons\LoginPage\Login_64x64.png" />
+    <Content Include="Content\Icons\LoginPage\Nyheder_64x64.png" />
+    <Content Include="Content\Icons\LoginPage\Tjek_ejendomme_64x64.png" />
+    <Content Include="Content\Icons\LoginPage\Tjek_regler_64x64.png" />
+    <Content Include="Content\Css\jQueryMobile\jquery.mobile-1.3.1.min.css" />
+    <Content Include="Content\Css\jQueryMobile\jquery.mobile.structure-1.3.1.css" />
+    <Content Include="Content\Css\jQueryMobile\jquery.mobile.structure-1.3.1.min.css" />
+    <Content Include="Content\Css\jQueryMobile\jquery.mobile.theme-1.3.1.css" />
+    <Content Include="Content\Css\jQueryMobile\jquery.mobile.theme-1.3.1.min.css" />
+    <Content Include="Content\Icons\Obs.png" />
+    <Content Include="Content\Icons\Obs_red.png" />
+    <Content Include="Content\Icons\ProgressBar.gif" />
+    <Content Include="Content\Icons\Revision.png" />
+    <Content Include="Content\Icons\Tandhjul_64px.png" />
+    <Content Include="Content\Icons\wait_loader.gif" />
+    <Content Include="Content\images\AdvisFigur.png" />
+    <Content Include="Content\images\Advisfigur_profil.png" />
+    <Content Include="Content\images\ajax-loader.gif" />
+    <Content Include="Content\images\Anvist_vandmaerke2.png" />
+    <Content Include="Content\images\application_side_contract.png" />
+    <Content Include="Content\images\badge_effektiviseringsprisen.png" />
+    <Content Include="Content\images\cross.png" />
+    <Content Include="Content\images\FJ_intro.png" />
+    <Content Include="Content\images\FJ_underconstruction.png" />
+    <Content Include="Content\images\FlytJord_header_m_foto_lille_reduced.png" />
+    <Content Include="Content\images\FlytJord_header_m_foto_reduced.png" />
+    <Content Include="Content\images\gradient.png" />
+    <Content Include="Content\images\icons-png\action-black.png" />
+    <Content Include="Content\images\icons-png\action-white.png" />
+    <Content Include="Content\images\icons-png\alert-black.png" />
+    <Content Include="Content\images\icons-png\alert-white.png" />
+    <Content Include="Content\images\icons-png\arrow-d-black.png" />
+    <Content Include="Content\images\icons-png\arrow-d-l-black.png" />
+    <Content Include="Content\images\icons-png\arrow-d-l-white.png" />
+    <Content Include="Content\images\icons-png\arrow-d-r-black.png" />
+    <Content Include="Content\images\icons-png\arrow-d-r-white.png" />
+    <Content Include="Content\images\icons-png\arrow-d-white.png" />
+    <Content Include="Content\images\icons-png\arrow-l-black.png" />
+    <Content Include="Content\images\icons-png\arrow-l-white.png" />
+    <Content Include="Content\images\icons-png\arrow-r-black.png" />
+    <Content Include="Content\images\icons-png\arrow-r-white.png" />
+    <Content Include="Content\images\icons-png\arrow-u-black.png" />
+    <Content Include="Content\images\icons-png\arrow-u-l-black.png" />
+    <Content Include="Content\images\icons-png\arrow-u-l-white.png" />
+    <Content Include="Content\images\icons-png\arrow-u-r-black.png" />
+    <Content Include="Content\images\icons-png\arrow-u-r-white.png" />
+    <Content Include="Content\images\icons-png\arrow-u-white.png" />
+    <Content Include="Content\images\icons-png\audio-black.png" />
+    <Content Include="Content\images\icons-png\audio-white.png" />
+    <Content Include="Content\images\icons-png\back-black.png" />
+    <Content Include="Content\images\icons-png\back-white.png" />
+    <Content Include="Content\images\icons-png\bars-black.png" />
+    <Content Include="Content\images\icons-png\bars-white.png" />
+    <Content Include="Content\images\icons-png\bullets-black.png" />
+    <Content Include="Content\images\icons-png\bullets-white.png" />
+    <Content Include="Content\images\icons-png\calendar-black.png" />
+    <Content Include="Content\images\icons-png\calendar-white.png" />
+    <Content Include="Content\images\icons-png\camera-black.png" />
+    <Content Include="Content\images\icons-png\camera-white.png" />
+    <Content Include="Content\images\icons-png\carat-d-black.png" />
+    <Content Include="Content\images\icons-png\carat-d-white.png" />
+    <Content Include="Content\images\icons-png\carat-l-black.png" />
+    <Content Include="Content\images\icons-png\carat-l-white.png" />
+    <Content Include="Content\images\icons-png\carat-r-black.png" />
+    <Content Include="Content\images\icons-png\carat-r-white.png" />
+    <Content Include="Content\images\icons-png\carat-u-black.png" />
+    <Content Include="Content\images\icons-png\carat-u-white.png" />
+    <Content Include="Content\images\icons-png\check-black.png" />
+    <Content Include="Content\images\icons-png\check-white.png" />
+    <Content Include="Content\images\icons-png\clock-black.png" />
+    <Content Include="Content\images\icons-png\clock-white.png" />
+    <Content Include="Content\images\icons-png\cloud-black.png" />
+    <Content Include="Content\images\icons-png\cloud-white.png" />
+    <Content Include="Content\images\icons-png\comment-black.png" />
+    <Content Include="Content\images\icons-png\comment-white.png" />
+    <Content Include="Content\images\icons-png\delete-black.png" />
+    <Content Include="Content\images\icons-png\delete-white.png" />
+    <Content Include="Content\images\icons-png\edit-black.png" />
+    <Content Include="Content\images\icons-png\edit-white.png" />
+    <Content Include="Content\images\icons-png\eye-black.png" />
+    <Content Include="Content\images\icons-png\eye-white.png" />
+    <Content Include="Content\images\icons-png\forbidden-black.png" />
+    <Content Include="Content\images\icons-png\forbidden-white.png" />
+    <Content Include="Content\images\icons-png\forward-black.png" />
+    <Content Include="Content\images\icons-png\forward-white.png" />
+    <Content Include="Content\images\icons-png\gear-black.png" />
+    <Content Include="Content\images\icons-png\gear-white.png" />
+    <Content Include="Content\images\icons-png\grid-black.png" />
+    <Content Include="Content\images\icons-png\grid-white.png" />
+    <Content Include="Content\images\icons-png\heart-black.png" />
+    <Content Include="Content\images\icons-png\heart-white.png" />
+    <Content Include="Content\images\icons-png\home-black.png" />
+    <Content Include="Content\images\icons-png\home-white.png" />
+    <Content Include="Content\images\icons-png\info-black.png" />
+    <Content Include="Content\images\icons-png\info-white.png" />
+    <Content Include="Content\images\icons-png\location-black.png" />
+    <Content Include="Content\images\icons-png\location-white.png" />
+    <Content Include="Content\images\icons-png\lock-black.png" />
+    <Content Include="Content\images\icons-png\lock-white.png" />
+    <Content Include="Content\images\icons-png\mail-black.png" />
+    <Content Include="Content\images\icons-png\mail-white.png" />
+    <Content Include="Content\images\icons-png\minus-black.png" />
+    <Content Include="Content\images\icons-png\minus-white.png" />
+    <Content Include="Content\images\icons-png\navigation-black.png" />
+    <Content Include="Content\images\icons-png\navigation-white.png" />
+    <Content Include="Content\images\icons-png\phone-black.png" />
+    <Content Include="Content\images\icons-png\phone-white.png" />
+    <Content Include="Content\images\icons-png\plus-black.png" />
+    <Content Include="Content\images\icons-png\plus-white.png" />
+    <Content Include="Content\images\icons-png\power-black.png" />
+    <Content Include="Content\images\icons-png\power-white.png" />
+    <Content Include="Content\images\icons-png\recycle-black.png" />
+    <Content Include="Content\images\icons-png\recycle-white.png" />
+    <Content Include="Content\images\icons-png\refresh-black.png" />
+    <Content Include="Content\images\icons-png\refresh-white.png" />
+    <Content Include="Content\images\icons-png\search-black.png" />
+    <Content Include="Content\images\icons-png\search-white.png" />
+    <Content Include="Content\images\icons-png\shop-black.png" />
+    <Content Include="Content\images\icons-png\shop-white.png" />
+    <Content Include="Content\images\icons-png\star-black.png" />
+    <Content Include="Content\images\icons-png\star-white.png" />
+    <Content Include="Content\images\icons-png\tag-black.png" />
+    <Content Include="Content\images\icons-png\tag-white.png" />
+    <Content Include="Content\images\icons-png\user-black.png" />
+    <Content Include="Content\images\icons-png\user-white.png" />
+    <Content Include="Content\images\icons-png\video-black.png" />
+    <Content Include="Content\images\icons-png\video-white.png" />
+    <Content Include="Content\images\icons-svg\action-black.svg" />
+    <Content Include="Content\images\icons-svg\action-white.svg" />
+    <Content Include="Content\images\icons-svg\alert-black.svg" />
+    <Content Include="Content\images\icons-svg\alert-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-d-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-d-l-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-d-l-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-d-r-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-d-r-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-d-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-l-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-l-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-r-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-r-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-u-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-u-l-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-u-l-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-u-r-black.svg" />
+    <Content Include="Content\images\icons-svg\arrow-u-r-white.svg" />
+    <Content Include="Content\images\icons-svg\arrow-u-white.svg" />
+    <Content Include="Content\images\icons-svg\audio-black.svg" />
+    <Content Include="Content\images\icons-svg\audio-white.svg" />
+    <Content Include="Content\images\icons-svg\back-black.svg" />
+    <Content Include="Content\images\icons-svg\back-white.svg" />
+    <Content Include="Content\images\icons-svg\bars-black.svg" />
+    <Content Include="Content\images\icons-svg\bars-white.svg" />
+    <Content Include="Content\images\icons-svg\bullets-black.svg" />
+    <Content Include="Content\images\icons-svg\bullets-white.svg" />
+    <Content Include="Content\images\icons-svg\calendar-black.svg" />
+    <Content Include="Content\images\icons-svg\calendar-white.svg" />
+    <Content Include="Content\images\icons-svg\camera-black.svg" />
+    <Content Include="Content\images\icons-svg\camera-white.svg" />
+    <Content Include="Content\images\icons-svg\carat-d-black.svg" />
+    <Content Include="Content\images\icons-svg\carat-d-white.svg" />
+    <Content Include="Content\images\icons-svg\carat-l-black.svg" />
+    <Content Include="Content\images\icons-svg\carat-l-white.svg" />
+    <Content Include="Content\images\icons-svg\carat-r-black.svg" />
+    <Content Include="Content\images\icons-svg\carat-r-white.svg" />
+    <Content Include="Content\images\icons-svg\carat-u-black.svg" />
+    <Content Include="Content\images\icons-svg\carat-u-white.svg" />
+    <Content Include="Content\images\icons-svg\check-black.svg" />
+    <Content Include="Content\images\icons-svg\check-white.svg" />
+    <Content Include="Content\images\icons-svg\clock-black.svg" />
+    <Content Include="Content\images\icons-svg\clock-white.svg" />
+    <Content Include="Content\images\icons-svg\cloud-black.svg" />
+    <Content Include="Content\images\icons-svg\cloud-white.svg" />
+    <Content Include="Content\images\icons-svg\comment-black.svg" />
+    <Content Include="Content\images\icons-svg\comment-white.svg" />
+    <Content Include="Content\images\icons-svg\delete-black.svg" />
+    <Content Include="Content\images\icons-svg\delete-white.svg" />
+    <Content Include="Content\images\icons-svg\edit-black.svg" />
+    <Content Include="Content\images\icons-svg\edit-white.svg" />
+    <Content Include="Content\images\icons-svg\eye-black.svg" />
+    <Content Include="Content\images\icons-svg\eye-white.svg" />
+    <Content Include="Content\images\icons-svg\forbidden-black.svg" />
+    <Content Include="Content\images\icons-svg\forbidden-white.svg" />
+    <Content Include="Content\images\icons-svg\forward-black.svg" />
+    <Content Include="Content\images\icons-svg\forward-white.svg" />
+    <Content Include="Content\images\icons-svg\gear-black.svg" />
+    <Content Include="Content\images\icons-svg\gear-white.svg" />
+    <Content Include="Content\images\icons-svg\grid-black.svg" />
+    <Content Include="Content\images\icons-svg\grid-white.svg" />
+    <Content Include="Content\images\icons-svg\heart-black.svg" />
+    <Content Include="Content\images\icons-svg\heart-white.svg" />
+    <Content Include="Content\images\icons-svg\home-black.svg" />
+    <Content Include="Content\images\icons-svg\home-white.svg" />
+    <Content Include="Content\images\icons-svg\info-black.svg" />
+    <Content Include="Content\images\icons-svg\info-white.svg" />
+    <Content Include="Content\images\icons-svg\location-black.svg" />
+    <Content Include="Content\images\icons-svg\location-white.svg" />
+    <Content Include="Content\images\icons-svg\lock-black.svg" />
+    <Content Include="Content\images\icons-svg\lock-white.svg" />
+    <Content Include="Content\images\icons-svg\mail-black.svg" />
+    <Content Include="Content\images\icons-svg\mail-white.svg" />
+    <Content Include="Content\images\icons-svg\minus-black.svg" />
+    <Content Include="Content\images\icons-svg\minus-white.svg" />
+    <Content Include="Content\images\icons-svg\navigation-black.svg" />
+    <Content Include="Content\images\icons-svg\navigation-white.svg" />
+    <Content Include="Content\images\icons-svg\phone-black.svg" />
+    <Content Include="Content\images\icons-svg\phone-white.svg" />
+    <Content Include="Content\images\icons-svg\plus-black.svg" />
+    <Content Include="Content\images\icons-svg\plus-white.svg" />
+    <Content Include="Content\images\icons-svg\power-black.svg" />
+    <Content Include="Content\images\icons-svg\power-white.svg" />
+    <Content Include="Content\images\icons-svg\recycle-black.svg" />
+    <Content Include="Content\images\icons-svg\recycle-white.svg" />
+    <Content Include="Content\images\icons-svg\refresh-black.svg" />
+    <Content Include="Content\images\icons-svg\refresh-white.svg" />
+    <Content Include="Content\images\icons-svg\search-black.svg" />
+    <Content Include="Content\images\icons-svg\search-white.svg" />
+    <Content Include="Content\images\icons-svg\shop-black.svg" />
+    <Content Include="Content\images\icons-svg\shop-white.svg" />
+    <Content Include="Content\images\icons-svg\star-black.svg" />
+    <Content Include="Content\images\icons-svg\star-white.svg" />
+    <Content Include="Content\images\icons-svg\tag-black.svg" />
+    <Content Include="Content\images\icons-svg\tag-white.svg" />
+    <Content Include="Content\images\icons-svg\user-black.svg" />
+    <Content Include="Content\images\icons-svg\user-white.svg" />
+    <Content Include="Content\images\icons-svg\video-black.svg" />
+    <Content Include="Content\images\icons-svg\video-white.svg" />
+    <Content Include="Content\images\Lastbil_flytjord_20.png" />
+    <Content Include="Content\images\Pil_ned.png" />
+    <Content Include="Content\images\Pil_op.png" />
+    <Content Include="Content\images\Signatur.png" />
+    <Content Include="Content\images\Signaturforklaring_FJ_small.png" />
+    <Content Include="Content\images\testudgave.png" />
+    <Content Include="Content\jquery.mobile-1.4.5.css" />
+    <Content Include="Content\jquery.mobile-1.4.5.min.css" />
+    <Content Include="Content\jquery.mobile.external-png-1.4.5.css" />
+    <Content Include="Content\jquery.mobile.external-png-1.4.5.min.css" />
+    <Content Include="Content\jquery.mobile.icons-1.4.5.css" />
+    <Content Include="Content\jquery.mobile.icons-1.4.5.min.css" />
+    <Content Include="Content\jquery.mobile.inline-png-1.4.5.css" />
+    <Content Include="Content\jquery.mobile.inline-png-1.4.5.min.css" />
+    <Content Include="Content\jquery.mobile.inline-svg-1.4.5.css" />
+    <Content Include="Content\jquery.mobile.inline-svg-1.4.5.min.css" />
+    <Content Include="Content\jquery.mobile.structure-1.4.5.css" />
+    <Content Include="Content\jquery.mobile.structure-1.4.5.min.css" />
+    <Content Include="Content\jquery.mobile.theme-1.4.5.css" />
+    <Content Include="Content\jquery.mobile.theme-1.4.5.min.css" />
+    <Content Include="Content\Logos\167.png" />
+    <Content Include="Content\Logos\167_Blanket.png" />
+    <Content Include="Content\Logos\169.png" />
+    <Content Include="Content\Logos\169_Blanket.png" />
+    <Content Include="Content\Logos\265.png" />
+    <Content Include="Content\Logos\265_Blanket.png" />
+    <Content Include="Content\Logos\269.png" />
+    <Content Include="Content\Logos\269_Blanket.png" />
+    <Content Include="Content\Logos\320.png" />
+    <Content Include="Content\Logos\320_blanket.png" />
+    <Content Include="Content\Logos\336.png" />
+    <Content Include="Content\Logos\336_blanket.png" />
+    <Content Include="Content\Logos\340.png" />
+    <Content Include="Content\Logos\340_Blanket.png" />
+    <Content Include="Content\Logos\390.png" />
+    <Content Include="Content\Logos\390_Blanket.png" />
+    <Content Include="Content\Logos\706.png" />
+    <Content Include="Content\Logos\706_Blanket.png" />
+    <Content Include="Content\Logos\746.png" />
+    <Content Include="Content\Logos\746_Blanket.png" />
+    <Content Include="Content\Logos\751.png" />
+    <Content Include="Content\Logos\751_Blanket.png" />
+    <Content Include="Content\Logos\846.png" />
+    <Content Include="Content\Logos\846_blanket.png" />
+    <Content Include="Content\themes\base\accordion.css" />
+    <Content Include="Content\themes\base\all.css" />
+    <Content Include="Content\themes\base\autocomplete.css" />
+    <Content Include="Content\themes\base\base.css" />
+    <Content Include="Content\themes\base\button.css" />
+    <Content Include="Content\themes\base\core.css" />
+    <Content Include="Content\themes\base\datepicker.css" />
+    <Content Include="Content\themes\base\dialog.css" />
+    <Content Include="Content\themes\base\draggable.css" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\themes\base\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_444444_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_555555_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_777620_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_777777_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\themes\base\jquery-ui.css" />
+    <Content Include="Content\themes\base\jquery-ui.min.css" />
+    <Content Include="Content\themes\base\menu.css" />
+    <Content Include="Content\themes\base\progressbar.css" />
+    <Content Include="Content\themes\base\resizable.css" />
+    <Content Include="Content\themes\base\selectable.css" />
+    <Content Include="Content\themes\base\selectmenu.css" />
+    <Content Include="Content\themes\base\slider.css" />
+    <Content Include="Content\themes\base\sortable.css" />
+    <Content Include="Content\themes\base\spinner.css" />
+    <Content Include="Content\themes\base\tabs.css" />
+    <Content Include="Content\themes\base\theme.css" />
+    <Content Include="Content\themes\base\tooltip.css" />
+    <Content Include="cookies.html" />
+    <Content Include="Scripts\bootstrap-datepicker.js" />
+    <Content Include="Scripts\cookiesamtykke.js" />
+    <Content Include="Scripts\jqm.autoComplete-1.5.2-min.js" />
+    <Content Include="App_Data\Skabeloner\Kommune\320\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\320\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\320\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\320\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\320\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\336\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\336\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\336\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\336\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\336\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_GebyrOgTidsregistrering.cshtml" />
+    <Content Include="Areas\Backend\Views\Administration\AdminFakturering.cshtml" />
+    <Content Include="App_Data\Skabeloner\System\JordflyningGebyrer.xlsx" />
+    <Content Include="App_Data\Nyheder\2024-10-09.md" />
+    <Content Include="App_Data\Nyheder\2024-10-10.md" />
+    <Content Include="App_Data\Nyheder\2024-10-11!.md" />
+    <Content Include="App_Data\jobs\triggered\AfslutGamleAnmeldelser\AfslutGamleAnmeldelser.ps1" />
+    <Content Include="App_Data\jobs\triggered\RydGamleZipFiler\RydGamleZipFiler.ps1" />
+    <Content Include="App_Data\jobs\triggered\RydGamleZipFiler\settings.job" />
+    <Content Include="App_Data\jobs\triggered\AfslutGamleAnmeldelser\settings.job" />
+    <Content Include="App_Data\jobs\triggered\TjekForureningsStatus\settings.job" />
+    <Content Include="App_Data\jobs\triggered\TjekForureningsStatus\TjekForureningsStatus.ps1" />
+    <Content Include="App_Data\Skabeloner\Kommune\846\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\846\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\846\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\846\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\846\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\846\SendTilSagsbehandlerVedIndsendAnmeldelse.st" />
+    <Content Include="Content\Pdf\Oprettelse af bruger og anmeldelse.pdf" />
+    <Content Include="Content\Pdf\Persondataforordningen - vejledning til visning af kort.pdf" />
+    <None Include="Properties\PublishProfiles\flytjordazuretest2024 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\wa-os2flytjord-preprod - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\wa-os2flytjord-test - Web Deploy.pubxml" />
+    <None Include="Scripts\jquery-1.12.4.intellisense.js" />
+    <Content Include="Scripts\jquery-1.12.4.js" />
+    <Content Include="Scripts\jquery-1.12.4.min.js" />
+    <Content Include="Scripts\jquery-ui-1.12.1.js" />
+    <Content Include="Scripts\jquery-ui-1.12.1.min.js" />
+    <Content Include="Scripts\jquery.mobile-1.4.5.js" />
+    <Content Include="Scripts\jquery.mobile-1.4.5.min.js" />
+    <Content Include="Scripts\jQuery\jquery.browser.js" />
+    <Content Include="Scripts\jQuery\jquery.iecors.js" />
+    <Content Include="Scripts\jQuery\jquery.iframe-auto-height.js" />
+    <Content Include="Scripts\jQuery\jquery.resize.js" />
+    <Content Include="Scripts\jQuery\jquery.ui.datepicker-da.js" />
+    <Content Include="Scripts\Kendo\kendo.da-DK.js" />
+    <Content Include="Scripts\Kendo\kendoExcelGrid.js" />
+    <Content Include="Scripts\Mobile\FrontPage.js" />
+    <Content Include="Scripts\Mobile\LoginPage.js" />
+    <Content Include="Scripts\Mobile\MinSide.js" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\EksternAnmeldelseAnmeldelseUdsnit.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\EksternAnmeldelseAnmeldelseUdsnitHeader.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\EksternAnmeldelseJordmodtageranlaegUdsnit.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\EksternAnmeldelseJordmodtageranlaegUdsnitHeader.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\EksternAnmeldelseStatusUdsnit.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\EksternAnmeldelseStatusUdsnitHeader.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\OpretanmeldelseBetalerUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\OpretanmeldelseJordenUdklipBund.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\OpretanmeldelseJordenUdklipTop.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\OpretanmeldelseKommunikationUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\OpretanmeldelseModtagerogTransportørUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\OpretanmeldelseStedUdlkip.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\ProfilBrugerHeader.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\ProfilBrugerUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\ProfilJordmodtageranlaegHeader.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\ProfilJordmodtageranlaegUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\ProfilTransportoerHeader.png" />
+    <Content Include="Content\WalkingSkeleton\Ekstern\ProfilTransportoerUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Forside\ForsideAnmeldelse.png" />
+    <Content Include="Content\WalkingSkeleton\Forside\ForsideAnmeldelseUdenTekst.png" />
+    <Content Include="Content\WalkingSkeleton\Forside\forsideJordkvalitet.png" />
+    <Content Include="Content\WalkingSkeleton\Forside\forsideJordkvalitetUdenTekst.png" />
+    <Content Include="Content\WalkingSkeleton\Forside\forsideKontakt.png" />
+    <Content Include="Content\WalkingSkeleton\Forside\forsideKontaktUdentekst.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\ForsideBogholder.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\ForsideLab.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\ForsideMiljoemedarbejder.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\ForsideProevetager.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\JordmodtagerAdminBetalereUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\JordmodtagerAdminBrugereUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\JordmodtagerAdminJordmodtagereUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\AdminJordmodtagereUdklip.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Soeg_Anmeldelse.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Soeg_Anmeldelse_Resultat.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\Soeg_Betaler.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\Soeg_Betaler_Resultat.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\Soeg_Jord.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\Soeg_Jord_Resultat.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\Soeg_Kontrolanalyse.png" />
+    <Content Include="Content\WalkingSkeleton\Jordmodtager\Soeg_Kontrolanalyse_Resultat.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Anmeldelse_Anmeldelse.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Anmeldelse_header.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Anmeldelse_Jord.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Anmeldelse_Kommunikation.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Anmeldelse_Sagsbehandling.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Anmeldelse_Stikproevkontrol.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\ForsideSagsbehandler.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Sagsbehandling_Anmeldelse.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Sagsbehandling_HistorikKommunikation.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Sagsbehandling_Sagsbehandling.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Sagsbehandling_Stikproevekontrol.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Sagsbehandling_TilkoertJord.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Soeg.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Stikproevekontrol_Analysen.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Stikproevekontrol_Historik.png" />
+    <Content Include="Content\WalkingSkeleton\Kommune\Stikproevekontrol_Stikproeven.png" />
+    <Content Include="Global.asax" />
+    <Content Include="NLog.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Areas\Backend\Views\Shared\_LayoutBackend.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Areas\Backend\Views\Shared\_LayoutBackendContent.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_BackendBetaler.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_BackendJorden.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_BackendModtagerOgTransportoer.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_BackendSted.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_BackendValidering.cshtml" />
+    <Content Include="Scripts\jQueryMobile\jquery.mobile-1.3.1.js" />
+    <Content Include="Scripts\jQueryMobile\jquery.mobile-1.3.1.min.js" />
+    <Content Include="Scripts\Kendo\kendo.culture.da-DK.min.js" />
+    <Content Include="Scripts\Proj4s\defs\EPSG25832.js" />
+    <Content Include="Scripts\Proj4s\EPSG25832.js" />
+    <Content Include="Scripts\Proj4s\proj4js.combined.js" />
+    <Content Include="Scripts\Proj4s\proj4js.combined.min.js" />
+    <Content Include="Scripts\QR\jquery.qrcode.min.js" />
+    <Content Include="Scripts\Wicket\wicket-leaflet.js" />
+    <Content Include="Scripts\Wicket\wicket.js" />
+    <Content Include="SqlServerTypes\readme.htm" />
+    <Content Include="SqlServerTypes\x64\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x64\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\msvcr120.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\SqlServerSpatial140.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Anmeldelser\Blanket.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\AdminSearch.cshtml" />
+    <Content Include="Areas\Backend\Views\Frontpages\StartSagsbehandler.cshtml" />
+    <Content Include="Areas\Backend\Views\Frontpages\StartMiljoemedarbejder.cshtml" />
+    <Content Include="Areas\Backend\Views\Frontpages\StartLab.cshtml" />
+    <Content Include="Areas\Backend\Views\Frontpages\StartBogholder.cshtml" />
+    <Content Include="Areas\Backend\Views\Frontpages\StartProevetager.cshtml" />
+    <Content Include="Areas\Backend\Views\Stikproeve\_Stikproeven.cshtml" />
+    <Content Include="Areas\Backend\Views\Stikproeve\_Analysen.cshtml" />
+    <Content Include="Areas\Backend\Views\Stikproeve\_Historik.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_Stikproeve.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_TilkoertJord.cshtml" />
+    <Content Include="Areas\Backend\Views\Frontpages\StartPladsmand.cshtml" />
+    <Content Include="Areas\Backend\Views\Web.config" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\Index.cshtml" />
+    <Content Include="Areas\Backend\Views\Administration\AdminModtageAnlaeg.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_Header.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_HistorikOgKommunikation.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\AdminResultatBetaler.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\AdminResultatAnmeld.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\AdminResultatVognlaes1.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\AdminResultatStikProeve.cshtml" />
+    <Content Include="App_Data\Skabeloner\System\TilBetalerAcceptereDuBetalingen.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\TilBetalerNytFraBogholder.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\TilLabProeveSkalAnalyses.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\TilMiljoemedarbejderVedrStikproeve.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\TilPladsmandNytOmStikproeve.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\TilProeveTagerTidTilJordproever.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\751\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\System\TilAnmelderOgTransAnmeldelsenErGodkendt.st" />
+    <Content Include="App_Data\Skabeloner\System\TilInteresanterAlarmPaaAnmeldelse.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\TilAnmelderJordmodtagerAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\751\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\System\TilNyBruger.st" />
+    <Content Include="App_Data\Skabeloner\System\AktiveretAnmeldelse.st" />
+    <Content Include="Areas\Backend\Views\Search\_AdminSearchAnmeld.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\_AdminSearchBetaler.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\_AdminSearchStikproeve.cshtml" />
+    <Content Include="Areas\Backend\Views\Search\_AdminSearchVognlaes.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\Besked.cshtml" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\AlarmKoertJord.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\TilAnmelderJordmodtagerAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\TilBetalerNytFraBogholder.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\TilLabProeveSkalAnalyses.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\TilMiljoemedarbejderVedrStikproeve.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\TilPladsmandNytOmStikproeve.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\TilProeveTagerTidTilJordproever.st" />
+    <Content Include="App_Data\Skabeloner\System\TilRaadgiver.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\AlarmKoertJord.st" />
+    <Content Include="Areas\Backend\Views\Stikproeve\_StikproeveHeader.cshtml" />
+    <Content Include="App_Data\Skabeloner\System\GlemtPassword.st" />
+    <Content Include="App_Data\Skabeloner\System\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\751\style.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\style.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\style.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\B3081EB9-20B0-4E0E-AE8D-B09B8EDBA04A\BeskedVedrBetalerAfvistAfBogholder.st" />
+    <Content Include="App_Data\Skabeloner\Jordmodtager\F06CBCA7-8154-4E44-BCEA-0D8CDCAB6BB3\BeskedVedrBetalerAfvistAfBogholder.st" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_BackendJordJordKlassifikation.cshtml" />
+    <Content Include="App_Data\Skabeloner\System\AktiveretRevideretAnmeldelse.st" />
+    <Content Include="App_Data\Skabeloner\System\AfslutAnmeldelse.st" />
+    <Content Include="Areas\Backend\Views\Search\AdminResultatVognlaes2.cshtml" />
+    <Content Include="App_Data\Skabeloner\System\TilNyBrugerOprettetAfAndenBruger.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\706\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\706\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\706\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\746\SendTilSagsbehandlerVedIndsendAnmeldelse.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\746\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\746\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\746\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\System\KommuneGodkenderAnmeldelsen.st" />
+    <Content Include="Areas\Backend\Views\Administration\AdminModtagerAnlaeg.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_BackendStedJordforuningOpslag.cshtml" />
+    <Content Include="App_Data\Skabeloner\System\TilKommuneAcceptAfslagAfMidlertidigtAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\265\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\265\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\265\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\265\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\751\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\751\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\167\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\167\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\167\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\167\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\167\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\265\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\706\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\706\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\746\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\746\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\707\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\707\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\707\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\707\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\707\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\169\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\169\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\169\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\169\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\169\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\340\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\340\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\340\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\340\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\340\TilInteressenterFraSagsbehandler.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\390\FraAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\390\style.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\390\TilAndenKommuneGodkendAfvisAnlaeg.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\390\TilAnmelderKommuneAfviserAnmeldelsen.st" />
+    <Content Include="App_Data\Skabeloner\Kommune\390\TilInteressenterFraSagsbehandler.st" />
+    <None Include="Areas\Backend\Views\Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Areas\Backend\Views\Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Properties\PublishProfiles\fileDir.pubxml" />
+    <Content Include="Scripts\jQuery\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\jQuery\jquery-1.9.1.js" />
+    <Content Include="Scripts\jQuery\jquery-1.9.1.min.js" />
+    <Content Include="Scripts\jQuery\jquery-1.9.1.min.map" />
+    <Content Include="Scripts\eventlib.js" />
+    <Content Include="Scripts\jordflytning.js" />
+    <Content Include="Scripts\jQuery\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jQuery\jquery-ui-1.10.2.js" />
+    <Content Include="Scripts\jQuery\jquery-ui-1.10.2.min.js" />
+    <Content Include="Scripts\jQuery\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jQuery\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\jQuery\jquery.da-DK_validate.js" />
+    <Content Include="Scripts\jQuery\jquery.validate.js" />
+    <Content Include="Scripts\jQuery\jquery.validate.min.js" />
+    <Content Include="Scripts\jQuery\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jQuery\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\Kendo\kendo.aspnetmvc.min.js" />
+    <Content Include="Scripts\Kendo\kendo.web.min.js" />
+    <Content Include="Scripts\Map\mapModtagerAnlaeg.js" />
+    <Content Include="Scripts\Map\MapSted.js" />
+    <Content Include="Scripts\modernizr-2.5.3.js" />
+    <Content Include="Scripts\mvcfoolproof.unobtrusive.min.js" />
+    <Content Include="Scripts\Noty\jquery.noty.js" />
+    <Content Include="Scripts\Noty\layouts\bottom.js" />
+    <Content Include="Scripts\Noty\layouts\bottomCenter.js" />
+    <Content Include="Scripts\Noty\layouts\bottomLeft.js" />
+    <Content Include="Scripts\Noty\layouts\bottomRight.js" />
+    <Content Include="Scripts\Noty\layouts\center.js" />
+    <Content Include="Scripts\Noty\layouts\centerLeft.js" />
+    <Content Include="Scripts\Noty\layouts\centerRight.js" />
+    <Content Include="Scripts\Noty\layouts\inline.js" />
+    <Content Include="Scripts\Noty\layouts\top.js" />
+    <Content Include="Scripts\Noty\layouts\topCenter.js" />
+    <Content Include="Scripts\Noty\layouts\topLeft.js" />
+    <Content Include="Scripts\Noty\layouts\topRight.js" />
+    <Content Include="Scripts\Noty\themes\default.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\Default\ContentPage.cshtml" />
+    <Content Include="Views\Anmeldelser\Opret.cshtml" />
+    <Content Include="Views\Shared\_LayoutPublic.cshtml" />
+    <Content Include="Views\Backend\Search.cshtml" />
+    <Content Include="Views\Backend\Portal.cshtml" />
+    <Content Include="Views\Anmeldelser\Anmeldelse.cshtml" />
+    <Content Include="Areas\Backend\Views\DefaultBackend\Index.cshtml" />
+    <Content Include="Views\Shared\_PublicLeftMenuMaster.cshtml" />
+    <Content Include="Views\Backend\Sagsbehandling.cshtml" />
+    <Content Include="Areas\Backend\Views\Stikproeve\Stikproeve.cshtml" />
+    <Content Include="Areas\Backend\Views\Administration\AdminBetaler.cshtml" />
+    <Content Include="Views\Default\Startside.cshtml" />
+    <Content Include="Views\Soeg\Soeg.cshtml" />
+    <Content Include="Views\Backend\StartSagsbehandler.cshtml" />
+    <Content Include="Views\Backend\SoegAnmeldelse.cshtml" />
+    <Content Include="Views\Backend\SoegResultat.cshtml" />
+    <Content Include="Views\Backend\Anmeldelse.cshtml" />
+    <Content Include="Views\Backend\SoegJord.cshtml" />
+    <Content Include="Views\Backend\SoegKontrolanalyse.cshtml" />
+    <Content Include="Views\Backend\SoegBetaler.cshtml" />
+    <Content Include="Views\Backend\StartLab.cshtml" />
+    <Content Include="Views\Backend\StartBogholder.cshtml" />
+    <Content Include="Views\Backend\StartMiljoemedarbejder.cshtml" />
+    <Content Include="Views\Backend\StartProevetager.cshtml" />
+    <Content Include="Areas\Backend\Views\Administration\AdminBrugere.cshtml" />
+    <Content Include="Areas\Backend\Views\Administration\AdminJordmodtager.cshtml" />
+    <Content Include="Views\Anmeldelser\_Sted.cshtml" />
+    <Content Include="Views\Anmeldelser\_Jorden.cshtml" />
+    <Content Include="Views\Anmeldelser\_ModtagerOgTransportoer.cshtml" />
+    <Content Include="Views\Shared\_LoginStatusPartial.cshtml" />
+    <Content Include="Views\Adresse\Opslag.cshtml" />
+    <Content Include="Views\Anmeldelser\_AdresseOpslag.cshtml" />
+    <Content Include="Views\Anmeldelser\_VejOpslag.cshtml" />
+    <Content Include="Views\Anmeldelser\_Betaler.cshtml" />
+    <Content Include="Views\Bruger\Aktiver.cshtml" />
+    <Content Include="Views\Anmeldelser\DownloadDokumentation.cshtml" />
+    <Content Include="Views\Default\Sandbox.cshtml" />
+    <Content Include="Views\Default\_SandboxPartial.cshtml" />
+    <Content Include="Views\Anmeldelser\_StedJordforuningOpslag.cshtml" />
+    <Content Include="Views\Anmeldelser\_Validering.cshtml" />
+    <Content Include="Views\ModtagerAnlaeg\Kort.cshtml" />
+    <Content Include="Views\ModtagerAnlaeg\_map.cshtml" />
+    <Content Include="Views\Shared\_LayoutBasic.cshtml" />
+    <Content Include="Views\Default\TjekEjendom.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\GridForeignKey.cshtml" />
+    <Content Include="Views\Adresse\Load.cshtml" />
+    <Content Include="Views\Bruger\UdskrivLastbil.cshtml" />
+    <Content Include="Views\Default\Kvittering.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\AdminBrugereCustomPopupEditor.cshtml" />
+    <Content Include="Areas\Backend\Views\Anmeldelser\_Sagsbehandling.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Views\Shared\_LayoutBlanket.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\StikproeveForurenningsKomponenterCustomPopupEditor.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\VognlaesCustomPopupEditor.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\AdminBetalerBogholderOpslagstavlePopupEditor.cshtml" />
+    <Content Include="Views\ModtagerAnlaeg\RedigerPlacering.cshtml" />
+    <Content Include="Views\Default\Gateway.cshtml" />
+    <Content Include="Views\Anmeldelser\_Kommunikation.cshtml" />
+    <Content Include="Views\Default\FrontPage.Mobile.cshtml" />
+    <Content Include="Scripts\jQueryMobile\jquery.mobile-1.3.1.min.map" />
+    <Content Include="Views\Default\MobileLoginPage.cshtml" />
+    <Content Include="Views\Shared\_LayoutMobile.cshtml" />
+    <Content Include="Views\Default\MobileMinSide.cshtml" />
+    <Content Include="Views\Mobile\_MobileAnmeldelse.cshtml" />
+    <Content Include="Views\Mobile\_TjekJordSvar.cshtml" />
+    <Content Include="Views\Mobile\_MobileAdgang.cshtml" />
+    <Content Include="Views\Mobile\_MobilePreviewAnmeldelse.cshtml" />
+    <Content Include="Views\Mobile\_Kvittering.cshtml" />
+    <Content Include="Views\Mobile\_AdresseTjek.cshtml" />
+    <Content Include="Views\Bruger\_ProfilBruger.cshtml" />
+    <Content Include="Views\Bruger\_ProfilBemyndigede.cshtml" />
+    <Content Include="Views\Bruger\_ProfilModtageAnlaeg.cshtml" />
+    <Content Include="Views\Bruger\_ProfilAdvisering.cshtml" />
+    <Content Include="Views\Bruger\_ProfilTransportoer.cshtml" />
+    <Content Include="Views\Bruger\Profil.cshtml" />
+    <Content Include="Views\ModtagerAnlaeg\Dokumenter.cshtml" />
+    <Content Include="Views\Anmeldelser\_JordJordKlassifikation.cshtml" />
+    <Content Include="Views\Adresse\AutoAfslut.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\AdminJordmodtagerCustomPopupEditor.cshtml" />
+    <Content Include="Views\Default\Error.cshtml" />
+    <Content Include="Views\Anmeldelser\Vognlaes.cshtml" />
+    <None Include="Properties\PublishProfiles\Filesystem.pubxml" />
+    <None Include="Properties\PublishProfiles\Jordflytning.pubxml" />
+    <None Include="Properties\PublishProfiles\Niras.Jordflytning.pubxml" />
+    <None Include="Properties\PublishProfiles\Prod.pubxml" />
+    <Content Include="Views\Bruger\VisPerson.cshtml" />
+    <Content Include="Views\Shared\_LayoutTjekEjendom.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\VognlaesAfvisCustomPopupEditor.cshtml" />
+    <None Include="Properties\PublishProfiles\test.pubxml" />
+    <Content Include="Views\Anmeldelser\VisAnmeldelse.cshtml" />
+    <Content Include="Views\Anmeldelser\_Revision.cshtml" />
+    <Content Include="Views\Default\HjaelpVejledninger.cshtml" />
+    <Content Include="Views\Anmeldelser\HistorikKommunikation.cshtml" />
+    <Content Include="Views\Shared\_LayoutPDF.cshtml" />
+    <Content Include="Views\ModtagerAnlaeg\RedigerMidlertidigtBrugerAnlaeg.cshtml" />
+    <Content Include="Views\Shared\_LayoutModal.cshtml" />
+    <Content Include="Views\Anmeldelser\_MatrikelOpslag.cshtml" />
+    <Content Include="Views\Placering\RedigerIndtegnetPlacering.cshtml" />
+    <Content Include="Views\ModtagerAnlaeg\KonfliktSoegningMidlertidigtAnlaeg.cshtml" />
+    <Content Include="Views\Default\AndenKommuneSvar.cshtml" />
+    <Content Include="Scripts\jquery.mobile-1.4.5.min.map" />
+    <Content Include="Scripts\jquery-1.12.4.min.map" />
+    <Content Include="Views\Anmeldelser\_Gennemse.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\GebyrTidsregistreringCustomPopupEditor.cshtml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Template.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="packages.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Layout.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\_ViewStart.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Default\FrontPage.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Niras.Jordflytning.BatchJob\Niras.Jordflytning.BatchJob\Niras.Jordflytning.BatchJob.csproj">
+      <Project>{6f52df2c-c023-4489-aad7-acf17db74431}</Project>
+      <Name>Niras.Jordflytning.BatchJob</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Niras.Jordflytning.Core\Niras.Jordflytning.Core.csproj">
+      <Project>{bbaf3d72-f702-497d-bec6-0e2125db767f}</Project>
+      <Name>Niras.Jordflytning.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Niras.Jordflytning.Infrastructure\Niras.Jordflytning.Infrastructure.csproj">
+      <Project>{f4d2423f-9b3d-4495-bc62-d0c91650fb84}</Project>
+      <Name>Niras.Jordflytning.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Niras.Jordflytning.Library\Niras.Jordflytning.Library.csproj">
+      <Project>{1A3C2DA0-1CB9-481B-AFE0-C9A17C9FE10A}</Project>
+      <Name>Niras.Jordflytning.Library</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>55001</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44329/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <Import Project="..\packages\Microsoft.VisualStudio.SlowCheetah.4.0.50\build\Microsoft.VisualStudio.SlowCheetah.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SlowCheetah.4.0.50\build\Microsoft.VisualStudio.SlowCheetah.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.VisualStudio.SlowCheetah.4.0.50\build\Microsoft.VisualStudio.SlowCheetah.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.VisualStudio.SlowCheetah.4.0.50\build\Microsoft.VisualStudio.SlowCheetah.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+  <Target Name="AfterBuild">
+    <!-- Web.config transform -->
+    <Exec Command="..\packages\WebConfigTransformRunner.1.0.0.1\Tools\WebConfigTransformRunner.exe Web.Template.config Web.$(Configuration).config Web.config" />
+  </Target>
+</Project>

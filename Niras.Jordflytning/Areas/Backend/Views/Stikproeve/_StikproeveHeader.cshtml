@@ -1,0 +1,54 @@
+﻿@model Niras.Jordflytning.Areas.Backend.ViewModels.StikproeveModel
+
+
+@Html.HiddenFor(m => m.StikproeveLocked, new { Id = "hflStikproeveLocked" })
+<table style="border: 0; padding: 5px; width: 100%; border-top: solid 1px #000; border-bottom: solid 1px #000; margin: 5px">
+  <tr>
+
+    <td class="StikproeveHeader" style="width: 270px; padding-right:5px;">
+      @Html.Label("Seneste status",  new {style="width:76px;", Class="headerLabelText" })
+      @*@Html.DisplayFor(m => m.HeaderStatusNavn)*@
+      @Html.DisplayFor(m => m.Status)
+    </td>
+
+    <td class="StikproeveHeader" style="width: 225px; padding-right:5px;">
+      @Html.Label("Anmelder", new {style="width:73px;  margin-left:5px;", Class="headerLabelText" })
+      @*@Html.DisplayFor(m => m.HeaderAnmelderNavn)*@
+      @Html.DisplayFor(m => m.HeaderAnmelderNavn)
+      @Html.HiddenFor(m => m.HeaderAnmelderNavn)
+    </td>
+
+    <td class="StikproeveHeader" style="width: 315px; padding-right:5px;">
+      @Html.Label("Betaler", new {style="width:62px;", Class="headerLabelText" })
+      @Html.DisplayFor(m => m.HeaderBetalerNavn)
+    </td>
+
+    <td class="StikproeveHeader"  style="width: 211px; padding-right:5px;">
+      @Html.Label("Modtaget", new {style="width:78px;", Class="headerLabelText" })
+      @Html.DisplayFor(m => m.HeaderOprettet)
+    </td>
+  </tr>
+  <tr>
+
+    <td class="StikproeveHeader">
+      @Html.Label("Modtageanlæg", new {style="width:76px;", Class="headerLabelText" })
+      @Html.DisplayFor(m => m.HeaderModtagerAnlaegNavn)
+    </td>
+
+    <td class="StikproeveHeader">
+      @Html.Label("Tilkørt jord (t)", new {style="width:73px; margin-left:5px;", Class="headerLabelText" })
+      @Html.DisplayFor(m => m.HeaderTilkoertJord)
+    </td>
+
+    <td class="StikproeveHeader">
+      @Html.Label("Transportør", new {style="width:62px;", Class="headerLabelText" })
+      @Html.DisplayFor(m => m.HeaderTransportoerNavn)
+    </td>
+
+    <td class="StikproeveHeader">
+      @Html.Label("Sagsbehandler", new {style="width:78px;", Class="headerLabelText" })
+      @Html.DisplayFor(m => m.HeaderSagsbehandler)
+    </td>
+  </tr>
+
+</table>

@@ -1,0 +1,259 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.StikproeveModel
+@{
+  ViewBag.Title = "Stikproeve";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section TopMenu {
+  <div class="row">
+    <input type="submit" value="Gem" class="toolbarButton" style="margin-left: 5px; margin-top:5px; margin-bottom:3px;" id="btnGemStikproeve" />
+  </div>
+}
+
+@section Scripts
+{
+  <script type="text/javascript">
+    //Events
+    var rbnGodkendtEvent = function(event) {
+      var dropdownlist = $("#ddlAfvisningAarsag").data("kendoDropDownList");
+      dropdownlist.enable(false);
+      $("#txtAfvisningBemaerkning").attr("disabled", "disabled");
+    };
+    
+    var rbnAfvistEvent = function (event) {
+      var dropdownlist = $("#ddlAfvisningAarsag").data("kendoDropDownList");
+      dropdownlist.enable(true);
+      $("#txtAfvisningBemaerkning").removeAttr("disabled");
+    };
+    
+    var rbnUnderBehandlingEvent = function (event) {
+      var dropdownlist = $("#ddlAfvisningAarsag").data("kendoDropDownList");
+      dropdownlist.enable(false);
+      $("#txtAfvisningBemaerkning").attr("disabled", "disabled");
+    };
+    
+    $(document).ready(function() {
+
+      var winFileUpload = Jordflytning.ui.createModalWindow("winFileUpload", 300, 400, "Upload dokument", false);
+
+      $("#btnShowWinFileUpload").click(function(e) {
+        e.preventDefault();
+        if ($("#hflStikproeveLocked").val() != "True") {
+          winFileUpload.center();
+          winFileUpload.open();
+          winFileUpload.visible = true;
+          $("#attachments").closest(".k-upload").find("span").text("Find");
+        }
+
+      });
+
+      $("#attachments").kendoUpload({
+        async: {
+          saveUrl: '@Url.Action("SaveFile", "Stikproeve")',
+          removeUrl: '@Url.Action("RemoveFile", "Stikproeve")',
+          autoUpload: true,
+        },
+        showFileList: false,
+        success: onFileSuccess,
+        upload: onFileUpload,
+        close: onFileClose
+      });
+
+      $("chkBoxJordproeveUdtaget").click(jordproeveUdtaget);
+
+      // Gem stikprøven
+      $("#btnGemStikproeve").click(function() {
+        var isUfoert = $("#chkAnalyseUdfoert").is(':checked');
+        $("#HfchkAnalyseUdfoert").attr("value", isUfoert);
+        $("#hflMessage").val("Stikprøven er gemt"); //Fusker metode, jeg ved det! KVE
+        $("#frmStikproeve").submit();
+      });
+
+      //Click Envents knappes på og af i lockStikprøve()
+      
+      //$("#rbnGodkendt").click(function() {
+      //  var dropdownlist = $("#ddlAfvisningAarsag").data("kendoDropDownList");
+      //  dropdownlist.enable(false);
+      //  $("#txtAfvisningBemaerkning").attr("disabled", "disabled");
+      //});
+
+      //$("#rbnAfvist").click(function() {
+      //  var dropdownlist = $("#ddlAfvisningAarsag").data("kendoDropDownList");
+      //  dropdownlist.enable(true);
+      //  $("#txtAfvisningBemaerkning").removeAttr("disabled");
+      //});
+
+      //$("#rbnUnderBehandling").click(function() {
+      //  var dropdownlist = $("#ddlAfvisningAarsag").data("kendoDropDownList");
+      //  dropdownlist.enable(false);
+      //  $("#txtAfvisningBemaerkning").attr("disabled", "disabled");
+      //});
+
+      var pladsmand = '@Model.IsPladsmand()';
+      var miljoemedarbejder = '@Model.IsMiljoemedarbejder()';
+      var proevetager = '@Model.IsProevetager()';
+      var laboratorie = '@Model.IsLaboratorie()';
+
+      //Oplysninger
+      if (miljoemedarbejder != 'True' && proevetager != 'True') {
+        $("#ddlLaboratorie").attr("readonly", "readonly");
+        $("#txtInternBemaerkning").attr("readonly", "readonly");
+      }
+      //Jordprøven
+      if (miljoemedarbejder != 'True' && proevetager != 'True') {
+        $("#chkBoxJordproeveUdtaget").attr("disabled", "disabled");
+        $("#txtLugtvurdering").attr("readonly", "readonly");
+        $("#txtJordBeskrivelse").attr("readonly", "readonly");
+      }
+
+      //Vurdering
+      if (miljoemedarbejder != 'True' && proevetager != 'True') {
+        $("#ddlAfvisningAarsag").attr("disabled", "disabled");
+        $("#rbnUnderBehandling").attr("disabled", "disabled");
+        $("#rbnAfvist").attr("disabled", "disabled");
+        $("#rbnGodkendt").attr("disabled", "disabled");
+        $("#txtAfvisningBemaerkning").attr("readonly", "readonly");
+      }
+
+      //Analysen
+      if (miljoemedarbejder != 'True' && proevetager != 'True' && laboratorie != 'True') {
+        $("#analyseTab").attr("disabled", "disabled");
+      }
+
+      //Bås
+      if (pladsmand != 'True' && miljoemedarbejder != 'True' && proevetager != 'True') {
+        $("#chkBoxJordAfhentet").attr("disabled", "disabled");
+      }
+      
+      onFormSuccess();
+    });
+
+    function lockStikproeve() {
+      //Lås brugerflade
+      //if ($("#hflStikproeveLocked").val() == "True") {
+      if ($("#chkBoxJordAfhentet").is(':checked')) {
+        //Brugerfladen
+        $("#divStikproeven :input").attr("readonly", true);
+        $("#divAnalysen :input").attr("readonly", true);
+
+        //Knapper
+        //Tilføj forureningskomponent på grid
+        $("#ForureningskomponenterGrid .k-grid-add").addClass("k-add-button");
+        $("#ForureningskomponenterGrid .k-add-button").addClass("k-state-disabled").removeClass("k-grid-add");
+        $("#ForureningskomponenterGrid .k-add-button").hide();
+
+        //Checkbox
+        var deactivator = function(event) { event.preventDefault(); };
+        $("#chkAnalyseUdfoert").click(deactivator);
+        $("#chkBoxJordproeveUdtaget").click(deactivator);
+        $("#divStikproeven :radio").click(deactivator);
+
+        //Dropdownlist
+        $("#ddlAfvisningAarsag").attr("readonly", true);
+        
+      } else {
+        
+        //Brugerfladen
+        $("#divStikproeven :input").removeAttr("readonly");
+        $("#divAnalysen :input").removeAttr("readonly");
+
+        //Knapper
+        //Tilføj forureningskomponent på grid
+        $("#ForureningskomponenterGrid .k-grid-add").addClass("k-add-button");
+        $("#ForureningskomponenterGrid .k-add-button").addClass("k-grid-add").removeClass("k-state-disabled");
+        $("#ForureningskomponenterGrid .k-add-button").show();
+
+        //Checkbox
+        $("#chkAnalyseUdfoert").off('click');
+        $("#chkBoxJordproeveUdtaget").off('click');
+        $("#divStikproeven :radio").off('click');
+
+        //Click events skal knappes
+        $("#rbnGodkendt").click(rbnGodkendtEvent);
+        $("#rbnAfvist").click(rbnAfvistEvent);
+        $("#rbnUnderBehandling").click(rbnUnderBehandlingEvent);
+        
+        
+        //Dropdownlist
+        $("#ddlAfvisningAarsag").removeAttr("readonly");
+      }
+    }
+
+    function onFileClose() {
+      $("#divFilprogress").hide();
+    }
+
+    function onFileUpload(e) {
+      e.data = { stikproeveId: $("#hfStikproeveId").val() };
+      $("#divFilprogress").show();
+    }
+
+    function onFileSuccess(e) {
+      $("#divFilprogress").hide();
+      $("#winFileUpload").data("kendoWindow").close();
+      $("#AnalyseDokumenterGrid").data("kendoGrid").dataSource.read();
+    }
+
+    function jordproeveUdtaget(e) {
+      if (e.checked) {
+        $("txtLugtvurdering").attr("disabled", "disabled");
+        $("txtJordBeskrivelse").attr("disabled", "disabled");
+      } else {
+        $("txtLugtvurdering").removeAttr("disabled");
+        $("txtJordBeskrivelse").removeAttr("disabled");
+      }
+    }
+
+    function additionalInfo() {
+      return { stikproeveId: $("#hfStikproeveId").val() };
+    }
+
+    function onFormSuccess() {
+      var stikid = $("#hfStikproeveId").val();
+      $.post("@Url.Action("GetHeaderForStikproeve", "Stikproeve")", { stikproeveId: stikid }, function(result) {
+        if (result) {
+          $("#stikproeveHeaderDiv").html(result); //Erstatter alt inde for div'en med result
+        }
+      });
+      var message = $("#hflMessage").val();
+      if (typeof message === 'undefined') {
+
+      } else {
+        if (message != '') {
+          window.displayMessage(message);
+        }
+      };
+      
+      //Sæt brugerfladen enten til lås eller redigerbar
+      lockStikproeve();
+    }
+
+  </script>
+}
+
+
+@Html.HiddenFor(m => m.Id, new { id = "hfStikproeveId" })
+<div class="row" id="stikproeveHeaderDiv">
+</div>
+
+@Html.Hidden("hflMessage")
+
+
+<div>
+  @(Html.Kendo().TabStrip()
+          .Name("contentTabstrip")
+          .Items(items =>
+              {
+                items.Add().Text("Stikprøven").Content(Html.Partial("~/Areas/Backend/Views/Stikproeve/_Stikproeven.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "stikproeveTab" }).Selected(true);
+                if (!Model.PlanlagtStikproeve)
+                {
+                  items.Add().Text("Analysen").Content(Html.Partial("~/Areas/Backend/Views/Stikproeve/_Analysen.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "analyseTab" });
+                }
+                items.Add().Text("Historik").Content(Html.Partial("~/Areas/Backend/Views/Stikproeve/_Historik.cshtml", Model).ToHtmlString()).HtmlAttributes(new { id = "historikTab" });
+              })
+          )
+</div>
+
+
+

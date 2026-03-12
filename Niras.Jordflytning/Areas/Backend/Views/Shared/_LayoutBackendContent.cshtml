@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html style="overflow-y: scroll;">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+
+    @*CSS*@
+    @Styles.Render("~/bundles/Content/Css/Common")
+    @Styles.Render("~/bundles/Content/kendo")
+    @Styles.Render("~/bundles/Content/Css/Backend")
+
+    @*Javascripts*@
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/eventLib")
+        @Scripts.Render("~/bundles/jquery")
+            @Scripts.Render("~/bundles/jqueryval")
+            @Scripts.Render("~/bundles/resize")
+    @Scripts.Render("~/bundles/kendo")
+    @Scripts.Render("~/bundles/noty")
+    @Scripts.Render("~/bundles/jordflytning")
+    @Scripts.Render("~/bundles/proj4s")
+
+    @*Sections*@
+    @RenderSection("Styles", false)
+    @RenderSection("Scripts", false)
+    @RenderSection("TopMenu", false)
+
+</head>
+
+<body>
+    <div id="body" style="float:left;width:99.9%;">
+        @RenderBody() @Html.Analytics()
+    </div>
+
+
+    <script id="style" type="text/javascript">
+        var Logger = Logger || {};
+        Logger.log = function (msg) {
+            if (typeof console != "undefined") {
+                console.log(msg);
+            }
+        };
+
+
+
+        $(document).ready(function () {
+            kendo.culture("da-DK");
+
+            var detailedMsg = "@Html.Raw(ViewBag.DetailedMessage)";
+            if (detailedMsg != "") {
+                displayDetailedMessage(detailedMsg);
+            }
+
+            var msg = "@ViewBag.Message";
+            if (msg != "") {
+                displayMessage(msg);
+            }
+
+            $("div#body").resize(function () {
+                var elem = $(this);
+               
+                if (parent.contentFrameResized) {
+                    var iframeId = window.frameElement.id;
+                    parent.contentFrameResized(iframeId, elem.outerHeight());
+                    Logger.log("Iframe [" + iframeId + "] resized..." + elem.outerHeight());
+                }
+            });
+            setTimeout(function () {
+                $("div#body").trigger("resize");
+            }, 10)
+        });
+
+        function displayMessage(msg, time) {
+            var n = noty({ text: msg });
+            setTimeout(function () {
+                n.close();
+            }, time || 5000);
+        }
+
+        function displayDetailedMessage(msg) {
+            $("#detailedMessageContent").html(msg);
+            $("#detailedMessage").show(600);
+        }
+    </script>
+
+</body>
+</html>

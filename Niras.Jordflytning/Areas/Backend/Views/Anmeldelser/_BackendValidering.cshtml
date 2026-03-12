@@ -1,0 +1,44 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+
+<div>
+    @if (Model.AnmeldelseModel.ValideringList != null && Model.AnmeldelseModel.ValideringList.Count > 0)
+    {
+        @:<p>
+            foreach (var ss in Model.AnmeldelseModel.ValideringList)
+            {
+                @Html.Raw(ss) @:<br />
+            }
+        @:</p>
+    }
+    <div id="divValideringJordforureningopslagAdvarsel"></div>
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <script type="text/javascript">
+            displayMessage('@ViewBag.Message');
+        </script>
+    }
+    @if (ViewBag.Reload == true)
+    {
+        <script type="text/javascript">
+            @if (!string.IsNullOrWhiteSpace(Model.Tab))
+            {
+                <text>
+                    window.location.search += '&tab=@Model.Tab';
+                </text>
+            }
+            else {
+                <text>
+                    location.reload();
+                </text>
+            }
+        </script>
+    }
+
+    @*//Disse Hiddenfields er her i dette partial view, da det er dette partial view som bliver opdateret ved ajax gem*@
+    @Html.HiddenFor(m => m.AnmeldelseModel.Anmeldelse.Id, new { Id = "hflAnmeldelseId" })
+    @if (Model.AnmeldelseModel.Anmeldelse.Oprindelsessted != null && Model.AnmeldelseModel.Anmeldelse.Oprindelsessted.Id != Guid.Empty)
+    {
+        @Html.HiddenFor(m => m.AnmeldelseModel.Anmeldelse.Oprindelsessted.Id, new { Id = "hflOprindelsesstedId" })
+    }
+</div>
+

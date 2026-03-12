@@ -1,0 +1,76 @@
+﻿@using System.Text.RegularExpressions
+@model Niras.Jordflytning.ViewModels.Anmeldelse.HistorikKommunikationModel
+
+@{
+    ViewBag.Title = "Historik & Kommunikation";
+    Layout = "~/Views/Shared/_LayoutPDF.cshtml";
+}
+
+<div style="margin-left: 5em;">
+    <table style="width: 180mm;">
+        <tr>
+            <td style="vertical-align: top;">
+                <h2>Bemærkninger</h2>
+            </td>
+            <td style=" text-align: right; font-size: 14px; font-weight: bold;padding-top: 20px">Løbenummer: @Model.LoebeNr</td>
+        </tr>
+        <tr>
+            <td colspan="2" valign="top" style="padding-left: 8px;"><b>Intern bemærkning:</b><br/>
+            @Model.internBemaerkning
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" valign="top" style="padding-left: 8px;"><b>Årsag til afvisning:</b><br/>
+            @Model.aarsagTilAfvisning
+            </td>
+        </tr>
+    </table><br />
+    <table style="width: 180mm;">
+        <tr>
+            <td style="vertical-align: top;">
+                <h2>Historik & Kommunikation</h2>
+            </td>
+        </tr>
+    </table><br />
+    <table style="width: 180mm;margin-left: 5px;">
+        <tr>
+            <td style="font-weight: bold; width: 120px;">Historik</td>
+            <td style="font-weight: bold;">Handling</td>
+            <td style="font-weight: bold;">Af</td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div class="hr" style="padding: 0; margin: 0;margin-bottom: 8px;"></div>
+            </td>
+        </tr>
+
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td>
+                    <div>@row.Tid</div>
+                </td>
+                <td>
+                    <div>@row.Handling</div>
+                </td>
+                <td>
+                    <div>@row.Person</div>
+                </td>
+            </tr>
+            if (row.Log != string.Empty)
+            {
+                <tr>
+                    <td colspan="3" style="padding-top: 10px;">
+                        <div style="font-weight: bold;">Log:</div>
+                        <div>@Html.Raw(row.Log)</div>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td colspan="3">
+                    <div class="hr" style="margin-bottom: 8px;"></div>
+                </td>
+            </tr>
+        }
+    </table>
+</div>

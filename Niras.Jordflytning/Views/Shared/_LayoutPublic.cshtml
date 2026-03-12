@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <title id="headerUrl">FlytJord.dk ® | @ViewBag.Title</title>
+
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="@Url.Content("~/Content/Css/kendo/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Css/kendo/kendo.uniform.min.css")" rel="stylesheet" type="text/css" />
+
+
+    @Styles.Render("~/bundles/Content/Css/Public")
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/eventLib")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/kendo")
+    @Scripts.Render("~/bundles/noty")
+    @Scripts.Render("~/bundles/jordflytning")
+    @Scripts.Render("~/bundles/proj4s")
+    @Scripts.Render("~/bundles/cookie")
+
+    @RenderSection("Styles", false)
+    @RenderSection("Scripts", false)
+</head>
+    <body>
+        <div id="container">
+            <div id="main">
+                <!-- Topbar -->
+                <div id="topBar">
+                    <div style="float: left;">
+                        <img src="~/Content/Icons/LoginPage/Home_64x64.png" onclick="location.href='@Url.Action("startside", "Default")'"  
+                             height="40" style="padding-left:10px;margin-top:9px; cursor:pointer;"/>
+                    </div>
+                    <div id="breadCrumb">
+                        @RenderSection("BreadCrumb", false)
+                    </div>
+                    <div style="float: right; margin-right: 10px; margin-top: 0px; font-size: 28px; font-weight: normal">FlytJord.dk</div>
+                    @if (Request.IsAuthenticated)
+                    {
+                        <div id="logoutContainer">
+                            @using (Html.BeginForm("LogOff", "Default", FormMethod.Post, new { id = "logoutForm" }))
+                            {
+                                @Html.AntiForgeryToken() 
+                                <span>@User.Identity.Name |</span>
+                                @Html.ActionLink("Log ud", "LogOff", "Default", new { id = "logoutLink", Area = "" })
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Toolbar -->
+                <div id="toolbar">
+                    <div style="float: left; display: inline">
+                        @RenderSection("TopMenu", false)
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div id="body" style="overflow: visible">
+                    <div id="content">
+                        <div id="detailedMessage" class="messageContainer">
+                            <div>
+                                <div id="detailedMessageContent" class="detailedMessage">
+                                </div>
+                            </div>
+                        </div>
+                        @RenderBody() @Html.Analytics()
+                        <div style="clear: both"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script id="style" type="text/javascript">
+            
+            $(document).ready(function () {
+                $("#logoutLink").click(function (e) {
+                    e.preventDefault();
+                    $("#logoutForm").submit();
+                });
+                var detailedMsg = "@Html.Raw(ViewBag.DetailedMessage)";
+                if (detailedMsg != "") {
+                    displayDetailedMessage(detailedMsg);
+                }
+
+                var msg = "@ViewBag.Message";
+                if (msg != "") {
+                    displayMessage(msg);
+                }
+            });
+
+            function displayMessage(msg) {
+                var n = noty({ text: msg });
+                setTimeout(function () {
+                    n.close();
+                }, 5000);
+            }
+
+            function displayDetailedMessage(msg) {
+                $("#detailedMessageContent").html(msg);
+                $("#detailedMessage").show(600);
+            }
+
+        </script>
+  
+    
+    </body>
+</html>

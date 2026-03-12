@@ -1,0 +1,294 @@
+﻿@{
+    string style = "width:474px;";
+    if(ViewData["Style"] != null) { 
+        style = (string)ViewData["Style"];
+    }
+}
+
+<input id="vejnavnOpslag" class="classiclook_kendo_workaround" style="@style" />
+@*<input id="dawaVejnavnOpslag" class="classiclook_kendo_workaround" style="width: 300px;" />*@
+
+<script>
+    
+
+    $(function () {
+
+        //function dawaDataSourceError() {
+        //    alert("Adresseservicen svarer desværre ikke!  \n\nPrøve evt. igen senere.");
+        //}
+
+        //var dawaVejnavnOpslagSource = new kendo.data.DataSource({
+        //    serverFiltering: true,
+        //    serverPaging: true,
+        //    pageSize: 2,
+        //    transport: {
+        //        read: "https://dawa.aws.dk/autocomplete",
+        //        dataType: "jsonp",
+        //        parameterMap: function (data) {
+        //            var input = $("#dawaVejnavnOpslag").val();
+
+        //           var params = null;
+
+        //            //if (isadgangsadresse) {
+        //            //    params = { q: input.trim(), type: 'adgangsadresse', caretpos: input.length, adgangsadresserOnly: true, startfra: 'adgangsadresse' };
+        //            //} else {
+        //           params = { q: input.trim(), type: 'adress', caretpos: input.length, adgangsadresserOnly: true };
+        //            //}
+
+        //            return params;
+        //        }
+        //    },
+        //});
+        //dawaVejnavnOpslagSource.bind("error", dawaDataSourceError);
+
+
+        //$("#dawaVejnavnOpslag").kendoAutoComplete({
+        //    dataTextField: "tekst", // The widget is bound to the "name" field
+        //    dataValueField: "data",
+        //    minLength: 4,//3
+        //    placeholder: "Vejnavn (indtast mindst 4 karakterer)",
+        //    filter: "contains",
+        //    lastcaretposition: 0,
+        //    select: function (e) {
+        //        var data = this.dataItem(e.item.index()).data;
+                
+
+        //        if ( data.vejkode == null || data.postnr == null) {
+                 
+        //            this.search();
+        //        }
+        //        else {
+
+        //            $.ajax({
+        //                type: "GET",
+        //                url: data.href,
+        //                dataType: "jsonp",
+        //                data: {
+        //                    format: 'geojson'
+        //                },
+        //                success: function(d) {
+
+        //                   loadVejnavnOpslagHusnumrene(d.properties.vejkode, d.properties.postnr);
+        //                },
+        //                error: function(textStatus) {
+        //                    alert("Fejl: " + textStatus);
+        //                }
+
+                        
+        //            });
+        //        }
+        //    },
+        //    dataSource: dawaVejnavnOpslagSource
+        //});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //  var argumenter = {};
+        //  //argumenter.postnr = 8000;
+        //  argumenter.kommunekode = 751;
+        //  $.ajax({
+        //    url: 'http://webapi.aws.dk/vejnavne.json',
+        //    data: argumenter,
+        //    dataType: "jsonp",
+        //    error: fejlikommunikation,
+        //    jsonpCallback: 'getveje'
+        //  });
+
+
+        $("#vejnavnOpslag").kendoAutoComplete({
+            dataTextField: "displayname", // The widget is bound to the "name" field
+            dataValueField: "vejkode",
+            minLength: 4,
+            placeholder: "Vejnavn (indtast mindst 4 karakterer)",
+            filter: "contains",
+            select: function (e) {
+                var vejkode = this.dataItem(e.item.index()).vejkode;
+                var postnr = this.dataItem(e.item.index()).postnr;
+
+                loadVejnavnOpslagHusnumrene(vejkode, postnr);
+            },
+            dataSource: {
+                serverFiltering: true,
+                serverPaging: true,
+                pageSize: 2,
+                transport: {
+                    read: "/Adresse/SearchVeje",
+                    parameterMap: function (data) {
+                        return { wildcard: $("#vejnavnOpslag").val() };
+                    }
+                }
+            }
+        });
+    
+    });
+
+    //function bindVejnavne(veje) {
+    //  //json objektet laves om til et array af veje
+    //  var values = [];
+    //  $.each(veje, function (i, vej) {
+    //    var postdistikt;
+    //    var kommunenavn;
+
+    //    //$.getJSON("http:\/\/geo.oiorest.dk\/postnumre\/4880.json", function (data) {
+    //    //  postdistikt = data.navn;
+
+    //    //});
+
+    //    //$.getJSON("http:\/\/geo.oiorest.dk\/kommuner\/0376.json", function (data) {
+    //    //  kommunenavn = data.navn;
+    //    //});
+
+
+    //    var vej = {
+    //      displayname: vej.navn,//+ ", " + vej.postnummer.nr + " " + $.getJSON(vej.postnummer.href).navn + ", " + $.getJSON(vej.kommune.href).navn,
+    //      vejnavn: vej.navn,
+    //      vejkode: vej.kode,
+    //      postnr: vej.postnummer.nr,
+
+    //    };
+    //    values.push(vej);
+
+    //  });
+    //  var vejnavnOpslag = "#vejnavnOpslag";
+    //  $(vejnavnOpslag).kendoAutoComplete({
+    //    dataTextField: "displayname", // The widget is bound to the "name" field
+    //    dataValueField: "vejkode",
+    //    dataSource: values,
+    //    minLength: 3,
+    //    placeholder: "Vejnavn",
+    //    filter: "contains",
+    //    select: function (e) {
+    //      var vejkode = this.dataItem(e.item.index()).vejkode;
+    //      var postnr = this.dataItem(e.item.index()).postnr;
+
+    //      loadVejnavnOpslagHusnumrene(vejkode, postnr);
+    //    }
+    //  });
+    //}
+
+    //$(function () {
+    //  var argumenter = {};
+    //  //argumenter.postnr = 8000;
+    //  argumenter.kommunekode = 751;
+    //  $.ajax({
+    //    url: 'http://geo.oiorest.dk/vejnavne.json',
+    //    data: argumenter,
+    //    dataType: "jsonp",
+    //    error: fejlikommunikationVejnavne,
+    //    jsonpCallback: 'bindVejnavne'
+    //  });
+
+    //});
+
+
+    function fejlikommunikationVejnavne(xhr, status, errorThrown) {
+        alert("Fejl i adresseopslaget: Status: " + status + ", errorThrown: " + errorThrown);
+    };
+
+    function loadVejnavnOpslagHusnumrene(vejkode, postnr) {
+        //url: 'http://geo.oiorest.dk/adresser.json',
+        //alert('loadhusnumre');
+        var argumenter = {};
+        argumenter.vejkode = vejkode;
+        argumenter.postnr = postnr;
+        argumenter.srid = 25832;
+        $.ajax({
+            url: 'https://dawa.aws.dk/adresser',
+            data: argumenter,
+            dataType: "jsonp",            
+            error: fejlikommunikationVejnavne,
+            jsonpCallback: 'findMedianHusnummer'
+        });
+    }
+
+    function findMedianHusnummer(husnr) {
+        //alert('findMedianHusnummer');
+        //json objektet laves om til et array af adresser
+        var values = [];
+        $.each(husnr, function (i, hn) {
+            var adr = {
+                adgangsadresse: hn.id,
+                vejnavn: hn.adgangsadresse.vejstykke.navn,
+                kommunenavn: hn.adgangsadresse.kommune.navn,
+                kommunekode: hn.adgangsadresse.kommune.kode,
+                ejerlavkode: (hn.adgangsadresse.ejerlav == null ? 0 : hn.adgangsadresse.ejerlav.kode),
+                ejerlavnavn: (hn.adgangsadresse.ejerlav == null ? '' : hn.adgangsadresse.ejerlav.navn),
+                matrikelnr: hn.matrikelnr,
+                esrejendomsnr: hn.esrejendomsnr,
+                x: hn.adgangsadresse.adgangspunkt.koordinater[0],
+                y: hn.adgangsadresse.adgangspunkt.koordinater[1],
+                postdistrikt: hn.adgangsadresse.postnummer.navn,
+                postnummer: hn.adgangsadresse.postnummer.nr,
+                wkt: "POINT(" + hn.adgangsadresse.adgangspunkt.koordinater[0] + " " + hn.adgangsadresse.adgangspunkt.koordinater[1] + ")"
+            };
+            values.push(adr);
+
+
+        });
+
+        var countRows = values.length;
+        if (countRows > 0) {
+            var adr;
+            if (countRows == 1) {
+                adr = values[0];
+                mapStedNavigateToBbox(Math.round(adr.x) - 200, Math.round(adr.y) - 200, Math.round(adr.x) + 200, Math.round(adr.y) + 200);
+        
+            } else {
+                var median = countRows / 2;
+                median = Math.floor(median);
+                //mapStedNavigateToWkt(values[median].wkt);
+
+                adr = values[median];
+                if (adr.x != null) {
+                    mapStedNavigateToBbox(Math.round(adr.x) - 200, Math.round(adr.y) - 200, Math.round(adr.x) + 200, Math.round(adr.y) + 200);
+
+                    $("#MapStedLx").val(Math.round(adr.x) - 200);
+                    $("#MapStedLy").val(Math.round(adr.y) - 200);
+                    $("#MapStedUx").val(Math.round(adr.x) + 200);
+                    $("#MapStedUy").val(Math.round(adr.y) + 200);
+                }
+            }
+
+
+            //$("#divEjendomAdresseEdit").hide();
+            //$("#divOffvejAdresseEdit").hide();
+            $("#divAdresseView").show();
+            $("#divOffVejMapDigPolygon").show();
+
+            $("#hflAdresse").val(adr.vejnavn);
+            $("#txtAdresse").val(adr.vejnavn);
+
+            $("#txtKommune").val(adr.kommunenavn);
+            $("#hflKommuneKode").val(adr.kommunekode);
+            $("#hflPostDistrikt").val(adr.postdistrikt);
+            $("#hflPostnummer").val(adr.postnummer);
+            $("#txtPostDistrikt").val(adr.postdistrikt);
+            $("#txtPostnummer").val(adr.postnummer);
+      
+            //Ryd tidligere indtegnet område
+            $("#hflOprindelsesstedWkt").val("");
+            mapStedClearRedline();
+
+        }
+    }
+
+</script>

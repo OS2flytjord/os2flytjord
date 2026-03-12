@@ -1,0 +1,157 @@
+﻿@{
+  ViewBag.Title = "SearchPage";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+  <script type="text/javascript">
+    function startChange() {
+      var endPicker = $("#end").data("kendoDatePicker"),
+          startDate = this.value();
+
+      if (startDate) {
+        startDate = new Date(startDate);
+        startDate.setDate(startDate.getDate() + 1);
+        endPicker.min(startDate);
+      }
+    }
+
+    function endChange() {
+      var startPicker = $("#start").data("kendoDatePicker"),
+          endDate = this.value();
+
+      if (endDate) {
+        endDate = new Date(endDate);
+        endDate.setDate(endDate.getDate() - 1);
+        startPicker.max(endDate);
+      }
+    }
+
+
+
+
+    $(document).ready(function () {
+
+      $("#soeg").click(function (e) {
+        e.preventDefault(); //stop default event (click på knap)
+        if($("#soeg_anmeldelse")){
+          if ($("#soeg_anmeldelse").is(":visible")) {
+            $("#soeg_anmeldelse").hide();
+            $("#soeg_anmeldelse_resultat").show();
+          }
+          else {
+            $("#soeg_anmeldelse_resultat").hide();
+            $("#soeg_anmeldelse").show();
+          }
+        }
+
+        if ($("#soeg_jord")) {
+          if ($("#soeg_jord").is(":visible")) {
+            $("#soeg_jord").hide();
+            $("#soeg_jord_resultat").show();
+          }
+          else {
+            $("#soeg_jord_resultat").hide();
+            $("#soeg_jord").show();
+          }
+        }
+
+        if ($("#soeg_kontrol")) {
+          if ($("#soeg_kontrol").is(":visible")) {
+            $("#soeg_kontrol").hide();
+            $("#soeg_kontrol_resultat").show();
+          }
+          else {
+            $("#soeg_kontrol_resultat").hide();
+            $("#soeg_kontrol").show();
+          }
+        }
+
+        if ($("#soeg_betaler")) {
+          if ($("#soeg_betaler").is(":visible")) {
+            $("#soeg_betaler").hide();
+            $("#soeg_betaler_resultat").show();
+          }
+          else {
+            $("#soeg_betaler_resultat").hide();
+            $("#soeg_betaler").show();
+          }
+        }
+      
+      });
+
+      $("#soeg_kontrol_resultat").click(function (e) {
+        openTab("Stikproeve", "/Backend/Stikproeve");
+      });
+
+      $("#soeg_jord_resultat").click(function (e) {
+        openTab("Anmeldelse", "/Backend/Anmeldelse");
+      });
+
+      $("#soeg_betaler_resultat").click(function (e) {
+        openTab("Betaler", "/Backend/AdminBetaler");
+      });
+
+      $("#soeg_anmeldelse_resultat").click(function (e) {
+        openTab("Anmeldelse", "/Backend/Anmeldelse");
+      });
+
+     
+
+      $("#soegeresultat").click(function (e) {
+        openTab("Stikproeve", "/Backend/Stikproeve");
+      });
+    });
+
+  </script>
+}
+
+@section TopMenu {
+  <div>
+    <input id="soeg" type="submit" value="Søg" class="toolbarButton" />
+    <input id="nulstil" type="submit" value="Nulstil" class="toolbarButton" />
+    <input type="submit" value="Luk" class="toolbarButton" />
+    <input type="submit" value="Eksporter" class="toolbarButton" />
+  </div>
+}
+
+
+<div class="row">
+  <h3>Rapporter</h3>
+  <div class="column">
+    @(Html.Kendo().ComboBox()
+          .Name("size")
+          .Placeholder("Vælg en rapport")
+          .BindTo(new List<string>() {
+            "Vælg en rapport",  
+            "Aktive anmeldelser",
+            "Afsluttede anmeldelser",
+            "Betaler - Igangværende sager",
+            "Betaler - Afsluttede sager",
+            "Anmeldelser - Faktura mangler",
+            "Anmeldelser - Igangværede sager",
+            "Anmeldelser - Sager der ikke er meldt afsluttet 1 uge efter slutdato"
+          })
+    )
+
+  </div>
+</div>
+<br />
+<br />
+<hr />
+@(Html.Kendo().TabStrip()
+              .Name("contentTabstrip")
+              .Items(items =>
+                      {
+                        items.Add().Text("Anmeldelse").Content(@<img id="soeg_anmeldelse" src="~/Content/WalkingSkeleton/Kommune/Soeg_Anmeldelse.png" />).Selected(true);
+                        items.Add().Text("Jord / Vognlæs").Content(@<img id="soeg_jord" src="~/Content/WalkingSkeleton/Jordmodtager/Soeg_Jord.png" />);
+                        items.Add().Text("Kontrolanalyser").Content(@<img id="soeg_kontrol" src="~/Content/WalkingSkeleton/Jordmodtager/Soeg_Kontrolanalyse.png" />);
+                        items.Add().Text("Betaler").Content(@<img id="soeg_betaler" src="~/Content/WalkingSkeleton/Jordmodtager/Soeg_Betaler.png" />);
+                      })
+                      )
+
+<img id="soeg_anmeldelse_resultat" src="~/Content/WalkingSkeleton/Kommune/Soeg_Anmeldelse_resultat.png" style="display:none;" />
+<img id="soeg_betaler_resultat" src="~/Content/WalkingSkeleton/Jordmodtager/Soeg_Betaler_resultat.png" style="display:none;" />
+<img id="soeg_jord_resultat" src="~/Content/WalkingSkeleton/Jordmodtager/Soeg_Jord_resultat.png" style="display:none;" />
+<img id="soeg_kontrol_resultat" src="~/Content/WalkingSkeleton/jordmodtager/Soeg_Kontrolanalyse_resultat.png" style="display:none;" />
+

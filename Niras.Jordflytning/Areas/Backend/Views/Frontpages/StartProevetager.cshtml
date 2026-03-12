@@ -1,0 +1,95 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.StartProevetagerViewModel
+
+@{
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function GridAktuelleStikproeverListDataBound() {
+            $("#GridAktuelleStikproeverList tbody tr").hover(
+             function () {
+                 $(this).toggleClass("k-state-hover");
+             }
+         );
+        }
+
+        $(document).ready(function () {
+            $("#GridAktuelleStikproeverList tbody tr").hover(
+           function () {
+               $(this).toggleClass("k-state-hover");
+           }
+         );
+        });
+
+        function GridAktuelleStikproeverListOnChange() {
+            //$("#GridAktuelleStikproeverList tbody tr").hover(
+            //    function () {
+            //        $(this).toggleClass("k-state-hover");
+            //    }
+            //);
+            var grid = $("#GridAktuelleStikproeverList").data("kendoGrid");
+
+            grid.select().each(function () {
+                var dataItem = grid.dataItem($(this));
+                var id = dataItem.StikproeveId;
+                var faneNavn = dataItem.LoebeNummer;
+                if (parent.addTab) {
+                    parent.addTab("Stikprøve: " + faneNavn, "/Backend/Stikproeve/Stikproeve?stikproeveId=" + id);
+                }
+            });
+        }
+
+    </script>
+
+}
+<div>
+    @*<div class="row"> 
+        <h4>Prøvetager forside</h4>     
+    </div>*@
+
+    <div class="row"> 
+        <div class="controlsbox" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Aktuelle stikprøver</h5>
+            </div>
+            <div class="row">
+                @(Html.Kendo().Grid(Model.AktuelleStikproeverList)
+                      .Name("GridAktuelleStikproeverList")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new []{ 10, 20, 100, 500 }).Messages(x=>x.ItemsPerPage("Rækker pr. side")))   
+                      .Sortable()
+                      .Groupable(grouper=>grouper
+                        .Messages(messager=>messager.Empty("Træk en kolonneoverskrift og slip den her for at gruppere efter denne kolonne")) //Det står også i culture filen, men den renders først efter dataene er indlæst ! Derfor sætter jeg den også her.
+                        .Enabled(true)
+                        )    
+                      .Columns(columns =>
+                          {
+                              columns.Bound(a => a.StikproeveId).Hidden(true);
+                              columns.Bound(a => a.LoebeNummer).Title("Nr.").Width(100);
+                              columns.Bound(a => a.AnmeldelseLoebenr).Title("Anmeldelsesnr.");
+                              columns.Bound(a => a.Adresse).Title("Adresse");
+                              columns.Bound(a => a.ModtageAnlaegNavn).Title("Modtageanlæg");
+                              columns.Bound(a => a.BaasNr).Title("Bås");
+                              columns.Bound(a => a.AnalyseretAf).Title("Analyseret af");
+                              columns.Bound(a => a.TransportoerNavn).Title("Transportør");
+                              columns.Bound(a => a.Status).Title("Seneste status");
+      
+                          })
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Model(model => model.Id(m => m.StikproeveId))
+                                                          .ServerOperation(false)
+                                                          .Read(read => read.Action("GetAktuelleStikproeveListAjax","Frontpages","backend"))
+                                                          .PageSize(100))
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+                      .Events(events => events.Change("GridAktuelleStikproeverListOnChange").DataBound("GridAktuelleStikproeverListDataBound"))
+                      )
+
+            </div>
+            <div style="clear: both"></div>
+        </div>     
+    </div>
+</div>

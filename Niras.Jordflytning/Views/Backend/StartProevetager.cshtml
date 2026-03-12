@@ -1,0 +1,72 @@
+﻿@{
+	ViewBag.Title = "StartProevetager";
+	Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+@section TopMenu {
+	<div>
+		<input type="submit" value="Genindlæs" class="toolbarButton" />
+
+	</div>
+}
+
+@section Scripts{
+	<script type="text/javascript">
+
+		$(document).ready(function () {
+
+			$("td", "#stikproever").click(function () {
+				openTab("Stikprøve", "/Backend/Stikproeve");
+			});
+
+		});
+
+	</script>
+}
+
+<div class="row">
+	<h4>Aktuelle stikprøver</h4>
+</div>
+<div class="row">
+	<table id="stikproever" border="1" cellpadding="3">
+		<tr>
+			<th class="gridheader">Stikprøver</th>
+			<th class="gridheader">Jordtip</th>
+			<th class="gridheader">Bås</th>
+			<th class="gridheader">Udtaget af</th>
+			<th class="gridheader">Analyseret af</th>
+			<th class="gridheader">Transportør</th>
+			<th class="gridheader">Status</th>
+			<th class="gridheader">Vis</th>
+		</tr>
+		<tr>
+			<td>12-2-2013</td>
+			<td>Århus Østhavn</td>
+			<td>1</td>
+			<td>Poul Jensen</td>
+			<td>jh@eurofinns.dk</td>
+			<td>K transp Aps.</td>
+			<td>Godkendt</td>
+			<td>Vis</td>
+		</tr>
+		<tr>
+			<td>22-2-2013</td>
+			<td>Århus Østhavn</td>
+			<td>2</td>
+			<td>Poul Jensen</td>
+			<td>jh@eurofinns.dk</td>
+			<td>K transp Aps.</td>
+			<td>Analyseres</td>
+			<td>Vis</td>
+		</tr>
+		<tr>
+			<td>29-2-2013</td>
+			<td>Århus Østhavn</td>
+			<td>3</td>
+			<td>Poul Jensen</td>
+			<td>jh@eurofinns.dk</td>
+			<td>K transp Aps.</td>
+			<td>Planlagt</td>
+			<td>Vis</td>
+		</tr>
+	</table>
+</div>

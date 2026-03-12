@@ -1,0 +1,365 @@
+﻿html, body
+{
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+body
+{
+    background: #0D4050;
+    color: white;
+    font-size: .85em;
+    font-family: Verdana;
+    margin: 0;
+    padding: 0;
+}
+
+/* IE7 Fix */
+* html #container
+{
+    display: table;
+    height: 100%;
+}
+
+/* Opera Fix */
+body:before
+{
+    content: "";
+    height: 100%;
+    float: left;
+    width: 0;
+    margin-top: -32767px;
+}
+
+section
+{
+    display: block;
+}
+
+div#container
+{
+    height: auto !important;
+    min-height: 100%;
+}
+
+div#main
+{
+    margin-left: auto; 
+    margin-right: auto;
+    width: 1024px;
+    height: 786px;
+    background: #0D4050;
+}
+
+div#main header
+{
+    height: 50px;
+    padding: 12px 0 0 10px;
+    border-width: 0px;
+    background: #0D4050;
+}
+
+div#main header h1
+{
+    margin-top: 0px;
+}
+
+div#main header h1 a
+{
+    height: 50px;
+    color: White;
+    font-family: Verdana;
+    font-size: 23px;
+    text-decoration: none;
+    background: #0D4050;
+}
+
+div#content
+{
+    height: 100%;
+    margin: 0px 0px 0px 0px;
+}
+
+
+h1, h2, h3,
+h4, h5, h6
+{
+    color: white;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+h1
+{
+    font-size: 2em;
+}
+
+h2
+{
+    font-size: 1.75em;
+}
+
+h3
+{
+    font-size: 1.2em;
+}
+
+h4
+{
+    font-size: 1.1em;
+}
+
+h5, h6
+{
+    font-size: 1em;
+}
+
+/* forms */
+fieldset
+{
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+fieldset legend
+{
+    display: none;
+}
+
+fieldset ol
+{
+    padding: 0;
+    list-style: none;
+}
+
+fieldset ol li
+{
+    padding-bottom: 5px;
+}
+
+/* Labels */
+label
+{
+    display: block;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+label.checkbox
+{
+    display: inline;
+}
+
+/* Input */
+input, textarea
+{
+    border: 1px solid #e2e2e2;
+    background: #fff;
+    color: #333;
+    font-size: 1.2em;
+    margin: 5px 0 6px 0;
+    padding: 5px;
+    width: 300px;
+}
+
+textarea
+{
+    font-family: inherit;
+    width: 500px;
+}
+
+input:focus, textarea:focus
+{
+    border: 1px solid #7ac0da;
+}
+
+input[type="checkbox"]
+{
+    background: transparent;
+    border: inherit;
+    width: auto;
+}
+
+input[type="submit"],
+input[type="button"],
+button
+{
+    background-color: #d3dce0;
+    border: 1px solid #787878;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: 600;
+    padding: 7px;
+    margin-right: 8px;
+    width: auto;
+}
+
+.h3Login
+{
+    color: white;
+    font-weight: normal;
+    font-size: 17px;
+}
+
+#frontpage
+{
+    background: #0D4050;
+    font-family: verdana;
+    font-size: 12px;
+    color: white;
+}
+/* login page */
+#loginContainer
+{
+    border: none;
+    background: #188DC8;
+    padding: 15px;
+    margin: 5px;
+    /*width: 280px;*/
+    height: 388px;
+    margin-bottom: 0px;
+    margin-right: 5px;
+}
+
+#tjekDinEjendomContainer {
+    border: none;
+    background: #964A94;
+    padding: 15px;
+    margin-top: 5px;
+    height: 388px;
+    margin-bottom: 0px;
+    margin-right: 5px;
+}
+
+#loginForm .validation-error
+{
+    display: block;
+    margin-left: 15px;
+}
+
+#loginForm .validation-summary-errors ul
+{
+    margin: 0;
+    padding: 0;
+}
+
+#loginForm .validation-summary-errors li
+{
+    display: inline;
+    list-style: none;
+    margin: 0;
+}
+
+#loginForm input
+{
+    width: 93%;
+}
+
+    #loginForm input[type="checkbox"]
+    {
+        color: white;
+        background: #188DC8;
+        width: 15px;
+    }
+
+    #loginForm input[type="submit"],
+    #loginForm input[type="button"],
+    #loginForm button
+    {
+        color: white;
+        background: #188DC8;
+        border-width: 5px;
+        border-color: white;
+        width: 80px;
+        height: 35px;
+        font-weight: normal;
+        padding: 2px;
+        margin-left: 20px;
+    }
+
+#newsform
+{
+    border: none;
+    background: #664a9d;
+    margin: 5px;
+     margin-left: 5px;
+    /*width: 653px;*/
+    
+    height: 388px;
+    padding: 15px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+}
+
+#bottomform
+{
+    border: none;
+    width: 100%;
+    height: 250px;
+    padding: 0px;
+}
+
+.links
+{
+    text-decoration: none;
+    color: white;
+}
+
+    .links:visited
+    {
+        text-decoration: none;
+        color: white;
+    }
+
+.links2 {
+    color: white;
+    font-size: 10px;
+}
+
+    .links2:visited
+    {
+        color: white;
+    }
+
+.checkbox
+{
+    font-family: verdana;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.coldiv
+{
+    vertical-align: top;
+    border: none;
+    padding: 15px;
+    margin-right: 5px;
+    float: left;
+    /*width: 21%;*/
+    width: 256px;
+    min-height: 200px;
+}
+
+.coldivdouble {
+    vertical-align: top;
+    border: none;
+    padding: 15px;
+    margin: 5px;
+    margin-left: 5px;
+    float: left;
+    /*width: 21%;*/
+    width: 512px;
+    min-height: 200px;
+}
+
+.twitterContainer {
+  overflow: auto;
+  height: 296px;
+  /*border: 1px solid red;*/
+
+}
+.timeline-Tweet-metadata, .timeline-Tweet-actions, .timeline-Tweet-brand {
+    display: none !important;
+}

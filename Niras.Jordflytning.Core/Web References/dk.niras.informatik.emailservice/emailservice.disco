@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<discovery xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/disco/">
+  <contractRef ref="http://informatik.niras.dk/services/emailtest/emailservice.asmx?wsdl" docRef="http://informatik.niras.dk/services/emailtest/emailservice.asmx" xmlns="http://schemas.xmlsoap.org/disco/scl/" />
+  <soap address="http://informatik.niras.dk/services/emailtest/emailservice.asmx" xmlns:q1="http://informatik.niras.dk/Services/EmailService/2009/09/30/" binding="q1:EmailServiceSoap" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+  <soap address="http://informatik.niras.dk/services/emailtest/emailservice.asmx" xmlns:q2="http://informatik.niras.dk/Services/EmailService/2009/09/30/" binding="q2:EmailServiceSoap12" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+</discovery>

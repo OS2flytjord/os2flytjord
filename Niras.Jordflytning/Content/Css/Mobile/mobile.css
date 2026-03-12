@@ -1,0 +1,43 @@
+﻿
+#btnTjekDinJord {
+  background: #964A94 !important;
+	 color: white;
+		text-shadow:0 0 0;
+}
+
+#btnLogInd {
+  background: #2ead4a !important;
+	 color: white;
+		text-shadow:0 0 0;
+}
+
+#startside {
+  background: #188DC8;
+	color: white;
+}
+	
+/*h1, h2, h3,
+h4, h5, h6
+{
+    color: white;
+		text-shadow:0 0 0;
+
+}*/
+
+#startside 
+{
+   text-shadow:0 0 0 !important; 
+}
+
+#startside .ui-link 
+{
+   color: white;
+}
+
+/*.ui-btn-inner {
+	  background: #188DC8;
+}*/
+
+/*.ui-icon-back {
+	  background: #2ead4a;
+}*/

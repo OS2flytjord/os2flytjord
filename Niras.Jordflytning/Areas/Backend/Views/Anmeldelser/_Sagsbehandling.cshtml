@@ -1,0 +1,245 @@
+﻿@model SagsbehandlingModel
+@using Kendo.Mvc.UI
+@using Niras.Jordflytning.ViewModels.Anmeldelse
+@using Niras.Jordflytning.ViewModels.Backend
+
+<div id="">
+    <div class="column" style="margin-right: 10px; width: 40%;">
+
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Sagsbehandling</h5>
+            </div>
+            <div class="row_control">
+                <div class="row_line">
+                    <div class="row">
+                        @Html.Label("Sagsbehandler")
+                        @Html.Kendo().DropDownListFor(x => x.SelectedSagsbehandlerId).DataTextField("Text").DataValueField("Value").BindTo(Model.SagsbehandlerListe).HtmlAttributes(new { Style = "width:100%" }).Enable(Model.SagsbehandlerHosKommunen).Events(e =>
+                        {
+                            e.Change("onSagsbehandlingSagsbehandlerSelected");
+                        })
+                    </div>
+                    <div class="row">
+                        @Html.Label("Status betaler")
+                        @Html.Kendo().DropDownListFor(x => x.SelectedBetalerStatusKode).DataTextField("Text").DataValueField("Value").BindTo(Model.StatusBetalerListe).HtmlAttributes(new { Style = "width:100%", Id = "drpStatusBetaler" }).Enable(false)
+                    </div>
+                    <div class="row">
+                        @Html.Label("Status kommune")
+                        @Html.Kendo().DropDownListFor(x => x.SelectedKommuneStatusKode).DataTextField("Text").DataValueField("Value").BindTo(Model.StatusKommuneListe).HtmlAttributes(new { Style = "width:100%", Id = "drpStatusKommune" }).Enable(Model.SagsbehandlerHosKommunen)
+                    </div>
+                    <div class="row">
+                        @Html.Label("Status jordmodtager")
+                        @Html.Kendo().DropDownListFor(x => x.SelectedJordmodtagerStatusKode).DataTextField("Text").DataValueField("Value").BindTo(Model.StatusJordmodtagerListe).HtmlAttributes(new { Style = "width:100%", Id = "drpStatusJordmodtager" }).Enable(Model.MiljømedarbejderHosJordmodtager)
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+            </div>  
+        </div>
+
+        <div class="controlsbox row" style="margin-top: 10px; display: none">
+            <div class="cbheader">
+                <h5>Forureningskomponenter</h5>
+            </div>
+            <div class="row_control">
+                <div class="row_line">
+                    <div class="row">
+                        @Html.Label("Tilføj forureningskomponent", new { style = "width:200px" })
+                    </div>
+                    <div class="row">
+                        @Html.TextBoxFor(m => m.ForureningsKomponentTypeAHeadSearch, new { style = "width: 250px; float: left;margin-right: 10px;", Id = "txtForureningAutoComplete" })
+                        <input id="btnTilfoejForureningskomponent" type="button" value="Tilføj" name="command" />
+                    </div>
+                    <div class="row">
+                        <div class="row_line" id="divSagsbehandlingForureningsliste">
+                            @(Html.Kendo().Grid<ForureningskomponentModel>()
+                                  .Name("grdAnmeldelseForureningskomponentListe")
+                                  .AutoBind(false)
+                                  .Columns(columns =>
+                                      {
+                                          columns.Bound(p => p.Id).Hidden();
+                                          columns.Bound(p => p.Navn).Title("Forureningskomponent");
+                                          columns.Command(c => c.Destroy().Text("Fjern"));
+                                      })
+                                  .Editable(ed => ed.DisplayDeleteConfirmation("Vil du fjerne forureningskomponenten?"))
+                                  .DataSource(dataSource => dataSource
+                                                                .Ajax()
+                                                                .Model(model => model.Id(p => p.Id))
+                                                                .Read(read => read.Action("ReadForureningskomponenter", "Anmeldelser", new { area = "Backend" }).Data("getAnmeldelseId")) // Specify the action method and controller name)
+                                                                .Destroy(destroy => destroy.Action("RemoveForureningskomponent", "Anmeldelser", new { area = "Backend" }).Data("getAnmeldelseId")))
+                            )
+                        </div>
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+            </div>
+        </div>
+
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Oplysninger om modtageanlægget</h5>
+            </div>
+            <div class="row_control">
+                <div class="row">
+                    <div class="row_line" style="padding-bottom: 6px;">
+                        @Html.Label("Modtageanlæg: ", new { @style = "width:110px" })
+                        @Html.TextBoxFor(m => m.HeaderModtagerAnlaegNavn, new { id = "modtageanlaegnavn", @class = "readonly", @readonly = true, style = "width: 250px" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line" style="padding-bottom: 6px;">
+                        @Html.Label("Bemærkning om modtageanlæg: ", new { @style = "width:auto;float:none; line-height:16px;" })
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:auto; color:red; line-height:18px;" })
+                        @Html.TextAreaFor(m => m.ModtagerAnlaegBemaerking, new { id = "bemaerkingommodtageranlaeg", @class = "readonly", @readonly = true, style = "width: 100%; height: 80px;" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @(Html.Kendo().Grid(Model.ModtagerAnlaegForureningskomponentListe)
+                              .Name("GridBackendHistoriskDokumentation")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(p => p.Id).Hidden();
+                                  columns.Bound(p => p.Navn).Title("Forureningskomponent").Width(250);
+                                  columns.Bound(p => p.Max).Title("Max").Format("{0:n1}").HtmlAttributes(new { style = "text-align:right;" });
+                                  columns.Bound(p => p.EnhedNavn).Title("Enhed");
+                              }))
+                    </div>
+
+                </div>
+                <div class="row row_line">
+                    @(Html.Kendo().Grid(Model.ModtagerAnlaegDokumentListe)
+                          .Name("GridDokumenationModtagerAnlaeg")
+                          .Columns(columns =>
+                              {
+                                  columns.Bound(p => p.Id).Hidden();
+                                  columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter");
+                                  columns.Template(p => Html.ActionLink("Åben", "DownloadModtagerAnlaegDokumenter", new
+                                      {
+                                          modtageAnlaegId = Model.AnmeldelseModel.Anmeldelse.ModtagerAnlaeg.Id,
+                                          filnavn = p.FilNavn,
+                                          target = "_blank"
+                                      }).ToHtmlString()).Title("");
+                              }))
+                </div>
+                <div style="clear: both"></div>
+                <div class="row_line">
+                    <div class="row">
+                        <input type="button" id="btnOpenModtagerAnlaeg" value="Vis jordmodtager" />
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="column" style="margin-right: 0px; width: 59%">
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Resultat af jordforureningsopslag</h5>
+            </div>
+            <div class="row_control" style="margin-top:20px;">
+                <div class="row_line">
+                    @(Html.Kendo().Grid(Model.JordforureningopslagListe)
+                  .Name("grdJordforureningopslag")
+                  .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Tid).Title("Dato").Format("{0:dd-MM-yyyy H:mm}");
+                        columns.Bound(p => p.JordKlassifikationType).Hidden();
+                        columns.Bound(p => p.V2).Title("V2").ClientTemplate("<input disabled='disabled' type='checkbox' #= V2 ? checked='checked' :'' # />");
+                        columns.Bound(p => p.V1).Title("V1").ClientTemplate("<input disabled='disabled' type='checkbox' #= V1 ? checked='checked' :'' # />");
+                        columns.Bound(p => p.OmkAnalysePligt).Title("OMK Analysepligt").ClientTemplate("<input disabled='disabled' type='checkbox' #= OmkAnalysePligt ? checked='checked' :'' # />");
+                        columns.Bound(p => p.OmkLet).Title("OMK Kat. 2").ClientTemplate("<input disabled='disabled' type='checkbox' #= OmkLet ? checked='checked' :'' # />");
+                        columns.Bound(p => p.OmkRen).Title("OMK Kat. 1").ClientTemplate("<input disabled='disabled' type='checkbox' #= OmkRen ? checked='checked' :'' # />");
+                        columns.Bound(p => p.KommunesMiljoeDatabase).Title("Kommunens miljødatabase").ClientTemplate("<input  disabled='disabled' data-tooltip='#=KommunesMiljoeDatabaseTekst#' type='checkbox' #= KommunesMiljoeDatabase ? checked='checked' :'' #  />");
+                    })
+                  .DataSource(dataSource => dataSource
+                                              .Ajax()
+                                              .ServerOperation(false)
+                                              .Read(read => read.Action("ReadJordforureningOpslag", "Anmeldelser", new { area = "Backend" }).Data("getAnmeldelseId")))
+                    )
+                </div>
+
+                <div class="row_line">
+                    <input type="button" id="btnSagsbehandlingSoegEksterneSystemer" value="Hent aktuel forureningsstatus" />
+                </div>
+            </div>
+        </div>
+
+
+        <div class="controlsbox row" style="margin-top: 10px">
+            <div class="cbheader">
+                <h5>Bemærkninger</h5>
+            </div>
+            <div class="row_control">
+                <div class="row_line">
+                    <div class="row">
+                        @if (!string.IsNullOrWhiteSpace(Model.AnmeldelseModel.Anmeldelse.Jord.Bemaerkning))
+                        {
+                            @Html.Label("Bemærkning til projektet", new {style = "width:149px"})
+                            <div style="float: left;"><img src="/Content/Icons/blanket_64x64.png" data-tooltip="Indholdet i dette felt kommer med på anmeldelsesblanketten." style="width: 13px; margin-top: 7px; margin-left: 5px; margin-right: 10px;"/></div>
+                            @Html.Label("(der må ikke indtastes persondata)", new {style = "width:auto; color:red;"})
+                            @Html.TextAreaFor(m => m.AnmeldelseModel.Anmeldelse.Jord.Bemaerkning, new {style = "width:100%; height:50px;"})
+                        }
+                        @Html.Label("Bemærkning til anmeldelsen", new { style = "width:auto" })
+                        <div style="float: left;"><img src="/Content/Icons/blanket_64x64.png" data-tooltip="Indholdet i dette felt kommer med på anmeldelsesblanketten." style="width: 13px; margin-top: 7px; margin-left: 5px; margin-right: 10px;" /></div>
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:auto; color:red;" })
+                        @Html.TextAreaFor(m => m.AnmeldelseModel.Anmeldelse.BemaerkningTilAnmeldelse, new { Id = "txtSagsbehandlingBemaerkningPaaAnmeldelse", style = "width:100%; height:50px;" })
+                        @Html.Label("Bemærkning til kommunen", new { style = "width:auto" })
+                        <div style="float: left;"><img src="/Content/Icons/blanket_64x64.png" data-tooltip="Indholdet i dette felt kommer med på anmeldelsesblanketten." style="width: 13px; margin-top: 7px; margin-left: 5px; margin-right: 10px;" /></div>
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:auto; color:red;" })
+                        @Html.TextAreaFor(m => m.AnmeldelseModel.Anmeldelse.BemaerkningTilKommune, new { Id = "txtSagsbehandlingBemaerkningTilKommunen", style = "width:100%; height:50px;" })
+                        @Html.Label("Bemærkning til jordmodtager", new { style = "width:auto" })
+                        <div style="float: left;"><img src="/Content/Icons/blanket_64x64.png" data-tooltip="Indholdet i dette felt kommer med på anmeldelsesblanketten." style="width: 13px; margin-top: 7px; margin-left: 5px; margin-right: 10px;" /></div>
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:auto; color:red;" })
+                        @Html.TextAreaFor(m => m.AnmeldelseModel.Anmeldelse.BemaerkningTilJordmodtager, new { Id = "txtSagsbehandlingBemaerkningTilJordmodtager", style = "width:100%; height:50px;" })
+                        @Html.Label("Intern bemærkning", new { style = "width:auto; padding-right: 15px;" })
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:auto; color:red;" })
+                        @Html.TextAreaFor(m => m.AnmeldelseModel.Anmeldelse.BemarkningInternKommune, new { Id = "txtSagsbehandlingInternBemaerkning", style = "width:100%; height:50px;" })
+                        @Html.Label("Årsag til afvisning", new { style = "width:auto; padding-right: 15px;" })
+                        <div style="float: left;"><img src="/Content/Icons/blanket_64x64.png" data-tooltip="Indholdet i dette felt kommer med på anmeldelsesblanketten." style="width: 13px; margin-top: 7px; margin-left: 5px; margin-right: 10px;" /></div>
+                        @Html.Label("(der må ikke indtastes persondata)", new { style = "width:auto; color:red;" })
+                        @Html.TextAreaFor(m => m.AnmeldelseModel.Anmeldelse.AarsagAfvisning, new { Id = "txtSagsbehandlingBemaerkningTilAnmeldelse", Data_tooltip = "Afvises anmeldelsen angives denne bemærkning som årsag.", style = "width:100%; height:50px;" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+    </div>
+    <div style="clear: both"></div>
+</div>
+<script type="text/javascript">
+    function onSagsbehandlingSagsbehandlerSelected() {
+        var ddl = $("#SelectedSagsbehandlerId").data("kendoDropDownList");
+        var id = ddl.value();
+        var name = ddl.text();
+        var hasSelection = false;
+        if (id.length != 36) {
+            id = null;
+            name = null;
+        } else {
+            hasSelection = true;
+        }
+        const event = new CustomEvent("onSagsbehandlingSagsbehandlerSelected", { detail: { id: id, name: name, hasSelection: hasSelection } });            
+        document.dispatchEvent(event);
+    }
+    $(function () {
+        setTimeout(function () {
+            var ddl = $("#SelectedSagsbehandlerId").data("kendoDropDownList");
+            var id = ddl.value();
+            var name = ddl.text();
+            var hasSelection = false;
+            if (id.length != 36) {
+                id = null;
+                name = null;
+            } else {
+                hasSelection = true;
+            }
+            const event = new CustomEvent("onSagsbehandlingSagsbehandlerSelected", { detail: { id: id, name: name, hasSelection: hasSelection } });
+            document.dispatchEvent(event);
+        }, 1000);
+    });
+</script>

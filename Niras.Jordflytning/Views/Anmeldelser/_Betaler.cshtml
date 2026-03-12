@@ -1,0 +1,255 @@
+﻿@using Niras.Jordflytning.ViewModels.Anmeldelse
+@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+
+
+<div id="divBetalerFane" class="controlsbox row" style="margin-top: 10px; width: 1003px;@(Model.Anmeldelse != null && Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.AnvenderJF ? "" : "display:none")">
+
+  <div class="cbheader">
+    <h5>Angiv eller opret en betaler</h5>
+  </div>
+  <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px; width: 960px">
+
+    @{
+
+      //Html attribut beregnes ud fra tidliger valg
+      var bd0 = new Dictionary<string, object>();
+      bd0.Add("Id", "betalerAnmelder");
+      if (Model.BetalerSelectedIndex == 0)
+      {
+        bd0.Add("checked", "checked");
+      }
+      var bd1 = new Dictionary<string, object>();
+      bd1.Add("Id", "betalerTransportoer");
+      if (Model.BetalerSelectedIndex == 1)
+      {
+        bd1.Add("checked", "checked");
+      }
+      var bd2 = new Dictionary<string, object>();
+      bd2.Add("Id", "betalerAnden");
+      if (Model.BetalerSelectedIndex == 2)
+      {
+        bd2.Add("checked", "checked");
+      }
+      
+    }
+    @Html.RadioButtonFor(m => m.SelectedBetalerIndex, 0, bd0)
+    @Html.Label("rblBetaler", "Anmelder er betaler", new { style = "width:150px;" } )
+    @Html.RadioButtonFor(m => m.SelectedBetalerIndex, 1, bd1)
+    @Html.Label("rblBetaler", "Transportør er betaler", new { style = "width:150px;" } )
+    @Html.RadioButtonFor(m => m.SelectedBetalerIndex, 2, bd2)
+    @Html.Label("rblBetaler", "Anden betaler", new { style = "width:150px;" } )
+    <div style="clear: both"></div>
+    <div class="row">
+      <p>
+        Valgt betaler
+      </p>
+    </div>
+    <div class="row" style="display: block">
+      @(Html.Kendo().Grid(Model.SelectedBetaler)
+                  .Name("ValgtBetaler")
+                  .Columns(columns =>
+                      {
+                        columns.Bound(p => p.Id).Hidden();
+                        columns.Bound(p => p.Firma);
+                        //columns.Bound(p => p.Navn);
+                        columns.Bound(p => p.Adresse);
+                        columns.Bound(p => p.Postnr);
+                        columns.Bound(p => p.Telefon);
+                        columns.Bound(p => p.CVR).Hidden();
+                        columns.Bound(p => p.PNr).Hidden();
+                        columns.Bound(p => p.Kontakt);
+                        columns.Bound(p => p.Mobil);
+                        columns.Bound(p => p.Email);
+                      }
+                  )
+                   .DataSource(dataSource => dataSource.Server())
+                  )
+
+      <div style="clear: both"></div>
+    </div>
+
+
+    <div class="row_line">
+      <div id="divBetalerSoeg" class="row" style="display: @(Model.BetalerSelectedIndex == 2 ? "block" : "none");">
+        <p>
+          Vælg betaler
+        </p>
+        <div style="clear: both"></div>
+        <div class="row">
+          @Html.TextBoxFor(x => x.betalerSoeg, new { id = "txtBetalerSoeg", style = "margin-top:2px", data_tooltip = "Der kan søges på navn eller email adresse." })
+          <input type="button" value="Søg" id="btnBetalerSoeg" style="margin-left: 10px; margin-top: 4px; margin-bottom: 5px" />
+          <input type="button" value="Opret betaler" id="btnBetalerNy" style="margin-top: 4px; margin-bottom: 5px" />
+          <div style="clear: both"></div>
+        </div>
+        <div class="row" style="display: block">
+          @(Html.Kendo().Grid<BetalerModel>()
+                    .Name("GridBetalere")
+                    .Columns(columns =>
+                      {
+                        columns.Bound(p => p.Id).Hidden();
+                        columns.Bound(p => p.Firma);
+                        //columns.Bound(p => p.Navn);
+                        columns.Bound(p => p.Adresse);
+                        columns.Bound(p => p.Postnr);
+                        columns.Bound(p => p.Telefon);
+                        columns.Bound(p => p.CVR).Hidden();
+                        columns.Bound(p => p.PNr).Hidden();
+                        columns.Bound(p => p.Kontakt);
+                        columns.Bound(p => p.Mobil);
+                        columns.Bound(p => p.Email);
+                      }
+                  )
+                    .Pageable(pager => pager.PageSizes(true) // Default page sizes are 5, 10 and 20
+                  )
+                    .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                    .Pageable()
+                    .Sortable()
+                    .AutoBind(false)
+                    .DataSource(dataSource => dataSource
+                                                .Ajax() // Specify that the data source is of ajax type
+                                                .Read(read => read.Action("ReadBetalere", "Anmeldelser").Data("getBetalerSoegValue")) // Specify the action method and controller name
+                                                .Model(model => model.Id(p => p.Id))
+                                                .PageSize(5)
+
+                  )
+
+                    .Events(e => e.Change("betalerSelected").DataBound("gridBetalereHover"))
+                  )
+          <div style="clear: both"></div>
+          @Html.HiddenFor(m => m.BetalerId, new { id = "hflSelectedBetaler" })
+          <div style="clear: both"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+  function gridBetalereHover() {
+    $("#GridBetalere tbody tr").hover(
+             function () {
+               $(this).toggleClass("k-state-hover");
+             }
+         );
+  }
+
+  function getBetalerSoegValue() {
+
+    return {
+      searchstring: $("#txtBetalerSoeg").val()
+    };
+  }
+
+  function clearSelectedBetaler() {
+    //Fjern eksisterende række
+    var grid = $("#ValgtBetaler").data("kendoGrid");
+    var id = $("#hflSelectedBetaler").val();
+
+    if (id != '') {
+	    
+			//Gammel kode, at metoden virker ikke til at være understøttet mere! [KFK 17-02-14]
+      //  var data = grid.dataSource.at(0);
+	  //  alert(data);
+    	//grid.dataSource.remove(data);
+    	grid.dataSource.data([]);
+    }
+  }
+  function betalerSelected() {
+  	var currentSelectedItem = this.dataItem(this.select());
+	 
+    var lockBetaler = ($("#hflLockBetaler").val() == "True");
+    if (currentSelectedItem.Id != null & !lockBetaler) {
+      var grid = $("#ValgtBetaler").data("kendoGrid");
+
+      clearSelectedBetaler();
+
+      $("#hflSelectedBetaler").val(currentSelectedItem.Id);
+
+      //Tilføj række til øverste grid
+      grid.dataSource.add({
+        Id: currentSelectedItem.Id,
+        Firma: currentSelectedItem.Firma,
+        Navn: currentSelectedItem.Navn,
+        Adresse: currentSelectedItem.Adresse,
+        Postnr: currentSelectedItem.Postnr,
+        Telefon: currentSelectedItem.Telefon,
+        CVR: currentSelectedItem.CVR,
+        Pnr: currentSelectedItem.Pnr,
+        Kontakt: currentSelectedItem.Kontakt,
+        Mobil: currentSelectedItem.Mobil,
+        Email: currentSelectedItem.Email
+      });
+
+
+    }
+  }
+
+  $("#betalerAnmelder").click(function (e) {
+    var _personId = $("#hflAnmelderId").val();
+    $.post("/Anmeldelser/ReadValgtBetaler", { personId: _personId }, function (result) {
+      if (result) {
+        setValgtBetaler(result, _personId);
+      }
+    });
+
+  });
+
+  $("#betalerTransportoer").click(function (e) {
+    var _personId = $("#hflSelectedTransportoerId").val();
+    $.post("/Anmeldelser/ReadValgtBetaler", { personId: _personId }, function (result) {
+      if (result) {
+        setValgtBetaler(result, _personId);
+      }
+
+    });
+  });
+
+  function setAndenBetaler(personId) {
+    $("#hflSelectedBetaler").val(personId);
+    $.post("/Anmeldelser/ReadValgtBetaler", { personId: personId }, function (result) {
+      if (result) {
+        setValgtBetaler(result, personId);
+      }
+
+    });
+
+  }
+
+  function updateValgtTransportoerBetaler() {
+    if ($('#betalerTransportoer').is(':checked')) {
+      $("#betalerTransportoer").click();
+    }
+  }
+
+  function setValgtBetaler(personModel, personId) {
+    var grid = $("#ValgtBetaler").data("kendoGrid");
+
+    //Fjern eksisterende række
+    var id = $("#hflSelectedBetaler").val();
+    if (id != '00000000-0000-0000-0000-000000000000') {
+      var data = grid.dataSource.at(0);
+      grid.dataSource.remove(data);
+    }
+
+    $("#hflSelectedBetaler").val(personId);
+
+    //Tilføj række til øverste grid
+    grid.dataSource.add({
+      Id: personModel[0].Id,
+      Firma: personModel[0].Firma,
+      Navn: personModel[0].Navn,
+      Adresse: personModel[0].Adresse,
+      Postnr: personModel[0].Postnr,
+      Telefon: personModel[0].Telefon,
+      CVR: personModel[0].CVR,
+      Pnr: personModel[0].Pnr,
+      Kontakt: personModel[0].Kontakt,
+      Mobil: personModel[0].Mobil,
+      Email: personModel[0].Email
+    });
+
+  }
+
+</script>

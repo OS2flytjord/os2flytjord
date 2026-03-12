@@ -1,0 +1,88 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Hør anden kommune - svar";
+    Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+    var godkendt = ViewBag.Godkendt != null && ViewBag.Godkendt == true;
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+
+    $(document).ready(function () {
+        
+	    /*var msgToUser = $('#hfMsgToUser').val();
+	    
+	    if (msgToUser != "") {
+	        alert(msgToUser);
+	        $('#content').hide();
+	    }
+	    else
+	        alert('else: ' + msgToUser);*/
+
+      //$('input:visible:enabled:first').focus();
+    });
+
+  </script>
+
+}
+
+@if (ViewBag.Result != null && ViewBag.Result) 
+{ 
+    <p>Svaret er indsendt.</p> 
+}
+else 
+{ 
+
+    <text>@using (Html.BeginForm())
+    {
+
+        <input type="hidden" value="@ViewBag.AnmeldelseId" name="anmeldelseId" />
+        <input type="hidden" value="@ViewBag.AfsenderEmail" name="afsenderEmail" />
+        <input type="hidden" value="@ViewBag.ModtagerEmail" name="modtagerEmail" />
+        <input type="hidden" value="@ViewBag.AfsenderId" name="afsenderId" />
+        <input type="hidden" value="@ViewBag.ModtagerId" name="modtagerId" />
+        <input type="hidden" value="@ViewBag.txtBesked" name="besked" />
+        <input type="hidden" value="" name="hfMsgToUser" id="hfMsgToUser" />
+
+
+        
+        <div class="controlsbox row" style="margin-top: -25px">
+            @Html.ValidationSummary()
+            <div class="row_control">
+                <div class="row">
+                    @Html.Raw(ViewBag.Info)
+                </div>
+            </div>
+            <div style="clear: both"></div>
+            <div id="content" class="row_control">
+                <div class="row">
+                        <label><input type="radio" name="Godkend" value="Godkend midlertidigt modtageanlæg" @(godkendt ? " checked='checked'" : "") />Godkend</label>
+                    </div>
+                    <div class="row">
+                    <label><input type="radio" name="Godkend" value="Afvis midlertidigt modtageanlæg" @(godkendt ? "" : " checked='checked'") />Afvis</label>
+                </div>
+            </div>
+
+            <div style="clear: both"></div>
+            <div class="row_control">
+                <div class="row">
+                    @Html.Label("Bemærkning")
+                </div>
+                <div class="row">
+                    @Html.TextArea("txtBesked", new { style = "width:100%; height:300px" })
+                </div>
+            </div>
+
+            <div style="clear: both"></div>
+            <div class="row_control">
+                <div class="row">
+                    <input type="submit" value="Send" class="toolbarButton" id="btnSendHoersvarAndenKommune" />
+                </div>
+            </div>
+            </div>
+    }</text>
+}
+    

@@ -1,0 +1,26 @@
+﻿@{
+  ViewBag.Title = "Forside";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+@(Html.Kendo().Menu()
+      .Name("Menu")
+      .Items(items =>
+      {
+        items.Add().Text("Genindlæs");
+
+      })
+    )
+
+
+<div class="row">
+  <h3>Kræver handling</h3>
+  Liste med anmeldelser som kræver håndtering (Nye eller anmeldelser som skal behandles igen)
+
+</div>
+
+<div class="row">
+  <h3>Mine anmeldelser</h3>
+  Liste med anmeldelser som er tildelt sagsbehandleren som er logget ind.
+
+</div>

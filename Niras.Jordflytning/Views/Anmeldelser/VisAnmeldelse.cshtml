@@ -1,0 +1,566 @@
+﻿@using Niras.Jordflytning.Core.Models
+@using Niras.Jordflytning.ViewModels.Anmeldelse
+@model Niras.Jordflytning.ViewModels.Anmeldelse.OpretModel
+
+@{
+    ViewBag.Title = "VisAnmeldelse";
+    Layout = "~/Views/Shared/_LayoutPublic.cshtml";
+}
+
+@section Scripts{
+    <script src="https://drift.kortinfo.net/KortInfoApi.ashx?version=1" type="text/javascript"></script>
+    <script src="~/Scripts/Map/MapSted.js" type="text/javascript"></script>
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@Html.HiddenFor(x => x.OprindelsesstedWkt, new { id = "hflOprindelsesstedWkt" })
+@Html.HiddenFor(x => x.MapStedLx, new { id = "MapStedLx" })
+@Html.HiddenFor(x => x.MapStedLy, new { id = "MapStedLy" })
+@Html.HiddenFor(x => x.MapStedUx, new { id = "MapStedUx" })
+@Html.HiddenFor(x => x.MapStedUy, new { id = "MapStedUy" })
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        // HIDE TOOLBAR!
+        $('#toolbar').hide();
+
+        $("div[class*='tab_right_arrow']").click(function () {
+            var idx = $(this).attr("id").split("_")[1];
+            $("div[id*='tab_']").attr("class", "tab_right_arrow");
+            $(this).attr("class", "tab_right_arrow_active");
+            var tabContentId = "tabContent_" + idx;
+            $("div[id*='tabContent_']").attr("class", "tabContent disabled");
+            $("#" + tabContentId).attr("class", "tabContent");
+        });
+        $("#imgSignaturForklaringColapse").click(function () {
+            $("#imgSignaturForklaringExpand").show();
+            $("#imgSignaturForklaringColapse").hide();
+            $("#imgSignaturForklaring").addClass("hideSignaturForklaring");
+        });
+
+        $("#imgSignaturForklaringExpand").click(function () {
+            $("#imgSignaturForklaringExpand").hide();
+            $("#imgSignaturForklaringColapse").show();
+            $("#imgSignaturForklaring").removeClass("hideSignaturForklaring");
+        });
+
+        $("#imgMaximise").click(function () {
+            //Gemmer venstre kolonne.
+            $("#divStedLeft").hide();
+            $("#divStedHelpMap").hide();
+
+            $("#divStedRight").css('width', '100%');
+            $("#divMapSted").css('height', '600px');
+
+            //Signaturforklaring placering ved max kort
+            $("#imgSignatur").addClass("maxMapSignatur");
+            $("#imgSignaturForklaring").addClass("maxMapSignaturForklaring");
+            $("#imgSignaturForklaringExpand").addClass("maxMapSignaturForklaringColapseExpand");
+            $("#imgSignaturForklaringColapse").addClass("maxMapSignaturForklaringColapseExpand");
+
+
+            $("#imgMaximise").toggle();
+            $("#imgMinimise").toggle();
+        });
+        $("#imgMinimise").click(function () {
+            //Viser venstre kolonne.
+            $("#divStedLeft").show();
+            $("#divStedHelpMap").show();
+
+            $("#divStedRight").css('width', '500px');
+            $("#divMapSted").css('height', '410px');
+
+            //Signaturforklaring placering ved min kort
+            $("#imgSignatur").removeClass("maxMapSignatur");
+            $("#imgSignaturForklaring").removeClass("maxMapSignaturForklaring");
+            $("#imgSignaturForklaringExpand").removeClass("maxMapSignaturForklaringColapseExpand");
+            $("#imgSignaturForklaringColapse").removeClass("maxMapSignaturForklaringColapseExpand");
+
+
+            $("#imgMaximise").toggle();
+            $("#imgMinimise").toggle();
+        });
+
+
+   });
+</script>
+<div id="loebenr" style="float:right;margin-top: 12px;">Løbenr : @Model.Anmeldelse.Nummer</div>
+<div id="tabs" style="float: left;">
+    <div id="tab_1" class="tab_right_arrow_active">1. Sted</div>
+    <div id="tab_2" class="tab_right_arrow">2. Jorden</div>
+    <div id="tab_3" class="tab_right_arrow" style="width: 210px;">3. Modtager og transportør</div>
+    <div id="tab_4" class="tab_right_arrow" style="display:@(Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.AnvenderJF ? "block" : "none")">4. Betaler</div>
+    <div id="tab_5" class="tab_right_arrow" style="width: 180px;">@(Model.Anmeldelse.ModtagerAnlaeg != null && Model.Anmeldelse.ModtagerAnlaeg.AnvenderJF ? "5" : "4"). Kommunikation</div>
+</div>
+
+<div id="tabContents" class="tabContents">
+    <div id="tabContent_1" style="margin-top: -5px;">
+        <div id="divSted" class="row" style="margin-top: 10px">
+            <div class="column" id="divStedLeft" style="width: 495px; margin-right: 10px;">
+                <div id="oprindelsessted" class="controlsbox row">
+                    <div class="cbheader">
+                        <h5>Oprindelsessted</h5>
+                    </div>
+
+                    <div class="row_control" id="divAdresseSearch">
+                        <div class="row">
+                            <div id="divAdresseView">
+                                <div class="row_line">
+                                    @{
+                                        switch (Model.OprindelsesstedKlassifikationTypeSelectedIndex)
+                                        {
+                                            case 0:
+                                                @:@Html.Label("Type") @Html.Label("Ejendom")
+                                                break;
+                                            case 1:
+                                                @:@Html.Label("Type") @Html.Label("Offentlig vej")
+                                                break;
+                                            case 2:
+                                                @:@Html.Label("Type") @Html.Label("Anden oprindelse")
+                                                break;
+                                        }
+                                    }
+                                </div>
+                                <div style="clear: both"></div>
+                                <div class="row_line">
+                                    @Html.Label("Materiale-/jordtype")
+                                    @Html.TextBoxFor(m => m.Anmeldelse.Oprindelsessted.AndenOprindJordType.Navn, new { style = "padding-left:0px;", Id = "txtAdresse", @class = "readonly", @readonly = true })
+                                </div>
+                                <div class="row_line">
+                                    @Html.Label("Adresse")
+                                    @Html.TextBoxFor(m => m.Anmeldelse.Oprindelsessted.Adresse, new { style = "padding-left:0px; width:62%", Id = "txtAdresse", @class = "readonly", @readonly = true })
+
+                                </div>
+                                <div class="row_line">
+                                    @Html.Label("Postnummer")
+                                    @Html.TextBoxFor(m => m.Anmeldelse.Oprindelsessted.Postnummer, new { Id = "txtPostnummer", @class = "readonly", @readonly = true, @style = "width:35px; padding-left:0px; margin-right:10px;" })
+                                    @Html.TextBoxFor(m => m.Anmeldelse.Oprindelsessted.PostDistrikt, new { Id = "txtPostDistrikt", @class = "readonly", @readonly = true, @style = "width:154px; padding-left:0px;" })
+
+                                </div>
+                                <div class="row_line">
+                                    @Html.Label("Kommune")
+                                    @Html.TextBoxFor(x => x.Anmeldelse.Kommune.Navn, new { style = "padding-left:0px; width:62%", id = "txtKommune", @class = "readonly", @readonly = true })
+                                </div>
+
+                                <div id="divStedOffVejLinkTilEksternsystem" class="row_line" style="display: @(Model.OprindelsesstedKlassifikationTypeSelectedIndex == 1 ? "block" : "none") ">
+                                    @Html.Label("Link til ekstern system")
+                                    @Html.TextBoxFor(t => t.Anmeldelse.Oprindelsessted.OffvejUrl, new { maxlength = 500 })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divStedRight" class="column" style="width: 500px; margin-left: 0px">
+                <div class="row" id="stedRight" style="height: 410px">
+                    <div style="border: solid 0 #000; height: 100%; width: 100%;" id="divMapContainer">
+                        <div class="row">
+                            <div id="divMapSted" class="kiMap" style="width: 100%; height: 410px"></div>
+                            <img id="imgMinimise" src="/Content/images/cross.png" title="Skift til lille kort" style="display: none;">
+                            <img id="imgMaximise" src="/Content/images/application_side_contract.png" title="Skift til stort kort">
+                            <img id="imgSignatur" src="/Content/images/Signatur.png" title="" />
+                            <img id="imgSignaturForklaringExpand" src="/Content/images/Pil_ned.png" title="Udvid signaturforklaring" />
+                            <img id="imgSignaturForklaringColapse" src="/Content/images/Pil_op.png" title="Minimer signaturforklaring" />
+                            <img id="imgSignaturForklaring" src="/Content/images/Signaturforklaring_FJ_small.png" title="" />
+                        </div>
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="tabContent_2" class="disabled" style="margin-top: -5px;">
+
+        <div class="column" style="margin-right: 10px; width: 495px">
+            <div class="row controlsbox" style="margin-top: 10px">
+                <div class="cbheader">
+                    <h5>Dokumentation</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row">
+                        @Html.Label("Valgte forureningskategori", new { style = "width:178px;" }) @Html.Label(Model.Anmeldelse.Jord.JordKlassifikationType.Navn)
+                    </div>
+                    <div class="row">
+                        @Html.Label("Er der udtaget jordprøver", new { style = "width:178px;" }) @Html.Label(Model.Anmeldelse.Jord.Jordproever.Value ? "Ja" : "Nej")
+                    </div>
+                    <div class="row">
+                        @Html.Label("Jorden indeholder affald", new { style = "width:178px;" }) @Html.Label(Model.Anmeldelse.Jord.AffaldTypeId != null ? "Ja" : "Nej")
+                    </div>
+                    <div class="row">
+                        @Html.Label("Affaldstype", new { style = "width:178px;" }) @Html.Label(Model.Anmeldelse.Jord.AffaldType != null ? Model.Anmeldelse.Jord.AffaldType.Navn : "")
+                    </div>
+                    <div class="row">
+                        @Html.Label("Anden affaldstype", new { style = "width:178px;" }) @Html.Label(Model.Anmeldelse.Jord.AndenAffaldType ?? "")
+                    </div>
+                    <div class="row">
+                        @Html.Label("Intakt jord", new { style = "width:178px;" }) @Html.Label(Model.Anmeldelse.Jord.IntaktJord ? "Ja" : "Nej")
+                    </div>
+                    <div class="row">
+                        @Html.Label("Link til godkendt anmeldelse", new { style = "width:178px;" }) @Html.Label(Model.Anmeldelse.Jord.LinkTilGodkendtAnmeldelse ?? "")
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        &nbsp;
+                    </div>
+                    <div style="clear: both"></div>
+
+                    <div class="row_line">
+                        @(Html.Kendo().Grid<DokumentationModel>()
+                              .Name("GridDokumenation")
+                              .Columns(columns =>
+                              {
+                                  columns.Bound(p => p.Id).Hidden();
+                                  columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter").Visible(false);
+                                  columns.Bound(p => p.DisplayFilename).ClientTemplate("<div title=\"#=FilNavn#\">#=DisplayFilename#</div>").Title("Dokumenter");
+                                  columns.Bound(p => p.Type).Sortable(true).Title("Type");
+                                  columns.Bound(p => p.OprindelseDato).Sortable(true).Title("Dato").Format("{0:dd-MM-yyyy}");
+                                  columns.Bound(p => p.Id).ClientTemplate(Html.ActionLink("Åben", "DownloadDokumentation", new { anmeldelseId = Model.Anmeldelse.Id, filnavn = "#=FilNavnUrlEncode#", target = "_blank" }).ToHtmlString()).Title("");
+                              })
+                                //.Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
+                                //.AutoBind(false)
+                              .DataSource(dataSource => dataSource
+                                  .Ajax() // Specify that the data source is of ajax type
+                                  .Read(read => read.Action("ReadDokumentation", "Anmeldelser")) // Specify the action method and controller name
+                                  .Model(model => model.Id(p => p.Id))
+                              ))
+                    </div>
+                    <div style="clear: both"></div>
+                </div>
+            </div>
+            <div class="controlsbox row" style="margin-top: 10px;">
+                <div class="cbheader">
+                    <h5>Historiske oplysninger</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row_line">
+                        @(Html.Kendo().Grid<HistoriskDokumentationModel>()
+                          .Name("GridHistoriskDokumentation")
+                          .Columns(columns =>
+                          {
+                              columns.Bound(p => p.Id).Hidden();
+                              columns.Bound(p => p.FilNavn).Sortable(true).Title("Dokumenter").Visible(false);
+                              columns.Bound(p => p.DisplayFilename).ClientTemplate("<div title=\"#=FilNavn#\">#=DisplayFilename#</div>").Title("Dokumenter");
+                              columns.Bound(p => p.Type).Sortable(true).Title("Type");
+                              columns.Bound(p => p.DatoData).Sortable(true).Title("Oprindelse").Format("{0:dd-MM-yyyy}");
+                              columns.Bound(p => p.Id).ClientTemplate(Html.ActionLink("Åben", "DownloadHistoriskDokumenter", new { anmeldelseId = "#=AnmeldelseId#", stikproeveId = "#=StikproeveId#", filnavn = "#=FilNavnUrlEncoded#", target = "_blank" }).ToHtmlString()).Title("");
+                          }
+                          )
+                                //.AutoBind(false)
+                          .DataSource(dataSource => dataSource
+                                                        .Ajax() // Specify that the data source is of ajax type
+                                                        .Read(read => read.Action("ReadHistoriskDokumentation", "Anmeldelser").Data("getMatrikelWktForHistoriskeDokumentation")) // Specify the action method and controller name
+                                                        .Model(model => model.Id(p => p.Id))
+                          )
+                          .HtmlAttributes(new { data_tooltip = "Herunder kan du se historiske oplysninger fra tidligere jordflytningssager" })
+                        )
+                    </div>
+                    <div style="clear: both"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="column" style="margin-right: 0px; width: 498px">
+
+            <div class="controlsbox row" style="margin-top: 10px;">
+                <div class="cbheader">
+                    <h5>Oplysning om jordflytningen</h5>
+                    <div class="row_control">
+
+                        <div style="clear: both"></div>
+                        <div class="row_line">
+                            @Html.Label("lblAlmJordflytning", Model.Anmeldelse.Jord.JordflytningType.Navn, new { style = "width:155px !important;" })
+                        </div>
+                        <div style="clear: both"></div>
+
+                        <div class="row_line">
+                            @Html.LabelFor(m => m.Anmeldelse.Jord.ForventetJordmaengdeTon, new { style = "width:178px !important;" })
+                            @Html.Label(Model.Anmeldelse.Jord.ForventetJordmaengdeTon.Value.ToString())
+                        </div>
+
+                        <div style="clear: both"></div>
+                        <div class="row_line">
+                            <div id="divJordAntalProever" style="display: @( (Model.Anmeldelse != null && Model.Anmeldelse.Jord != null && Model.Anmeldelse.Jord.Jordproever.HasValue && Model.Anmeldelse.Jord.Jordproever.Value) ? "block" : "none") ">
+                                <div class="row_line">
+                                    @Html.LabelFor(m => m.Anmeldelse.Jord.AntalProever, new { style = "width:178px !important;" })
+                                    @Html.Kendo().NumericTextBoxFor(m => m.Anmeldelse.Jord.AntalProever).Spinners(false).Min(0).Max(999).Decimals(0).Format("#").HtmlAttributes(new { @readonly = "readonly", Id = "txtAntalProever" })
+                                </div>
+                                <div style="clear: both"></div>
+                                <div class="row_line">
+                                    @Html.Label("lblAntalproevertonsjord", "Antal tons pr. prøve", new { style = "width: 178px !important" })
+                                    @Html.TextBox("lblValueAntalproevertonsjordtalberegning", "", new { @readOnly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="clear: both"></div>
+                        <div class="row_line">
+                            @Html.Label("empty", "", new { style = "width: 178px !important" })
+                        </div>
+
+                        <div style="clear: both"></div>
+                        <div class="row_line">
+                            @Html.Label("koerselstidpunkt", "Kørselstidspunkt", new { style = "width: 178px !important" })
+                            @Html.Label(Model.Anmeldelse.Jord.KoerselStart.HasValue ? Model.Anmeldelse.Jord.KoerselStart.Value.ToString("dd-MM-yyyy") : "", new { style = "width:80px;" })
+                            <label style="width:auto;">-</label>
+                            @Html.Label(Model.Anmeldelse.Jord.KoerselSlut.HasValue ? Model.Anmeldelse.Jord.KoerselSlut.Value.ToString("dd-MM-yyyy") : "", new { style = "width:80px;margin-left: 10px;" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="controlsbox row" style="margin-top: 10px;">
+                <div class="cbheader">
+                    <h5>Bemærkninger</h5>
+                </div>
+                <div class="row_control">
+                    <div class="row_line">
+                        @Html.LabelFor(x => x.Anmeldelse.Jord.TidligereErhvervsaktivitet, new { style = "width:100%" })
+                        @Html.TextAreaFor(x => x.Anmeldelse.Jord.TidligereErhvervsaktivitet, new { @readonly = "readonly", style = "width:100%;height:50px;" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.LabelFor(x => x.Anmeldelse.Jord.JordarbejdeBeskrivelse, new { style = "width:100%" })
+                        @Html.TextAreaFor(x => x.Anmeldelse.Jord.JordarbejdeBeskrivelse, new { @readonly = "readonly", style = "width:100%;height:50px;" })
+                    </div>
+                    <div style="clear: both"></div>
+                    <div class="row_line">
+                        @Html.LabelFor(x => x.Anmeldelse.Jord.Bemaerkning, new { style = "width:100%" })
+                        @Html.TextAreaFor(x => x.Anmeldelse.Jord.Bemaerkning, new { @readonly = "readonly", style = "width:100%;height:50px;" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tabContent_3" class="disabled" style="margin-top: -5px;">
+        <div class="row">
+            <div class="controlsbox row" style="margin-top: 10px; width: 1003px">
+                <div class="cbheader">
+                    <h5>Modtager</h5>
+                </div>
+                <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
+                    <div style="clear: both"></div>
+                    @(Html.Kendo().Grid(Model.SelectedModtagerAnlaeg)
+                          .Name("ValgtJordmodtagerGrid")
+                          .HtmlAttributes(new { style = "font-size:12px; min-height: 60px;" })
+                          .DataSource(da => da.Ajax().Model(model => model.Id(p => p.Id)))
+                          .Columns(columns =>
+                          {
+                              columns.Bound(p => p.Id).Hidden();
+                              columns.Bound(p => p.Navn).Sortable(true);
+                              columns.Bound(p => p.Postnummer).Sortable(true).Title("Postnr.");
+                              columns.Bound(p => p.By).Sortable(true).Title("By");
+                              columns.Bound(p => p.Afstand).Sortable(true);
+                              columns.Bound(p => p.Forureningskategori).Sortable(true);
+                              columns.Bound(p => p.Affald).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= Affald ? checked='checked' :'' # />");
+                              columns.Bound(p => p.JF).Sortable(true).ClientTemplate("<input disabled='disabled' type='checkbox' #= JF ? checked='checked' :'' # />").Title("FlytJord.dk");
+                              columns.Bound(p => p.DocLink).Sortable(false).ClientTemplate("<div style='cursor: pointer;' onclick=\"showDocModalWindow('#= Id #','#= Navn #')\">Vis</div>");
+                              columns.Bound(p => p.KortLink).Encoded(false).Title("Kort").Sortable(false);
+                              columns.Bound(p => p.www).Encoded(false);
+                          })
+                          )
+                    @*
+    <div class="k-widget k-grid k-secondary" id="ValgtJordmodtagerGrid" style="font-size: 12px; min-height: 60px;" data-role="grid">
+        <table role="treegrid">
+            <colgroup><col><col><col><col><col><col><col></colgroup>
+            <thead class="k-grid-header">
+                <tr>
+                    <th class="k-header" data-field="Id" data-title="Id" scope="col" style="display:none">
+                        <span class="k-link">Id</span>
+                    </th>
+                    <th class="k-header" data-field="Navn" data-title="Navn" scope="col"><span class="k-link">Navn</span></th>
+                    <th class="k-header" data-field="Postnr" data-title="Postnr." scope="col"><span class="k-link">Postnr.</span></th>
+                    <th class="k-header" data-field="By" data-title="By" scope="col"><span class="k-link">By</span></th>
+                    <th class="k-header" data-field="Afstand" data-title="Afstand" scope="col"><span class="k-link">Afstand</span></th>
+                    <th class="k-header" data-field="Forureningskategori" data-title="Forureningskategori" scope="col"><span class="k-link">Forureningskategori</span></th>
+                    <th class="k-header" data-field="Affald" data-title="Affald" scope="col"><span class="k-link">Affald</span></th>
+                    <th class="k-header" data-field="FlytJord" data-title="FlytJord.dk" scope="col"><span class="k-link">FlytJord.dk</span></th>
+                    <th class="k-header" data-field="Doc" data-title="Doc." scope="col"><span class="k-link">Doc.</span></th>
+                    <th class="k-header" data-field="Kort" data-title="Kort" scope="col"><span class="k-link">Kort</span></th>
+                    <th class="k-header" data-field="www" data-title="www" scope="col"><span class="k-link">www</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr role="row">
+                    <td role="gridcell">@Model.Anmeldelse.ModtagerAnlaeg.Navn</td>
+                    <td role="gridcell">@Model.Anmeldelse.ModtagerAnlaeg.Postnummer</td>
+                    <td role="gridcell">@Model.Anmeldelse.ModtagerAnlaeg.PostDistrikt</td>
+                    <td role="gridcell">@Model.Anmeldelse.ModtagerAnlaeg.Matrikelnr</td>
+                    <td role="gridcell">@Model.Anmeldelse.ModtagerAnlaeg.JordKlassifikationType.Navn</td>
+                    <td role="gridcell">@(Model.Anmeldelse.ModtagerAnlaeg.Affald ? "Ja" : "Nej")</td>
+                    <td role="gridcell">@(Model.Anmeldelse.ModtagerAnlaeg.AnvenderJF ? "Ja" : "Nej")</td>
+                    <td role="gridcell">DOK</td>
+                    <td role="gridcell"></td>
+                    <td role="gridcell">@Model.Anmeldelse.ModtagerAnlaeg.www</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+*@
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="controlsbox row" style="margin-top: 10px; width: 1003px">
+                <div class="cbheader">
+                    <h5>Transportør</h5>
+                </div>
+                <div class="row_control" style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
+                    <div style="clear: both"></div>
+                    <div class="k-widget k-grid k-secondary" id="ValgtJordmodtagerGrid" style="font-size: 12px; min-height: 60px;" data-role="grid">
+                        <table role="treegrid">
+                            <colgroup><col><col><col><col><col><col><col></colgroup>
+                            <thead class="k-grid-header">
+                                <tr>
+                                    <th class="k-header" data-field="Id" data-title="Id" scope="col" style="display:none">
+                                        <span class="k-link">Id</span>
+                                    </th>
+                                    <th class="k-header" data-field="Firma" data-title="Firma" scope="col"><span class="k-link">Firma</span></th>
+                                    <th class="k-header" data-field="Adresse" data-title="Adresse" scope="col"><span class="k-link">Adresse</span></th>
+                                    <th class="k-header" data-field="PostNr" data-title="Postnr." scope="col"><span class="k-link">Postnr.</span></th>
+                                    <th class="k-header" data-field="Telefon" data-title="Telefon" scope="col"><span class="k-link">Telefon</span></th>
+                                    <th class="k-header" data-field="Kontakt" data-title="Kontakt" scope="col"><span class="k-link">Kontakt</span></th>
+                                    <th class="k-header" data-field="Mobiltelefon" data-title="Mobiltelefon" scope="col"><span class="k-link">Mobiltelefon</span></th>
+                                    <th class="k-header" data-field="Email" data-title="Email" scope="col"><span class="k-link">Email</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr role="row">
+                                    <td role="gridcell">@Model.Anmeldelse.Transportoer.Person.Firmaoplysninger.Firmanavn</td>
+                                    <td role="gridcell">@Model.Anmeldelse.Transportoer.Person.Firmaoplysninger.Adresse</td>
+                                    <td role="gridcell">@Model.Anmeldelse.Transportoer.Person.Firmaoplysninger.Postnummer</td>
+                                    <td role="gridcell">@Model.Anmeldelse.Transportoer.Person.Telefon</td>
+                                    <td role="gridcell">@Model.Anmeldelse.Transportoer.Person.Navn</td>
+                                    <td role="gridcell">@Model.Anmeldelse.Transportoer.Person.Mobiltelefon</td>
+                                    <td role="gridcell">@Model.Anmeldelse.Transportoer.Person.Email</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tabContent_4" class="disabled" style="margin-top: -5px;">
+        <div class="row">
+            BETALER
+        </div>
+    </div>
+    <div id="tabContent_5" class="disabled" style="margin-top: -5px;">
+        <div class="row">
+            <div class="column" style="margin-right: 10px; width: 495px;">
+                <div class="controlsbox row" style="margin-top: 10px">
+                    <div class="cbheader">
+                        <h5>Bemærkninger</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row_line">
+                            @Html.Label("Bemærkning til projektet", new { style = "width:100%; for=Anmeldelse_Jord_Bemaerkning" })
+                            @Html.TextAreaFor(m => m.Anmeldelse.Jord.Bemaerkning, new { @readonly = "readonly", style = "height:120px; width:100%" })
+                        </div>
+                        <div class="row_line">
+                            @Html.Label("Bemærkning til kommunen", new { style = "width:100%" })
+                            @Html.TextAreaFor(m => m.Anmeldelse.BemaerkningTilKommune, new { @readonly = "readonly", style = "height:120px; width:100%" })
+                        </div>
+                        <div class="row_line">
+                            @Html.Label("Bemærkning til jordmodtager", new { style = "width:100%" })
+                            @Html.TextAreaFor(m => m.Anmeldelse.BemaerkningTilJordmodtager, new { @readonly = "readonly", style = "height:120px; width:100%" })
+                        </div>
+                    </div>
+                </div>
+                <div style="clear: both"></div>
+                <div class="controlsbox row" style="margin-top: 10px">
+                    <div class="cbheader">
+                        <h5>Anmelders interne sagsnummer</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row_line">
+                            @Html.Label("Sagsnummer")
+                            @Html.Label(@Model.Anmeldelse.AnmelderSagsnummer ?? "", new { maxlength = 40, style = "margin-bottom: 10px" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column" style="margin-right: 0px; width: 498px">
+                <div class="controlsbox row" style="margin-top: 10px">
+                    <div class="cbheader">
+                        <h5>Kommunens sagsbehandler</h5>
+                    </div>
+                    <div class="row_control">
+                        <div class="row_line">
+                            @Html.Label("Sagsbehandler: ")
+                            @Html.DisplayFor(m => m.Sagsbehandler)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tabContent_6" class="disabled" style="margin-top: -5px;"></div>
+</div>
+
+<div id="winModtagerAnlaegKort" style="display: none">
+    @*Modal vindue til visning af modtagerAnlaeget i kortet.*@
+</div>
+
+<div id="winModtagerAnlaegDokumenter" style="display: none">
+    @*Modal vindue til visning af modtagerAnlaegets dokumenter.*@
+</div>
+
+@Html.HiddenFor(m => m.MatrikelWkt, new { id = "hflMatrikelWkt" })
+@Html.HiddenFor(m => m.Anmeldelse.Id, new { id = "hflAnmeldelseId" })
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var kiSite = 'Jordflytning';
+        var kiPageSted = 'default';
+
+        mapInitSted(kiSite, kiPageSted);
+
+
+    });
+
+    function openModtagerAnlaegKort(id, modtageranlaegnavn) {
+        var wdiv = $("#winModtagerAnlaegKort").kendoWindow({
+            iframe: true,
+            content: "/ModtagerAnlaeg/Kort?modtagerAnlaegId=" + id,
+            type: "GET",
+            height: 600,
+            width: 900
+        });
+        wdiv.data("kendoWindow").title(modtageranlaegnavn);
+        wdiv.data("kendoWindow").center();
+        wdiv.data("kendoWindow").open();
+    }
+
+    function showDocModalWindow(modtageranlaegId, modtageranlaegnavn) {
+        var wdiv = $("#winModtagerAnlaegDokumenter").kendoWindow({
+            iframe: true,
+            content: "/ModtagerAnlaeg/Dokumenter?modtagerAnlaegId=" + modtageranlaegId,
+            type: "GET",
+            height: 600,
+            width: 900
+        });
+        wdiv.data("kendoWindow").title(modtageranlaegnavn);
+        wdiv.data("kendoWindow").center();
+        wdiv.data("kendoWindow").open();
+    }
+
+    function getMatrikelWktForHistoriskeDokumentation() {
+        var aid = '00000000-0000-0000-0000-000000000000';
+        if ($("#hflAnmeldelseId").val() != '') {
+            aid = $("#hflAnmeldelseId").val();
+        }
+
+        return {
+            excludeAnmeldelseId: aid,
+            matrikelWkt: $("#hflMatrikelWkt").val()
+        };
+    }
+
+</script>

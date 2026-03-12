@@ -1,0 +1,144 @@
+﻿@using Kendo.Mvc.UI
+@using Niras.Jordflytning.Core.Models.SoegeResultat
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+
+@{
+  ViewBag.Title = "Søg";
+  Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+
+<script type="text/javascript">
+
+
+  function GridVognlaesListDataBound() {
+    $("#GridVognlaesSoegeresultater tbody tr").hover(
+     function () {
+       $(this).toggleClass("k-state-hover");
+     }
+ );
+  }
+
+  $(document).ready(function () {
+    $("#GridVognlaesSoegeresultater tbody tr").hover(
+   function () {
+     $(this).toggleClass("k-state-hover");
+   }
+ );
+  });
+
+  function GridVognlaesListOnChange() {
+    $("#GridVognlaesSoegeresultater tbody tr").hover(
+        function () {
+          $(this).toggleClass("k-state-hover");
+        }
+    );
+    var grid = $("#GridVognlaesSoegeresultater").data("kendoGrid");
+
+    var id;
+    var faneNavn;
+    grid.select().each(function () {
+      var dataItem = grid.dataItem($(this));
+      id = dataItem.AnmeldelseId;
+      faneNavn = dataItem.Opgravningssted;
+      if (parent.addTab) {
+        parent.addTab(faneNavn, "/Backend/Anmeldelser/Index?anmeldelseId=" + id);
+      }
+    });
+  }
+
+
+  function GridSoegeresultateronDataBinding() { }
+
+  function getSearchParameters() {
+    var vognlaesFoerDato = $("#hflVognlaesFoerDato").val();
+    var vognlaesEfterDato = $("#hflVognlaesEfterDato").val();
+
+    return {
+      foerDate: vognlaesFoerDato, efterDate: vognlaesEfterDato
+    };
+  }
+
+</script>
+<body style="height: 90%;">
+  @Html.HiddenFor(m => m.VognlaesFoerDato, new { id = "hflVognlaesFoerDato" })
+  @Html.HiddenFor(m => m.VognlaesEfterDato, new { id = "hflVognlaesEfterDato" })
+  <div class="row_line">
+    <div id="divSoegParam" class="controlsbox">
+      <div class="cbheader">
+        <h5>Søgeparametre</h5>
+      </div>
+      <div class="row_line" style="margin: 10px;">
+        @Html.DisplayFor(m => m.SoegningBeskrivelseVognlaes, new { Id = "soegVognlaesNote", style = "width: 99%" })
+      </div>
+      <div style="clear: both"></div>
+    </div>
+  </div>
+
+  <div class="row_line">
+    <div id="divSoegResult" class="controlsbox">
+      <div class="cbheader">
+        <h5>Søgeresultat vognlæs</h5>
+      </div>
+
+      <div class="row_line" style="margin: 10px;">
+        <input type="button" value="Exportér til Excel" onclick="ExportToExcel('GridVognlaesSoegeresultater', 'Search')" />
+      </div>
+      <div style="clear: both"></div>
+      <div class="row_line">
+        @(Html.Kendo().Grid<SoegeResultatVognlaes2>()
+                      .Name("GridVognlaesSoegeresultater")
+                      .Pageable(pager => pager.PageSizes(true).PageSizes(new[] { 10, 20, 100, 1000 }).Messages(x => x.ItemsPerPage("Rækker pr. side")))
+                      .Sortable()
+                      .Groupable(grouper => grouper
+                        .Messages(messager => messager.Empty("Træk en kolonneoverskrift og slip den her for at gruppere efter denne kolonne")) //Det står også i culture filen, men den renders først efter dataene er indlæst ! Derfor sætter jeg den også her.
+                        .Enabled(true)
+                      )
+                      .HtmlAttributes(new { style = "font-size:12px;" })
+                      .Selectable(selectable => selectable
+                                                    .Mode(GridSelectionMode.Single)
+                                                    .Type(GridSelectionType.Row))
+                      .Events(events => events
+                                            .Change("GridVognlaesListOnChange")
+                                            .DataBound("GridVognlaesListDataBound")
+                                            .DataBinding("GridSoegeresultateronDataBinding"))
+                     
+                                            .Columns(columns =>
+                          {
+                            columns.Bound(a => a.VognlaesId).Hidden(true);
+                            columns.Bound(a => a.AnmeldelseId).Hidden(true);
+
+                            columns.Bound(a => a.Opgravningssted).Title("Opgravningssted");
+                            columns.Bound(a => a.Oprindelseskommune).Title("Oprindelseskommune").Encoded(false);
+                            columns.Bound(a => a.Loebenummer).Title("Loebenummer");
+                            columns.Bound(a => a.Jordtype).Title("Jordtype");
+                            columns.Bound(a => a.Forureningskategori).Title("Forureningskategori");
+                            columns.Bound(a => a.JordmaengdeTons).Title(@"Jordmængde <br/>(t)").Width(100)
+                                .ClientGroupFooterTemplate("I alt: #=kendo.toString(sum, '0.00')#")
+                                .ClientFooterTemplate("Total: #=kendo.toString(sum, '0.00')#");
+                            columns.Bound(a => a.JordmaengdeAksler).Title("Jordmængde <br/>(Aksler)").Width(100)
+                                .ClientGroupFooterTemplate("I alt: #=sum#")
+                                .ClientFooterTemplate("Total: #=sum#");
+                            columns.Bound(a => a.Modtageanlaeg).Title("Modtageanlæg");
+                            columns.Bound(a => a.Modtagedato).Title("Modtagedato").Width(90).Format("{0:dd-MM-yyyy H:mm}");
+                            columns.Bound(p => p.Afvist).Sortable(true).ClientTemplate(
+                                "<div title=\"#=AfvistNote#\">" +
+                                "<input type='checkbox' disabled='disabled' # if(Afvist) {# checked='checked' #} else {# '' #}# /></div>")
+                                .Title("Afvist?");
+                          })
+                          .AutoBind(true)
+                      .DataSource(dataSource => dataSource.Ajax()
+                                                          .Aggregates(aggregates =>
+                                                              {
+                                                                aggregates.Add(p => p.JordmaengdeTons).Sum();
+                                                                aggregates.Add(p => p.JordmaengdeAksler).Sum();
+                                                              })
+                                                          .Model(model => model.Id(m => m.VognlaesId))
+                                                          .ServerOperation(false)
+                                                          .Read(read => read.Action("AdminResultatVognlaes2Ajax", "Search", "backend").Data("getSearchParameters")) // Specify the action method and controller name
+                                                          .PageSize(100))
+                      )
+      </div>
+      <div style="clear: both"></div>
+    </div>
+  </div>
+</body>

@@ -1,0 +1,62 @@
+﻿@model Niras.Jordflytning.ViewModels.Backend.SagsbehandlingModel
+@using Kendo.Mvc.UI
+<script type="text/javascript">
+    
+    $(document).ready(function () {
+      $("#AnmeldelseStikproeverGrid").find("tr").hover(
+            function () {
+                $(this).toggleClass("k-state-hover");
+            }
+        );
+    });
+
+    function onStikproeveDataBound() {
+      $("#AnmeldelseStikproeverGrid").find("tr").hover(
+            function () {
+                $(this).toggleClass("k-state-hover");
+            }
+        );
+    }
+
+    function onStikproeveChange() {
+      $("#AnmeldelseStikproeverGrid").find("tr").hover(
+            function () {
+                $(this).toggleClass("k-state-hover");
+            }
+        );
+        var grid = $("#AnmeldelseStikproeverGrid").data("kendoGrid");
+        var id;
+        var nummer;
+        grid.select().each(function () {
+            var dataItem = grid.dataItem($(this));
+            id = dataItem.Id;
+            nummer = dataItem.Nummer;
+        });
+        if (parent.addTab) {
+            parent.addTab("Stikprøve " + nummer, "/Backend/Stikproeve/Stikproeve?stikproeveId=" + id);
+        }      
+    }
+
+</script>
+
+<div>
+    @(Html.Kendo().Grid(Model.StikproeveListe)
+          .Name("AnmeldelseStikproeverGrid")
+          .Editable(editable => editable.Mode(GridEditMode.PopUp).Window(w => w.Title("Planlæg stikprøve")))
+          .Selectable()																						
+          .Columns(columns =>
+              {
+                  columns.Bound(p => p.Id).Hidden();
+                  columns.Bound(p => p.Nummer).Title("Prøvenr.");
+                  columns.Bound(p => p.StatusDato).Title("Dato status").Format("{0:dd-MM-yyyy}");
+                  columns.Bound(p => p.Status).Title("Status");
+                  columns.Bound(p => p.PrøveUdtagetAf).Title("Prøve udtaget af");
+                  columns.Bound(p => p.LabPersonNavn).Title("Analyseret af");
+                  columns.Bound(p => p.HeaderTransportoerNavn).Title("Transportør");                               
+              })
+          .DataSource(dataSource => dataSource.Ajax()
+              .Read(read => read.Action( "AnmeldelseStikproeverGridRead", "Anmeldelser").Data("additionalInfoStikproeveGrid")).Model(model => model.Id(p=>p.Id)))
+          .Events(events => events.Change("onStikproeveChange").DataBound("onStikproeveDataBound"))
+          )	
+</div>
+

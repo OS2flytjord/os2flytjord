@@ -1,0 +1,55 @@
+﻿@using Kendo.Mvc.UI
+@model Niras.Jordflytning.Areas.Backend.ViewModels.AdminSoegModel
+<script type="text/javascript">
+
+</script>
+
+<div>
+    <div class="controlsbox" style="margin-top: 10px; height: auto">
+        <div class="cbheader">
+            <h5>Søgeparametre</h5>
+        </div>
+        <div class="row" style="margin: 10px; width: 90%">
+            <div class="row">
+                <div class="column">
+                    <div class="row_line">
+                        <label>Periode</label>
+                        @(Html.Kendo().DatePickerFor(m => m.StikproeveEfterDato).HtmlAttributes(new { id = "StikproeveEfterDatoId", Class="classiclook_kendo_workaround", style = "width:105px" }))                                 
+                        <img src="~/Content/Icons/arrow_right.png" alt="til" height="20" style="vertical-align: middle"/>
+                        @(Html.Kendo().DatePickerFor(m => m.StikproeveFoerDato).HtmlAttributes(new { id = "StikproeveFoerDatoId", Class="classiclook_kendo_workaround", style = "width:105px" }))                
+                    </div>
+
+                    <div class="row_line">
+                        <label>Status</label>                   
+                        @(Html.Kendo().DropDownListFor(x => x.StikproeveStatus)
+                              .Name("StikproeveStatusId")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .HtmlAttributes(new {style = "width: 234px;"})
+                              .BindTo(Model.StikproeveStatusTypeList)
+                              )
+                    </div>
+                    <div class="row_line">
+                        <label>Løbenummer</label>
+                        @Html.TextBoxFor(m => m.StikproeveId, new { Id = "StikproeveIdId", Style = "width: 235px; margin-top:3px; margin-bottom:3px;" })
+                    </div>
+
+                </div>
+                <div class="column">
+                    <div class="row_line">
+                    </div>
+                    <div class="row_line">
+                    </div>
+                    <div class="row_line">
+                    </div>
+                </div>
+            </div>
+            <div class="row_line">&nbsp;</div>
+            <div class="row_line">
+                <input id="btnSoeg" name="btnSoegStikproeve" onclick="onSoegStikproeve()" type="submit" value="Søg" class="toolbarButton" />
+            </div>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+</div>
+
