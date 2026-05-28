@@ -21,7 +21,7 @@ namespace Niras.Jordflytning.Library.Logging
 
 		public void LogException(Exception exc)
 		{
-			logger.Error(String.Empty, exc);
+			logger.Error(exc, exc.Message);
 		}
 
 		public void LogException(String message, Exception exc)
