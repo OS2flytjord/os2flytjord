@@ -68,8 +68,8 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus
         [ConfigEntry("Gebyr_KMDOpus_H_Leverandør")]
         public int? Leverandoer { get; set; }
 
-        [OptionalNumber(13)]
-        public int? EANNumber { get; set; }
+        [OptionalNumber(13,NumberModes.Long)]
+        public long? EANNumber { get; set; }
 
         [OptionalNumber(8)]
         [ConfigEntry("Gebyr_KMDOpus_H_Organisationsenhed")]
@@ -150,9 +150,13 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus
             // Ordreart
             Indkoebsordrenummer = anmeldelse.Jord.EgetOrdrenummer ?? string.Empty;
             KunderefID = $"Att: {anmeldelse.Anmelder.Person.FullName()}";
-            Toptekst = $"Vedr. anmeldelse af jordflytning fra: {anmeldelse.Oprindelsessted.Adresse}, {anmeldelse.Oprindelsessted.Postnummer} {anmeldelse.Oprindelsessted.PostDistrikt}. Løbenr.: {anmeldelse.Nummer}";
+            if (kommuneId == Guid.Parse("4F38E0EE-2EF1-4A21-8AAD-F90163E5C826") && anmeldelse.Sagsbehandler != null)  //Randers Kommune
+                  Toptekst = $"Vedr. anmeldelse af jordflytning fra: {anmeldelse.Oprindelsessted.Adresse}, {anmeldelse.Oprindelsessted.Postnummer} {anmeldelse.Oprindelsessted.PostDistrikt}. Løbenr.: {anmeldelse.Nummer}.  KONTAKTPERSON: {anmeldelse.Sagsbehandler.Person.Navn} {anmeldelse.Sagsbehandler.Person.Efternavn}";
+            else
+                Toptekst = $"Vedr. anmeldelse af jordflytning fra: {anmeldelse.Oprindelsessted.Adresse}, {anmeldelse.Oprindelsessted.Postnummer} {anmeldelse.Oprindelsessted.PostDistrikt}. Løbenr.: {anmeldelse.Nummer}";
             // Leverandoer
-            // EANNumber (Dette er åbenbart en liste - Vi dropper gætværk)
+            if (anmeldelse.Anmelder.Person.Firmaoplysninger != null)
+                EANNumber = anmeldelse.Anmelder.Person.Firmaoplysninger.EAN.HasValue ? (long?)anmeldelse.Anmelder.Person.Firmaoplysninger.EAN.Value : null;
             // Organisationsenhed
             // Kreditornummer
             // Omraadenummer
@@ -181,6 +185,12 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus
                 Aftaleindholdstype = "JORD";
                 Hovedtransaktion = "JORD";
                 Deltransaktion = "M619";
+            }
+            else if (kommuneId == Guid.Parse("4F38E0EE-2EF1-4A21-8AAD-F90163E5C826"))  //Randers Kommune
+            {
+                Aftaleindholdstype = "S227";
+                Hovedtransaktion = "JORD";
+                Deltransaktion = "MELL";
             }
         }
 

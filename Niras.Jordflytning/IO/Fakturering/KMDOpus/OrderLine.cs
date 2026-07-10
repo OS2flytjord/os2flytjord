@@ -77,6 +77,7 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus
         public OrderLine(GebyrTidsregistrering gebyrTidsregistrering, IConfigProvider configProvider) : base(configProvider)
         {
             MaterialeVareNummer = gebyrTidsregistrering.Opgavetype.Kode;
+            Beskrivelse = gebyrTidsregistrering.Opgavetype.Navn;
             var kode = gebyrTidsregistrering.Opgavetype.Kode;
             BeloebPerEnhed = gebyrTidsregistrering.Opgavetype.Timepris;
             if (kode == 0) // Faste gebyrer
@@ -104,6 +105,7 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus
             var minutter = gebyrTidsregistreringer.Sum(x => x.Minutter); // Forbrugte antal minutter
 
             MaterialeVareNummer = opgavetype.Kode;
+            Beskrivelse = opgavetype.Navn;
             BeloebPerEnhed = opgavetype.Timepris;
             if (opgavetype.Kode == 0) // Faste gebyrer
             {

@@ -8,7 +8,8 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus.Attributes
     {
         Integer,
         Decimal,
-        StringAsInteger
+        StringAsInteger,
+        Long
     }
 
     public enum PaddingModes
@@ -125,6 +126,8 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus.Attributes
                     return CreateString(decimal.TryParse(value as string, out var pv) ? pv : (decimal?)null, (v) => v.Value.ToString(Culture));
                 case NumberModes.Decimal:
                     return CreateString(value as decimal?, (v) => v.Value.ToString(Culture));
+                case NumberModes.Long:
+                    return CreateString(value as Int64?, (v) => v.Value.ToString(Culture));
                 case NumberModes.Integer:
                 default:
                     return CreateString(value as int?, (v) => v.Value.ToString(Culture));
