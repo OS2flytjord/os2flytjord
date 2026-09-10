@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="Support">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="sql-os2flytjord.database.windows.net:os2flytjord">
+          <Created>2026-08-12T12:29:09.8204418+02:00</Created>
+          <Type>SQL</Type>
+          <Server>sql-os2flytjord.database.windows.net</Server>
+          <UserName>os2flytjord</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>True</TrustServerCertificate>
+          <EncryptionOption>True</EncryptionOption>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="Add_EAN_Number.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>Add_EAN_Number.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Faktureringsfane_Fejl.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>Faktureringsfane_Fejl.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Reset_Faktura_Udlæsning.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>Reset_Faktura_Udlæsning.sql</FullPath>
+        </FileNode>
+        <FileNode Name="User_Change_Email.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>User_Change_Email.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>
