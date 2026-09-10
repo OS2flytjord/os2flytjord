@@ -32,7 +32,11 @@ namespace Niras.Jordflytning
                 if (!WebSecurity.Initialized)
                     WebSecurity.InitializeDatabaseConnection("DefaultConnection", "BrugerProfil", "BrugerId", "BrugerNavn", autoCreateTables: true);
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                var logger = LogManager.Instance.GetLogger();
+                logger.LogException("WebSecurity initialization failed: " + ex.Message, ex);
+                throw;
+            }
 
             AreaRegistration.RegisterAllAreas();
 
