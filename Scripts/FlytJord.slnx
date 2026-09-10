@@ -3,7 +3,11 @@
     <BuildType Name="Default" />
     <Platform Name="Default" />
   </Configurations>
-  <Project Path="../../../../../../../../Develop/Project/FlytJord/Scripts/Support/Support.ssmssqlproj" Type="4f2e2c19-372f-40d8-9fa7-9d2138c6997a">
+  <Project Path="Data/Data.ssmssqlproj" Type="4f2e2c19-372f-40d8-9fa7-9d2138c6997a">
+    <Platform Project="?" />
+    <Build Project="false" />
+  </Project>
+  <Project Path="Support/Support.ssmssqlproj" Type="4f2e2c19-372f-40d8-9fa7-9d2138c6997a">
     <Platform Project="?" />
     <Build Project="false" />
   </Project>

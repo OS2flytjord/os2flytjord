@@ -33,6 +33,12 @@
           <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
           <FullPath>Faktureringsfane_Fejl.sql</FullPath>
         </FileNode>
+        <FileNode Name="ForureningsKomponent.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>ForureningsKomponent.sql</FullPath>
+        </FileNode>
         <FileNode Name="Reset_Faktura_Udlæsning.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
@@ -44,6 +50,12 @@
           <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
           <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
           <FullPath>User_Change_Email.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Work.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Work.sql</FullPath>
         </FileNode>
       </Items>
     </LogicalFolder>
