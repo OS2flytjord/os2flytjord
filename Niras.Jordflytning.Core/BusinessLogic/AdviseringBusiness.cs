@@ -274,6 +274,8 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
         public bool SendHoerAndenKommune(string emne, string besked, Person modtagerPerson, Person afsenderPerson, Anmeldelse anmeldelse)
         {
+            System.Diagnostics.Trace.TraceInformation("AdviseringsBusiness.SendHoerAndenKommune start");
+
             //var modtagerPerson = _personRepository.Search(p => p.Email == modtagerEmail).FirstOrDefault();
             var domain = ConfigurationManager.AppSettings["FlytJordDomain"];
             string url = String.Format("<a href=\"http://{0}/default/AndenKommuneSvar/?id={1}&afsenderEmail={2}&modtagerEmail={3}&afsenderId={4}&modtagerId={5}\">Godkend eller afvis via dette link</a>",
@@ -281,52 +283,73 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
             if (modtagerPerson != null && afsenderPerson != null)
             {
-                var template = CreateMessage(anmeldelse.Kommune.Kommunenr.ToString(CultureInfo.InvariantCulture), Guid.Empty,
-                                             EnumAdvisSkabelon.TilAndenKommuneGodkendAfvisAnlaeg);
-                template.SetAttribute("adresse", anmeldelse.Oprindelsessted.Adresse + ", " + anmeldelse.Oprindelsessted.Postnummer + " " + anmeldelse.Oprindelsessted.PostDistrikt);
-
-                template.SetAttribute("tilkommune", (anmeldelse.ModtagerAnlaeg.KommuneKode.HasValue ? _kodelisteBusiness.ReadKommuneByKode(anmeldelse.ModtagerAnlaeg.KommuneKode.Value).Navn : string.Empty));
-
-                template.SetAttribute("fraadresse", anmeldelse.Oprindelsessted.Adresse + ", " + anmeldelse.Oprindelsessted.Postnummer + " " + anmeldelse.Oprindelsessted.PostDistrikt);
-                template.SetAttribute("tiladresse", anmeldelse.ModtagerAnlaeg.Adresse + ", " + anmeldelse.ModtagerAnlaeg.Postnummer + " " + anmeldelse.ModtagerAnlaeg.PostDistrikt);
-
-                template.SetAttribute("godkendafvislink", url);
-
-                if (besked != "")
-                    template.SetAttribute("supplerendeoplysninger", "Supplerende oplysninger:<br />" + besked);
-                else
-                    template.SetAttribute("supplerendeoplysninger", "");
-
-                //template.SetAttribute("linkanmeldelse", GetAnmeldelseLink(anmeldelse.Id));
-                template.SetAttribute("flytjordUrl", GetVisAnmeldelseLink(anmeldelse.Id));
-
-                var emailBody = template.ToString();
-                var b = new Besked { Tekst = emailBody, Tid = DateTime.Now };
-
-                if (modtagerPerson != null)
+                try
                 {
-                    var k = new Kommunikation { Anmeldelse = anmeldelse, Besked = b, Person = afsenderPerson, Person1 = modtagerPerson };
-                    _kommunikationBusiness.CreateKommunikation(k);
-                }
 
+                    System.Diagnostics.Trace.TraceInformation("AdviseringsBusiness.SendHoerAndenKommune modtagerPerson og afsender ikke null");
 
-                var emailSubject = string.Format("FlytJord.dk - Høring vedrørende godkendelse af midlertigt anlæg {0}", anmeldelse.ModtagerAnlaeg.Adresse);
+                    var template = CreateMessage(anmeldelse.Kommune.Kommunenr.ToString(CultureInfo.InvariantCulture), Guid.Empty,
+                                                 EnumAdvisSkabelon.TilAndenKommuneGodkendAfvisAnlaeg);
+                    template.SetAttribute("adresse", anmeldelse.Oprindelsessted.Adresse + ", " + anmeldelse.Oprindelsessted.Postnummer + " " + anmeldelse.Oprindelsessted.PostDistrikt);
 
-                if (modtagerPerson == null)
+                    template.SetAttribute("tilkommune", (anmeldelse.ModtagerAnlaeg.KommuneKode.HasValue ? _kodelisteBusiness.ReadKommuneByKode(anmeldelse.ModtagerAnlaeg.KommuneKode.Value).Navn : string.Empty));
+
+                    template.SetAttribute("fraadresse", anmeldelse.Oprindelsessted.Adresse + ", " + anmeldelse.Oprindelsessted.Postnummer + " " + anmeldelse.Oprindelsessted.PostDistrikt);
+                    template.SetAttribute("tiladresse", anmeldelse.ModtagerAnlaeg.Adresse + ", " + anmeldelse.ModtagerAnlaeg.Postnummer + " " + anmeldelse.ModtagerAnlaeg.PostDistrikt);
+
+                    template.SetAttribute("godkendafvislink", url);
+
+                    if (besked != "")
+                        template.SetAttribute("supplerendeoplysninger", "Supplerende oplysninger:<br />" + besked);
+                    else
+                        template.SetAttribute("supplerendeoplysninger", "");
+
+                    //template.SetAttribute("linkanmeldelse", GetAnmeldelseLink(anmeldelse.Id));
+                    template.SetAttribute("flytjordUrl", GetVisAnmeldelseLink(anmeldelse.Id));
+
+                    var emailBody = template.ToString();
+                    var b = new Besked { Tekst = emailBody, Tid = DateTime.Now };
+
+                    System.Diagnostics.Trace.TraceInformation("AdviseringsBusiness.SendHoerAndenKommune template OK");
+
+                    if (modtagerPerson != null)
+                    {
+                        var k = new Kommunikation { Anmeldelse = anmeldelse, Besked = b, Person = afsenderPerson, Person1 = modtagerPerson };
+                        _kommunikationBusiness.CreateKommunikation(k);
+                    }
+
+                    var emailSubject = string.Format("FlytJord.dk - Høring vedrørende godkendelse af midlertigt anlæg {0}", anmeldelse.ModtagerAnlaeg.Adresse);
+
+                    System.Diagnostics.Trace.TraceInformation("AdviseringsBusiness.SendHoerAndenKommune komunikation oprettet");
+
+                    if (modtagerPerson == null)
+                    {
+                        //TOK: Modtager er ikke nødvendigvis oprettet i Flytjord.dk. 
+                        //Der kan i det tilfælde ikke oprettes poster i advis eller kommunikation tabellerne.
+                        SendEmail(emailSubject, emailBody, modtagerPerson.Email);
+                    }
+                    else
+                    {
+                        var advis = new Advis { AdvisType = GetHoerAndenKommuneAdvisType(), Person = modtagerPerson, Besked = b };
+
+                        Create(advis);
+
+                        System.Diagnostics.Trace.TraceInformation("AdviseringsBusiness.SendHoerAndenKommune advis oprettet, sender email");
+
+                        SendEmail(emailSubject, emailBody, modtagerPerson.Email);
+                    }
+
+                    return true;
+
+                } catch (Exception ex)
                 {
-                    //TOK: Modtager er ikke nødvendigvis oprettet i Flytjord.dk. 
-                    //Der kan i det tilfælde ikke oprettes poster i advis eller kommunikation tabellerne.
-                    SendEmail(emailSubject, emailBody, modtagerPerson.Email);
-                }
-                else
-                {
-                    var advis = new Advis { AdvisType = GetHoerAndenKommuneAdvisType(), Person = modtagerPerson, Besked = b };
+                    var msg = ex.Message;
+                    if (ex.InnerException != null)
+                        msg += " **** Inner exception : " + ex.InnerException.Message;
+                    System.Diagnostics.Trace.TraceInformation(string.Format("AdviseringsBusiness.SendHoerAndenKommune exception : {0}", msg));
 
-                    Create(advis);
-                    SendEmail(emailSubject, emailBody, modtagerPerson.Email);
+                    return false;
                 }
-
-                return true;
 
                 //Af TOK - Modtager er ikke nødvendigvis oprettet i Flytjord.dk. 
                 //Der kan i det tilfælde ikke oprettes poster i advis eller kommunikation tabellerne.

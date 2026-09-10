@@ -2013,6 +2013,8 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
         [HttpPost]
         public ActionResult SendHoerAndenKommune(string emne, string besked, string modtagerEmail, string anmeldelseId)
         {
+            System.Diagnostics.Trace.TraceInformation("AnmeldelsesController.SendHoerAndenKommune Start");
+
             Guid ga;
             if (Guid.TryParse(anmeldelseId, out ga))
             {
@@ -2050,6 +2052,8 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
                         //error "Modtager email er ikke angivet"
                     }
 
+                    System.Diagnostics.Trace.TraceInformation("AnmeldelsesController.SendHoerAndenKommune info:");
+                    System.Diagnostics.Trace.TraceInformation(string.Format("Emne : {0} - Besked : {1} - Person : {2]", emne, besked, brugerProfil.Person != null ? brugerProfil.Person.Navn : "NULL"));
                     var res = _adviseringBusiness.SendHoerAndenKommune(emne, besked, brugerProfil.Person, personSomErLoggetInd, a);
                     if (res)
                         return Json(new { Success = true });
