@@ -151,7 +151,7 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus
             Indkoebsordrenummer = anmeldelse.Jord.EgetOrdrenummer ?? string.Empty;
             KunderefID = $"Att: {anmeldelse.Anmelder.Person.FullName()}";
             if (kommuneId == Guid.Parse("4F38E0EE-2EF1-4A21-8AAD-F90163E5C826") && anmeldelse.Sagsbehandler != null)  //Randers Kommune
-                Toptekst = $"Vedr. anmeldelse af jordflytning fra: {anmeldelse.Oprindelsessted.Adresse}, {anmeldelse.Oprindelsessted.Postnummer} {anmeldelse.Oprindelsessted.PostDistrikt}. Løbenr.: {anmeldelse.Nummer}.  KONTAKTPERSON: {anmeldelse.Sagsbehandler.Person.Navn} {anmeldelse.Sagsbehandler.Person.Efternavn} TLF: {anmeldelse.Sagsbehandler.Person.Telefon}";
+                Toptekst = $"Sagsbehandler: {anmeldelse.Sagsbehandler.Person.Navn} {anmeldelse.Sagsbehandler.Person.Efternavn} TLF: {anmeldelse.Sagsbehandler.Person.Telefon}. Vedr. anmeldelse af jordflytning fra: {anmeldelse.Oprindelsessted.Adresse}, {anmeldelse.Oprindelsessted.Postnummer} {anmeldelse.Oprindelsessted.PostDistrikt}. Løbenr.: {anmeldelse.Nummer}";
             else
                 Toptekst = $"Vedr. anmeldelse af jordflytning fra: {anmeldelse.Oprindelsessted.Adresse}, {anmeldelse.Oprindelsessted.Postnummer} {anmeldelse.Oprindelsessted.PostDistrikt}. Løbenr.: {anmeldelse.Nummer}";
             // Leverandoer
