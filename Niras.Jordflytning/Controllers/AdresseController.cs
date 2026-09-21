@@ -342,7 +342,11 @@ namespace Niras.Jordflytning.Controllers
                         })
                     }, JsonRequestBehavior.AllowGet);
                 }
-                catch {}
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("MatrikelAutoComplete error: " + ex.Message);
+                    NLog.LogManager.GetCurrentClassLogger().Error(ex, "MatrikelAutoComplete exception");
+                }
             }
             return Json(new object[] {}, JsonRequestBehavior.AllowGet);
         }
@@ -353,10 +357,15 @@ namespace Niras.Jordflytning.Controllers
             string y = null;
             try
             {
-                var result = _matrikelBusiness.GetMatrikel(ejerlav.ToString(), matrikelnr);
-                var props = result.features[0].properties;
-                x = props.centroid_x;
-                y = props.centroid_y;
+                var res = _dawaOpslagBusiness.GetMatrikel(ejerlav.ToString(), matrikelnr);
+                x = ((int)res.geometri.X).ToString();
+                y = ((int)res.geometri.Y).ToString();
+
+
+                //var result = _matrikelBusiness.GetMatrikel(ejerlav.ToString(), matrikelnr);
+                //var props = result.features[0].properties;
+                //x = props.centroid_x;
+                //y = props.centroid_y;
             }
             catch { }
             return Json(new { x = x, y = y }, JsonRequestBehavior.AllowGet);
