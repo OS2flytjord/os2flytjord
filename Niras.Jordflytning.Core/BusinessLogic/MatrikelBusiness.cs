@@ -63,7 +63,24 @@ namespace Niras.Jordflytning.Core.BusinessLogic
         public string GetEsrEjendomsnummer(string ejerlavkode, string matrikelnr)
         {
             return _matrikelOpslagRepository.GetEsrEjendomsnummer(ejerlavkode, matrikelnr);
+
+
+            //var datafordelerApiKey = ConfigurationManager.AppSettings["datafordelerApiKey"];
+            //var client = new DatafordelerGraphQLClient("MAT", "v2", datafordelerApiKey);
+            //var query = new DatafordelerGraphQLQuery("Jordstykke", "MAT_Ejerlav");
+            //query.AddNode("id_lokalId");
+            //query.AddNode("ejerlavskode");
+            //query.AddNode("ejerlavsnavn");
+            //query.AddGeometriNode();
+            //query.AddArgument("ejerlavskode", ejerlavskode);
+            //var ejerlavListe = client.Request<Models.datafordeler.Ejerlav>(query);
+
+
         }
+
+
+
+
 
     }
 }
