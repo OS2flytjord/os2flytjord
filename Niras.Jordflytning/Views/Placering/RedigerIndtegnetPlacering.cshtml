@@ -167,43 +167,43 @@
 
     });
 
-    var udfyldEjerlav = function (adresse, doneHandler) {
-        $.ajax({
-            type: "GET",
-            url: "https://dawa.aws.dk/ejerlav/" + adresse.ejerlavkode,
-            dataType: "jsonp",
-            success: function (d) {
-                adresse.ejerlav = d.navn;
-                doneHandler.apply(this, [adresse]);
-            },
-            error: function (msg) {
-                debugger;
-                alert("Fejl ved udfyldning af ejerlav");
-            }
-        });
-    };
+    //var udfyldEjerlav = function (adresse, doneHandler) {
+    //    $.ajax({
+    //        type: "GET",
+    //        url: "https://dawa.aws.dk/ejerlav/" + adresse.ejerlavkode,
+    //        dataType: "jsonp",
+    //        success: function (d) {
+    //            adresse.ejerlav = d.navn;
+    //            doneHandler.apply(this, [adresse]);
+    //        },
+    //        error: function (msg) {
+    //            debugger;
+    //            alert("Fejl ved udfyldning af ejerlav");
+    //        }
+    //    });
+    //};
     
-    var udfyldMatrikel = function (adresse, doneHandler) {
-        $.ajax({
-            type: "GET",
-            url: "https://dawa.aws.dk/jordstykker/reverse",
-            dataType: "jsonp",
-            data: {
-                struktur: 'mini',
-                srid: '25832',
-                x: adresse.x,
-                y: adresse.y
-            },
-            success: function (d) {
-                adresse.matrikelnr = d.matrikelnr;
-                adresse.ejerlavkode = d.ejerlav.kode;
-                udfyldEjerlav(adresse, doneHandler);
-            },
-            error: function (msg) {
-                alert("Fejl ved udfyldning af matrikel");
-            }
-        });
-    };
+    //var udfyldMatrikel = function (adresse, doneHandler) {
+    //    $.ajax({
+    //        type: "GET",
+    //        url: "https://dawa.aws.dk/jordstykker/reverse",
+    //        dataType: "jsonp",
+    //        data: {
+    //            struktur: 'mini',
+    //            srid: '25832',
+    //            x: adresse.x,
+    //            y: adresse.y
+    //        },
+    //        success: function (d) {
+    //            adresse.matrikelnr = d.matrikelnr;
+    //            adresse.ejerlavkode = d.ejerlav.kode;
+    //            udfyldEjerlav(adresse, doneHandler);
+    //        },
+    //        error: function (msg) {
+    //            alert("Fejl ved udfyldning af matrikel");
+    //        }
+    //    });
+    //};
 
     var toggleSaveSection = function(enabled) {
         $("#saveSection :input").each(function (i, e) {
@@ -428,12 +428,7 @@
     }
 
     function adresseFundet(adr) {
-        if ((adr.x && adr.y) && ((!adr.matrikelnr) || (adr.matrikelnr.length === 0))) {
-            udfyldMatrikel(adr, adresseValgt);
-        }
-        else {
-            adresseValgt(adr);
-        };
+       adresseValgt(adr);
     }
 
     function adresseValgt(adr) {
