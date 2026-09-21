@@ -35,6 +35,7 @@ namespace Niras.Jordflytning.Core.Models.MatrikelOpslag
 
         public class Ejerlav
         {
+            public string lokalid { get; set; }
             public int kode { get; set; }
             public string navn { get; set; }
             public string href { get; set; }
