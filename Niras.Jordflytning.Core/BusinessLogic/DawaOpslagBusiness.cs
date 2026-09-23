@@ -85,6 +85,37 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             //return JsonConvert.DeserializeObject<DawaClasses.EjerlavInfo[]>(responseContent);
         }
 
+        public NavngivenVej SearchAllVeje(string lokalId)
+        {
+            if (string.IsNullOrEmpty(lokalId.ToString()))
+                return null;
+
+
+            var datafordelerApiKey = ConfigurationManager.AppSettings["datafordelerApiKey"];
+            var client = new DatafordelerGraphQLClient("DAR", "v3", datafordelerApiKey);
+            var query = new DatafordelerGraphQLQuery("NavngivenVej", "DAR_NavngivenVejPostnummer");
+            query.AddNode("navngivenVej");
+            query.AddArgument("id_lokalId", lokalId);
+
+            var navngivenVejPostnummerList = client.Request<Models.datafordeler.NavngivenVejPosternummer>(query);
+
+            if (navngivenVejPostnummerList.Count() == 1)
+            {
+                var query2 = new DatafordelerGraphQLQuery("NavngivenVej", "DAR_NavngivenVej");
+                query2.AddArgument("id_lokalId", navngivenVejPostnummerList[0].navngivenVej);
+                query2.AddNode("administreresAfKommune");
+                query2.AddNode("vejnavnebeliggenhed_vejnavnelinje.wkt");
+
+                var navngivenVejList = client.Request<Models.datafordeler.NavngivenVej>(query2);
+                if (navngivenVejList.Count() == 1)
+                {
+                    return navngivenVejList[0];
+                }
+            }
+
+            return null;
+        }
+
         public DawaClasses.Jordstykke[] JordstykkeOpslag(string q, Models.MatrikelOpslag.DawaClasses.EjerlavInfo[] ejerlavListe = null)
         {
             if (string.IsNullOrEmpty(q))

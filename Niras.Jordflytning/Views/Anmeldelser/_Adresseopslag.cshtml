@@ -224,53 +224,53 @@
 
 
 
-        $("#drpHusnummerComplete").kendoAutoComplete(
-            {
-                placeholder: "Husnr."
-            }
-        );
+    //     $("#drpHusnummerComplete").kendoAutoComplete(
+    //         {
+    //             placeholder: "Husnr."
+    //         }
+    //     );
 
-        var vejnavnDatasource = new kendo.data.DataSource({
-            serverFiltering: true,
-            serverPaging: true,
-            pageSize: 2,
-            transport: {
-                read: "/Adresse/SearchVeje",
-                parameterMap: function (data) {
-                    return { wildcard: $("#vejnavnAutoComplete").val() };
-                }
-            }
-        });
-        vejnavnDatasource.bind("error", dataSource_error);
+    //     var vejnavnDatasource = new kendo.data.DataSource({
+    //         serverFiltering: true,
+    //         serverPaging: true,
+    //         pageSize: 2,
+    //         transport: {
+    //             read: "/Adresse/SearchVeje",
+    //             parameterMap: function (data) {
+    //                 return { wildcard: $("#vejnavnAutoComplete").val() };
+    //             }
+    //         }
+    //     });
+    //     vejnavnDatasource.bind("error", dataSource_error);
 
-        $("#vejnavnAutoComplete").kendoAutoComplete({
-            dataTextField: "displayname", // The widget is bound to the "name" field
-            dataValueField: "vejkode",
-            minLength: 4,//3
-            placeholder: "Vejnavn (indtast mindst 4 karakterer)",
-            filter: "contains",
-            select: function (e) {
-                var vejkode = this.dataItem(e.item.index()).vejkode;
-                var postnr = this.dataItem(e.item.index()).postnr;
-                loadHusnumrene(vejkode, postnr);
-            },
-            dataSource: vejnavnDatasource
-        });
-    });
+    //     $("#vejnavnAutoComplete").kendoAutoComplete({
+    //         dataTextField: "displayname", // The widget is bound to the "name" field
+    //         dataValueField: "vejkode",
+    //         minLength: 4,//3
+    //         placeholder: "Vejnavn (indtast mindst 4 karakterer)",
+    //         filter: "contains",
+    //         select: function (e) {
+    //             var vejkode = this.dataItem(e.item.index()).vejkode;
+    //             var postnr = this.dataItem(e.item.index()).postnr;
+    //             loadHusnumrene(vejkode, postnr);
+    //         },
+    //         dataSource: vejnavnDatasource
+    //     });
+    // });
 
-    function loadHusnumrene(vejkode, postnr) {
-        var argumenter = {};
-        argumenter.vejkode = vejkode;
-        argumenter.postnr = postnr;
-        argumenter.srid = 25832;
-        $.ajax({
-            url: 'https://dawa.aws.dk/adresser',
-            data: argumenter,
-            dataType: "jsonp",
-            error: fejlikommunikation,
-            jsonpCallback: 'getHusnummer'
-        });
-    }
+    // function loadHusnumrene(vejkode, postnr) {
+    //     var argumenter = {};
+    //     argumenter.vejkode = vejkode;
+    //     argumenter.postnr = postnr;
+    //     argumenter.srid = 25832;
+    //     $.ajax({
+    //         url: 'https://dawa.aws.dk/adresser',
+    //         data: argumenter,
+    //         dataType: "jsonp",
+    //         error: fejlikommunikation,
+    //         jsonpCallback: 'getHusnummer'
+    //     });
+    // }
 
     function fejlikommunikation(xhr, status, errorThrown) {
         alert("Fejl i adresseopslaget. Status: " + status + ", errorThrown: " + errorThrown);

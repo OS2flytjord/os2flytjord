@@ -311,4 +311,66 @@ function mapStedNavigateToWkt(wkt) {
     }
 }
 
+function mapStedNavigateToMultiLineStringWkt(wkt) {
+    if (!wkt || wkt.indexOf("MULTILINESTRING") !== 0) {
+        return;
+    }
+
+    var coordinateRaw = wkt
+        .replace("MULTILINESTRING", "")
+        .replace(/\(/g, "")
+        .replace(/\)/g, "")
+        .trim();
+
+    var coordinateStrings = coordinateRaw.split(",");
+
+    var minX = null;
+    var minY = null;
+    var maxX = null;
+    var maxY = null;
+
+    for (var i = 0; i < coordinateStrings.length; i++) {
+        var parts = coordinateStrings[i]
+            .trim()
+            .split(/\s+/);
+
+        if (parts.length < 2) {
+            continue;
+        }
+
+        var x = parseFloat(parts[0]);
+        var y = parseFloat(parts[1]);
+
+        if (isNaN(x) || isNaN(y)) {
+            continue;
+        }
+
+        if (minX === null || x < minX) minX = x;
+        if (minY === null || y < minY) minY = y;
+        if (maxX === null || x > maxX) maxX = x;
+        if (maxY === null || y > maxY) maxY = y;
+    }
+
+    if (
+        minX === null ||
+        minY === null ||
+        maxX === null ||
+        maxY === null
+    ) {
+        return;
+    }
+
+    var padding = 50;
+
+    mapSted.Map.navigateToArea(
+        new window.KortInfo.Geometry.Rectangle2(
+            minX - padding,
+            minY - padding,
+            maxX + padding,
+            maxY + padding
+        ),
+        false
+    );
+}
+
 //////////////////////////////////////////// SLUT KORTINFO API ////////////////////////////////////////////////////

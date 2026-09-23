@@ -381,6 +381,7 @@
     <Compile Include="Models\datafordeler\Ejerlav.cs" />
     <Compile Include="Models\datafordeler\Jordstykke.cs" />
     <Compile Include="Models\datafordeler\MatrikelGeometri.cs" />
+    <Compile Include="Models\datafordeler\NavngivenVej.cs" />
     <Compile Include="Models\Delta.cs">
       <DependentUpon>JFModel.tt</DependentUpon>
     </Compile>
