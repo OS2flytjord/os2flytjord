@@ -16,5 +16,9 @@ namespace Niras.Jordflytning.Core.Models.datafordeler
 
         public string matrikelnummer { get; set; }
 
+        public string sognLokalId { get; set; }
+
+        public string samletFastEjendomLokalId { get; set; }
+
     }
 }

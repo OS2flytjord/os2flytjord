@@ -1,29 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
+﻿using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Infrastructure;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
 using Niras.Jordflytning.Core.Models;
-using Niras.Jordflytning.Core.Models.MatrikelOpslag;
+using Niras.Jordflytning.Core.Tools.Datafordeler;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 
 namespace Niras.Jordflytning.Core.BusinessLogic
 {
     public class MatrikelBusiness : GenericBusiness<Matrikel>, IMatrikelBusiness
     {
         private readonly IMatrikelRepository _matrikelRepository;
-        private readonly IMatrikelOpslagRepository _matrikelOpslagRepository;
 
-        public MatrikelBusiness(IMatrikelRepository matrikelRepository, IMatrikelOpslagRepository matrikelOpslagRepository, IUnitOfWork unitOfWork)
+        public MatrikelBusiness(IMatrikelRepository matrikelRepository, IUnitOfWork unitOfWork)
             : base(matrikelRepository, unitOfWork)
         {
             _matrikelRepository = matrikelRepository;
-            _matrikelOpslagRepository = matrikelOpslagRepository;
-        }
-
-        public MatrikelOpslagResultat GetMatrikel(string ejerlavkode, string matrikelnummer)
-        {
-            return _matrikelOpslagRepository.Get(ejerlavkode, matrikelnummer);
         }
 
         /// <summary>
@@ -33,9 +26,9 @@ namespace Niras.Jordflytning.Core.BusinessLogic
         /// </summary>
         public IList<Matrikel> ReadMatrikler(string wkt)
         {
-            var listRest = _matrikelOpslagRepository.GetListFromRestService(wkt);
-            //var list = _matrikelRepository.GetListFromWfsService(wkt);
-            return listRest;
+            var datafordelerApiKey = ConfigurationManager.AppSettings["datafordelerApiKey"];
+            DatafordelerMatrikelClient matrikkelClient = new DatafordelerMatrikelClient(datafordelerApiKey);
+            return matrikkelClient.HentMatrikler(wkt);
         }
 
         public void DeleteMatrikler(Anmeldelse anmeldelse)
@@ -62,20 +55,36 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
         public string GetEsrEjendomsnummer(string ejerlavkode, string matrikelnr)
         {
-            return _matrikelOpslagRepository.GetEsrEjendomsnummer(ejerlavkode, matrikelnr);
+            //return _matrikelOpslagRepository.GetEsrEjendomsnummer(ejerlavkode, matrikelnr);
 
+            var datafordelerApiKey = ConfigurationManager.AppSettings["datafordelerApiKey"];
+            var client = new DatafordelerGraphQLClient("MAT", "v2", datafordelerApiKey);
+            var query = new DatafordelerGraphQLQuery("Jordstykke", "MAT_Ejerlav");
+            query.AddNode("id_lokalId");
+            query.AddNode("ejerlavskode");
+            query.AddNode("ejerlavsnavn");
+            query.AddGeometriNode();
+            query.AddArgument("ejerlavskode", ejerlavkode);
+            var ejerlavListe = client.Request<Models.datafordeler.Ejerlav>(query);
 
-            //var datafordelerApiKey = ConfigurationManager.AppSettings["datafordelerApiKey"];
-            //var client = new DatafordelerGraphQLClient("MAT", "v2", datafordelerApiKey);
-            //var query = new DatafordelerGraphQLQuery("Jordstykke", "MAT_Ejerlav");
-            //query.AddNode("id_lokalId");
-            //query.AddNode("ejerlavskode");
-            //query.AddNode("ejerlavsnavn");
-            //query.AddGeometriNode();
-            //query.AddArgument("ejerlavskode", ejerlavskode);
-            //var ejerlavListe = client.Request<Models.datafordeler.Ejerlav>(query);
+            if (ejerlavListe == null || !ejerlavListe.Any())
+                return null;
 
+            var searchejerlav = ejerlavListe.FirstOrDefault();
+            client = new DatafordelerGraphQLClient("MAT", "v2", datafordelerApiKey);
+            query = new DatafordelerGraphQLQuery("Jordstykke", "MAT_Jordstykke");
+            query.AddNode("matrikelnummer");
+            query.AddNode("id_lokalId");
+            query.AddNode("ejerlavLokalId");
+            query.AddNode("samletFastEjendomLokalId");
+            query.AddArgument("ejerlavLokalId", searchejerlav.id_lokalId);
+            query.AddArgument("matrikelnummer", matrikelnr);
+            var jordstykke = client.RequestFirst<Models.datafordeler.Jordstykke>(query);
 
+            if (jordstykke == null)
+                return null;
+
+            return jordstykke.samletFastEjendomLokalId;
         }
 
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace Niras.Jordflytning.Infrastructure.Common.Datafordeler
+namespace Niras.Jordflytning.Core.Tools.Datafordeler
 {
     public class DatafordelerGraphQLClient
     {

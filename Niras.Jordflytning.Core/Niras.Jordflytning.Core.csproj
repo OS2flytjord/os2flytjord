@@ -380,8 +380,11 @@
     <Compile Include="Models\datafordeler\DatafordelerGeometry.cs" />
     <Compile Include="Models\datafordeler\Ejerlav.cs" />
     <Compile Include="Models\datafordeler\Jordstykke.cs" />
+    <Compile Include="Models\datafordeler\LoadFlade.cs" />
+    <Compile Include="Models\datafordeler\Matrikel.cs" />
     <Compile Include="Models\datafordeler\MatrikelGeometri.cs" />
     <Compile Include="Models\datafordeler\NavngivenVej.cs" />
+    <Compile Include="Models\datafordeler\Sogn.cs" />
     <Compile Include="Models\Delta.cs">
       <DependentUpon>JFModel.tt</DependentUpon>
     </Compile>
@@ -658,6 +661,7 @@
     <Compile Include="Tools\Datafordeler\DatafordelerGraphQLClient.cs" />
     <Compile Include="Tools\Datafordeler\DatafordelerGraphQLQuery.cs" />
     <Compile Include="Tools\Datafordeler\DatafordelerGraphQLQueryNode.cs" />
+    <Compile Include="Tools\Datafordeler\DatafordelerMatrikelClient.cs" />
     <Compile Include="Web References\dk.niras.informatik.emailservice\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
