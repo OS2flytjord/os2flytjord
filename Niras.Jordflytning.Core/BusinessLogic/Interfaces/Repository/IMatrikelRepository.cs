@@ -5,6 +5,6 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository
 {
   public interface IMatrikelRepository : IRepository<Matrikel>
     {
-        IList<Matrikel> GetListFromWfsService(string wkt);
+        //IList<Matrikel> GetListFromWfsService(string wkt);
     }
 }
