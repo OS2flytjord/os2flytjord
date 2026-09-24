@@ -6,8 +6,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
 {
     public interface IMatrikelBusiness
     {
-
-        MatrikelOpslagResultat GetMatrikel(string ejerlavkode, string matrikelnummer);
+        //MatrikelOpslagResultat GetMatrikel(string ejerlavkode, string matrikelnummer);
         IList<Matrikel> ReadMatrikler(string wkt);
         void DeleteMatrikler(Anmeldelse anmeldelse);
         string GetEsrEjendomsnummer(string ejerlavkode, string matrikelnr);
