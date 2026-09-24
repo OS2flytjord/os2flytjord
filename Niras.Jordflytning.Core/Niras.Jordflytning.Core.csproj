@@ -383,6 +383,7 @@
     <Compile Include="Models\datafordeler\LoadFlade.cs" />
     <Compile Include="Models\datafordeler\Matrikel.cs" />
     <Compile Include="Models\datafordeler\MatrikelGeometri.cs" />
+    <Compile Include="Models\datafordeler\NavngivenVej.cs" />
     <Compile Include="Models\datafordeler\Sogn.cs" />
     <Compile Include="Models\Delta.cs">
       <DependentUpon>JFModel.tt</DependentUpon>
