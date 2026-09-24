@@ -1,4 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Niras.Jordflytning.Core.BusinessLogic;
+using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
+using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
+using Niras.Jordflytning.Core.Models.Adresse;
+using Niras.Jordflytning.Core.Models.datafordeler;
+using Niras.Jordflytning.Core.Models.MatrikelOpslag;
+using Niras.Jordflytning.Infrastructure.DataAccess;
+using Niras.Jordflytning.Library.Logging;
+using Niras.Jordflytning.ViewModels.Anmeldelse;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -6,15 +16,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using Niras.Jordflytning.Core.BusinessLogic;
-using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
-using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
-using Niras.Jordflytning.Core.Models.Adresse;
-using Niras.Jordflytning.Core.Models.MatrikelOpslag;
-using Niras.Jordflytning.Infrastructure.DataAccess;
-using Niras.Jordflytning.Library.Logging;
-using Niras.Jordflytning.ViewModels.Anmeldelse;
 
 namespace Niras.Jordflytning.Controllers
 {
@@ -40,37 +41,48 @@ namespace Niras.Jordflytning.Controllers
             return View();
         }
 
-        public ActionResult DawaAutoComplete(string q, string type, string caretpos, string adgangsadresserOnly, string startfra)
+        //public ActionResult DawaAutoComplete(string q, string type, string caretpos, string adgangsadresserOnly, string startfra)
+        //{
+        //    string url;
+
+        //    if (startfra != null)
+        //    {
+        //        url = String.Format("https://dawa.aws.dk/autocomplete?q={0}&type={1}&caretpos={2}&adgangsadresserOnly={3}&startfra={4}", q, type, caretpos, adgangsadresserOnly, startfra);
+        //    }
+        //    else
+        //    {
+        //        url = String.Format("https://dawa.aws.dk/autocomplete?q={0}&type={1}&caretpos={2}&adgangsadresserOnly={3}", q, type, caretpos, adgangsadresserOnly);
+        //    }
+
+        //    var request = WebRequest.Create(String.Format(url));
+        //    // set request method 
+        //    request.Method = "GET";
+        //    // set content type 
+        //    request.ContentType = "application/json";
+        //    // get response for GET request 
+
+        //    using (var response = request.GetResponse() as HttpWebResponse)
+        //    {
+        //        if (response != null)
+        //            using (var reader = new StreamReader(response.GetResponseStream()))
+        //            {
+        //                var serverResponse = reader.ReadToEnd();
+        //                return Content(serverResponse, "application/json");
+        //            }
+        //    }
+
+        //    return Json(null, JsonRequestBehavior.AllowGet);
+        //}
+
+        public ActionResult SearchAllVeje(string lokalId)
         {
-            string url;
+            NavngivenVej vej = _dawaOpslagBusiness.SearchAllVeje(lokalId);
 
-            if (startfra != null)
+            return Json(new
             {
-                url = String.Format("https://dawa.aws.dk/autocomplete?q={0}&type={1}&caretpos={2}&adgangsadresserOnly={3}&startfra={4}", q, type, caretpos, adgangsadresserOnly, startfra);
-            }
-            else
-            {
-                url = String.Format("https://dawa.aws.dk/autocomplete?q={0}&type={1}&caretpos={2}&adgangsadresserOnly={3}", q, type, caretpos, adgangsadresserOnly);
-            }
-
-            var request = WebRequest.Create(String.Format(url));
-            // set request method 
-            request.Method = "GET";
-            // set content type 
-            request.ContentType = "application/json";
-            // get response for GET request 
-
-            using (var response = request.GetResponse() as HttpWebResponse)
-            {
-                if (response != null)
-                    using (var reader = new StreamReader(response.GetResponseStream()))
-                    {
-                        var serverResponse = reader.ReadToEnd();
-                        return Content(serverResponse, "application/json");
-                    }
-            }
-
-            return Json(null, JsonRequestBehavior.AllowGet);
+                wkt = vej.vejnavnebeliggenhed_vejnavnelinje.wkt,
+                kommuneKode = vej.administreresAfKommune
+            }, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult ReLoad()

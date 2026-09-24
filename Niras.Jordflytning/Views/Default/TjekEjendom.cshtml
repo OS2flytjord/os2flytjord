@@ -128,7 +128,6 @@
       });
 
       mapStedRedlineWkt($("#hflOprindelsesstedWkt").val());
-
       $("#hflAdresse").val(adr.vejnavn + " " + adr.husnr);
       $("#txtAdresse").val(adr.vejnavn + " " + adr.husnr);
       $("#txtKommune").val(adr.kommunenavn);
@@ -214,7 +213,7 @@
       $("#tab_3").attr("disabled", "disabled");
       $("#tab_4").attr("disabled", "disabled");
       $("#tab_5").attr("disabled", "disabled");
-    }
+      }
   </script>
 }
 
@@ -238,9 +237,9 @@
             <div class="row" style="display: block">
               <div id="divEjendom">
                 <div id="divEjendomAdresseEdit" style="display: @(Model.AdresseOpslagViewMode == false ? "block" : "none")">
-                  <div class="row_line">
-                    @Html.Partial("~/Views/Anmeldelser/_AdresseOpslag.cshtml")
-                  </div>
+                    <div class="row_line">
+                        @Html.Partial("~/Views/Anmeldelser/_AdresseOpslag.cshtml")
+                    </div>
                   <div style="clear: both"></div>
                 </div>
               </div>
