@@ -6,13 +6,10 @@
     }
 }
 
-<table>
-    <tr>
-        <td>
-            <input id="dawaAutoComplete" class="adrClassiclook_kendo_workaround" style="@style background-color: #FFFFFF;" />
-        </td>
-    </tr>
-</table>
+
+<div class="autocomplete-container">
+    <input id="dawaAutoComplete" class="k-input" placeholder="Indtast vejnavn" />
+</div>
 
 <script>
     function dataSource_error() {
@@ -20,87 +17,153 @@
     }
 
     $(function () {
+        $.fn.fjAdressevaelger = function (cb) {
+            const params = {
 
-        var isadgangsadresse = false;
+                maksimum: 20,
+                token: 'adressevaelger123',
+                adgangsadresserOnly: true,
 
-        var dawaDatasourceVejnavn = new kendo.data.DataSource({
-            serverFiltering: true,
-            serverPaging: true,
-            pageSize: 2,
-            transport: {
-                read: '/Adresse/DawaAutocomplete',
-                dataType: "jsonp",
-                parameterMap: function (data) {
-                    var input = $("#dawaAutoComplete").val();
-
-                    var params = null;
-                    
-                    if (isadgangsadresse)
-                        {
-                        params =  { q: input, type: 'adgangsadresse', caretpos: input.length, adgangsadresserOnly: true, startfra: 'adgangsadresse' };
-                    } else {
-                        params =  { q: input, type: 'adgangsadresse', caretpos: input.length, adgangsadresserOnly: true };
-                    }
-
-                    return params;
+                select: adr => {
+                    var result = {};
+                    result.x = adr.husnummer.adgangspunkt.koordinater.x;
+                    result.y = adr.husnummer.adgangspunkt.koordinater.y;
+                    result.kommunekode = adr.husnummer.navngivenvejkommunedel.kommune;
+                    result.kommunenavn = getKommuneNavn(result.kommunekode);
+                    result.husnr = adr.husnummer.husnummertekst;
+                    result.postnummer = adr.husnummer.postnummer.postnr;
+                    result.vejnavn = adr.husnummer.navngivenvej.vejnavn;
+                    result.postdistrikt = adr.husnummer.postnummer.navn;
+                    result.ejerlavkode = null;
+                    result.ejerlavnavn = null;
+                    result.esrejendomsnr = null;
+                    result.matrikelnr= null
+                    cb(result);
                 }
-            },
-           
+            };
 
+            adressevaelger.adressevaelger(this[0], params);
+
+            return this;
+        }
+
+        $('.autocomplete-container').on('keydown', e => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+            }
         });
-        dawaDatasourceVejnavn.bind("error", dataSource_error);
 
-        $("#dawaAutoComplete").kendoAutoComplete({
-            dataTextField: "tekst", // The widget is bound to the "name" field
-            dataValueField: "data",
-            minLength: 4,//3
-            placeholder: "Vejnavn (indtast mindst 4 karakterer)",
-            filter: "contains",
-            lastcaretposition: 0,
-            select: function (e) {
-                var data = this.dataItem(e.item.index()).data;
-                
-
-                if ( data.husnr == null || data.postnr ==null || data.vejnavn == null) {
-                    isadgangsadresse = true;
-                    this.search();
-                }
-                else {
-
-                    $.ajax({
-                        type: "GET",
-                        url: data.href,
-                        dataType: "jsonp",
-                        data: {
-                            format: 'geojson'
-                        },
-                        success: function (d) {
-                            var dest = new Proj4js.Proj("EPSG:25832");
-                            var source = new Proj4js.Proj("EPSG:4326");
-
-                            var centerPoint = new Proj4js.Point(d.geometry.coordinates[0], d.geometry.coordinates[1]);
-                            Proj4js.transform(source, dest, centerPoint);
-                            var adresse = { x: centerPoint.x, y: centerPoint.y, husnr: d.properties.husnr, vejnavn: d.properties.vejnavn, kommunekode: d.properties.kommunekode, kommunenavn: d.properties.kommunenavn, postdistrikt: d.properties.postnrnavn, postnummer: d.properties.postnr, ejerlavkode: d.properties.ejerlavkode, ejerlavnavn: d.properties.ejerlavnavn, matrikelnr: d.properties.matrikelnr, esrejendomsnr: d.properties.esrejendomsnr };
-                            adresseFundet(adresse);
-                        },
-                        error: function (textStatus) {
-                            alert("Fejl: " + textStatus);
-                        }
-
-                        
-                    });
-
-                    isadgangsadresse = false;
-                }
-            },
-            dataSource: dawaDatasourceVejnavn
+        $("#dawaAutoComplete").fjAdressevaelger(a => {
+            adresseFundet(a);
         });
+
+        function getKommuneNavn(kommunekode) {
+            const kommuner = {
+                '0101': 'København',
+                '0147': 'Frederiksberg',
+                '0151': 'Ballerup',
+                '0153': 'Brøndby',
+                '0155': 'Dragør',
+                '0157': 'Gentofte',
+                '0159': 'Gladsaxe',
+                '0161': 'Glostrup',
+                '0163': 'Herlev',
+                '0165': 'Albertslund',
+                '0167': 'Hvidovre',
+                '0169': 'Høje-Taastrup',
+                '0173': 'Lyngby-Taarbæk',
+                '0175': 'Rødovre',
+                '0183': 'Ishøj',
+                '0185': 'Tårnby',
+                '0187': 'Vallensbæk',
+                '0190': 'Furesø',
+                '0201': 'Allerød',
+                '0210': 'Fredensborg',
+                '0217': 'Helsingør',
+                '0219': 'Hillerød',
+                '0223': 'Hørsholm',
+                '0230': 'Rudersdal',
+                '0240': 'Egedal',
+                '0250': 'Frederikssund',
+                '0253': 'Greve',
+                '0259': 'Køge',
+                '0260': 'Halsnæs',
+                '0265': 'Roskilde',
+                '0269': 'Solrød',
+                '0270': 'Gribskov',
+                '0306': 'Odsherred',
+                '0316': 'Holbæk',
+                '0320': 'Faxe',
+                '0326': 'Kalundborg',
+                '0329': 'Ringsted',
+                '0330': 'Slagelse',
+                '0336': 'Stevns',
+                '0340': 'Sorø',
+                '0350': 'Lejre',
+                '0360': 'Lolland',
+                '0370': 'Næstved',
+                '0376': 'Guldborgsund',
+                '0390': 'Vordingborg',
+                '0400': 'Bornholm',
+                '0410': 'Middelfart',
+                '0411': 'Christiansø',
+                '0420': 'Assens',
+                '0430': 'Faaborg-Midtfyn',
+                '0440': 'Kerteminde',
+                '0450': 'Nyborg',
+                '0461': 'Odense',
+                '0479': 'Svendborg',
+                '0480': 'Nordfyns',
+                '0482': 'Langeland',
+                '0492': 'Ærø',
+                '0510': 'Haderslev',
+                '0530': 'Billund',
+                '0540': 'Sønderborg',
+                '0550': 'Tønder',
+                '0561': 'Esbjerg',
+                '0563': 'Fanø',
+                '0573': 'Varde',
+                '0575': 'Vejen',
+                '0580': 'Aabenraa',
+                '0607': 'Fredericia',
+                '0615': 'Horsens',
+                '0621': 'Kolding',
+                '0630': 'Vejle',
+                '0657': 'Herning',
+                '0661': 'Holstebro',
+                '0665': 'Lemvig',
+                '0671': 'Struer',
+                '0706': 'Syddjurs',
+                '0707': 'Norddjurs',
+                '0710': 'Favrskov',
+                '0727': 'Odder',
+                '0730': 'Randers',
+                '0740': 'Silkeborg',
+                '0741': 'Samsø',
+                '0746': 'Skanderborg',
+                '0751': 'Aarhus',
+                '0756': 'Ikast-Brande',
+                '0760': 'Ringkøbing-Skjern',
+                '0766': 'Hedensted',
+                '0773': 'Morsø',
+                '0779': 'Skive',
+                '0787': 'Thisted',
+                '0791': 'Viborg',
+                '0810': 'Brønderslev',
+                '0813': 'Frederikshavn',
+                '0820': 'Vesthimmerlands',
+                '0825': 'Læsø',
+                '0840': 'Rebild',
+                '0846': 'Mariagerfjord',
+                '0849': 'Jammerbugt',
+                '0851': 'Aalborg',
+                '0860': 'Hjørring'
+            }
+
+            return kommuner[kommunekode] || null
+        }
+
     });
-
-    function fejlikommunikation(xhr, status, errorThrown) {
-        alert("Fejl i adresseopslaget. Status: " + status + ", errorThrown: " + errorThrown);
-    };
-
 </script>
 
 
@@ -161,56 +224,120 @@
 
 
 
-        $("#drpHusnummerComplete").kendoAutoComplete(
-            {
-                placeholder: "Husnr."
-            }
-        );
+    //     $("#drpHusnummerComplete").kendoAutoComplete(
+    //         {
+    //             placeholder: "Husnr."
+    //         }
+    //     );
 
-        var vejnavnDatasource = new kendo.data.DataSource({
-            serverFiltering: true,
-            serverPaging: true,
-            pageSize: 2,
-            transport: {
-                read: "/Adresse/SearchVeje",
-                parameterMap: function (data) {
-                    return { wildcard: $("#vejnavnAutoComplete").val() };
-                }
-            }
-        });
-        vejnavnDatasource.bind("error", dataSource_error);
+    //     var vejnavnDatasource = new kendo.data.DataSource({
+    //         serverFiltering: true,
+    //         serverPaging: true,
+    //         pageSize: 2,
+    //         transport: {
+    //             read: "/Adresse/SearchVeje",
+    //             parameterMap: function (data) {
+    //                 return { wildcard: $("#vejnavnAutoComplete").val() };
+    //             }
+    //         }
+    //     });
+    //     vejnavnDatasource.bind("error", dataSource_error);
 
-        $("#vejnavnAutoComplete").kendoAutoComplete({
-            dataTextField: "displayname", // The widget is bound to the "name" field
-            dataValueField: "vejkode",
-            minLength: 4,//3
-            placeholder: "Vejnavn (indtast mindst 4 karakterer)",
-            filter: "contains",
-            select: function (e) {
-                var vejkode = this.dataItem(e.item.index()).vejkode;
-                var postnr = this.dataItem(e.item.index()).postnr;
-                loadHusnumrene(vejkode, postnr);
-            },
-            dataSource: vejnavnDatasource
-        });
-    });
+    //     $("#vejnavnAutoComplete").kendoAutoComplete({
+    //         dataTextField: "displayname", // The widget is bound to the "name" field
+    //         dataValueField: "vejkode",
+    //         minLength: 4,//3
+    //         placeholder: "Vejnavn (indtast mindst 4 karakterer)",
+    //         filter: "contains",
+    //         select: function (e) {
+    //             var vejkode = this.dataItem(e.item.index()).vejkode;
+    //             var postnr = this.dataItem(e.item.index()).postnr;
+    //             loadHusnumrene(vejkode, postnr);
+    //         },
+    //         dataSource: vejnavnDatasource
+    //     });
+    // });
 
-    function loadHusnumrene(vejkode, postnr) {
-        var argumenter = {};
-        argumenter.vejkode = vejkode;
-        argumenter.postnr = postnr;
-        argumenter.srid = 25832;
-        $.ajax({
-            url: 'https://dawa.aws.dk/adresser',
-            data: argumenter,
-            dataType: "jsonp",
-            error: fejlikommunikation,
-            jsonpCallback: 'getHusnummer'
-        });
-    }
+    // function loadHusnumrene(vejkode, postnr) {
+    //     var argumenter = {};
+    //     argumenter.vejkode = vejkode;
+    //     argumenter.postnr = postnr;
+    //     argumenter.srid = 25832;
+    //     $.ajax({
+    //         url: 'https://dawa.aws.dk/adresser',
+    //         data: argumenter,
+    //         dataType: "jsonp",
+    //         error: fejlikommunikation,
+    //         jsonpCallback: 'getHusnummer'
+    //     });
+    // }
 
     function fejlikommunikation(xhr, status, errorThrown) {
         alert("Fejl i adresseopslaget. Status: " + status + ", errorThrown: " + errorThrown);
     };
 
 </script>
+
+<style>
+    .autocomplete-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .autocomplete-container input {
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        width: 475px;
+        border: 1px solid #ccc;
+        background: transparent;
+        color: #676767;
+        font-family: inherit;
+        margin: 1px 0 1px 0;
+        padding: 2px !important;
+        padding-left: 6px !important;
+        height: 2em;
+        line-height: 1.31em;
+    }
+
+    .adressevaelger-suggestions {
+        width: 475px;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+        border-radius: .3125em;
+        background: #fcfcfc;
+        box-shadow: 0 .0625em .15625em #00000026;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        overflow-y: auto;
+        max-height: 250px;
+        box-sizing: border-box
+    }
+
+    .adressevaelger-suggestions .adressevaelger-suggestion {
+        margin: 0;
+        list-style: none;
+        cursor: pointer;
+        padding: .4em .6em;
+        color: #333;
+        border: .0625em solid #ddd;
+        border-bottom-width: 0
+    }
+
+    .adressevaelger-suggestions .adressevaelger-suggestion:first-child {
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit
+    }
+
+    .adressevaelger-suggestions .adressevaelger-suggestion:last-child {
+        border-bottom-left-radius: inherit;
+        border-bottom-right-radius: inherit;
+        border-bottom-width: .0625em
+    }
+
+    .adressevaelger-suggestions .adressevaelger-suggestion.dawa-selected, .adressevaelger-suggestions .adressevaelger-suggestion:hover {
+        background: #f0f0f0
+    }
+</style>
