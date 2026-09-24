@@ -1,11 +1,16 @@
-﻿using Niras.Jordflytning.Core.Tools.Datafordeler;
+﻿
+using DocumentFormat.OpenXml.Bibliography;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 
-namespace Niras.Jordflytning.Infrastructure.Common.Datafordeler
+namespace Niras.Jordflytning.Core.Tools.Datafordeler
 {
     public class DatafordelerGraphQLQuery
     {
@@ -23,125 +28,111 @@ namespace Niras.Jordflytning.Infrastructure.Common.Datafordeler
             this.Nodes = new List<DatafordelerGraphQLQueryNode>();
         }
 
-        protected void addNodeRecursive(List<string> nodeNames, List<DatafordelerGraphQLQueryNode> nodes)
+        protected void addNodeRecursive(List<string> names, List<DatafordelerGraphQLQueryNode> nodes)
         {
-            var childNode = nodes.FirstOrDefault(n => n.Name == nodeNames[0]);
-            if (childNode == null)
+            var node = nodes.FirstOrDefault(n => n.Name == names[0]);
+            if (node == null)
             {
-                childNode = new DatafordelerGraphQLQueryNode(nodeNames[0]);
-                nodes.Add(childNode);
+                node = new DatafordelerGraphQLQueryNode(names[0]);
+                nodes.Add(node);
             }
-
-            if (nodeNames.Count > 1)
-            {
-                nodeNames.RemoveAt(0);
-                this.addNodeRecursive(nodeNames, childNode.Children);
-            }
+            if (names.Count > 1)
+                addNodeRecursive(names.Skip(1).ToList(), node.Children);
         }
 
         public void AddNode(string nodePath)
         {
-            var nodeNames = nodePath.Split('.').ToList();
-            this.addNodeRecursive(nodeNames, this.Nodes);
+            if (string.IsNullOrWhiteSpace(nodePath))
+                throw new ArgumentException("Node path is required.", nameof(nodePath));
+            var names = nodePath.Split('.').ToList();
+            foreach (var name in names) ValidateName(name);
+            addNodeRecursive(names, Nodes);
         }
 
         public void AddGeometriNode()
         {
-            this.AddNode("geometri.type");
-            this.AddNode("geometri.wkt");
-            this.AddNode("geometri.dimension");
-            this.AddNode("geometri.crs");
+            AddNode("geometri.type");
+            AddNode("geometri.wkt");
+            AddNode("geometri.dimension");
+            AddNode("geometri.crs");
         }
 
         public void AddArgument<T>(string name, string op, T value)
         {
-            string arg = "";
-            if (typeof(T) == typeof(string))
-            {
-                arg = $"\"{value}\"";
-            }
-            else if (typeof(T) == typeof(Guid))
-            {
-                arg = $"\"{value.ToString()}\"";
-            }
-            else if (value.ToString() != null)
-            {
-                arg = value.ToString();
-            }
-
-            this.Arguments.Add(new Tuple<string, string, string>(name, op, arg));
+            ValidateName(name);
+            ValidateName(op);
+            var literal = ToGraphQL(value == null ? JValue.CreateNull() : JToken.FromObject(value));
+            // Merge different operators for the same field when rendering.
+            Arguments.RemoveAll(a => a.Item1 == name && a.Item2 == op);
+            Arguments.Add(Tuple.Create(name, op, literal));
         }
 
-        public void AddArgument<T>(string name, T value)
+        public void AddArgument<T>(string name, T value) { AddArgument(name, "eq", value); }
+        public void AddArgument<T>(string name, List<T> values) { AddArgument(name, "in", values); }
+
+        public void AddIntersectsArgument(string wkt, int crs)
         {
-            this.AddArgument(name, "eq", value);
+            AddArgument("geometri", "intersects", new { crs, wkt });
         }
 
-        public void AddArgument<T>(string name, List<T> values)
+        // JSON strings/lists/scalars are valid GraphQL literals, but input-object
+        // field names must be unquoted. Never interpolate user strings directly.
+        private static string ToGraphQL(JToken token)
         {
-            List<string> args = new List<string>();
-            if (typeof(T) == typeof(string))
-            {
-                args = values.Select(v => $"\"{v}\"").ToList();
-            }
-            else if (typeof(T) == typeof(Guid))
-            {
-                args = values.Select(v => $"\"{v.ToString()}\"").ToList();
-            }
-            else
-            {
-                args = values.Select(v => v.ToString()).ToList();
-            }
-
-            this.Arguments.Add(new Tuple<string, string, string>(name, "in", $"[{string.Join(",", args)}]"));
-        }
-
-        public StringContent Body
-        {
-            get
-            {
-                var query = new StringBuilder();
-                query.AppendLine($"query {this.QueryName} {{");
-
-                query.Append($"{this.QueryType}(virkningstid: \"{DateTime.UtcNow.ToString("o")}\", registreringstid: \"{DateTime.UtcNow.ToString("o")}\"");
-
-                if (this.Arguments.Count > 0)
+            var obj = token as JObject;
+            if (obj != null)
+                return "{ " + string.Join(", ", obj.Properties().Select(p =>
                 {
-                    query.AppendLine(", where: {");
+                    ValidateName(p.Name);
+                    return p.Name + ": " + ToGraphQL(p.Value);
+                })) + " }";
+            var array = token as JArray;
+            if (array != null) return "[" + string.Join(", ", array.Select(ToGraphQL)) + "]";
+            return token.ToString(Formatting.None);
+        }
 
-                    foreach (var arg in this.Arguments)
-                    {
-                        query.AppendLine($"{arg.Item1}: {{ {arg.Item2}: {arg.Item3} }}");
-                    }
+        private static void ValidateName(string name)
+        {
+            if (name == null || !Regex.IsMatch(name, @"\A[_A-Za-z][_0-9A-Za-z]*\z"))
+                throw new ArgumentException("Invalid GraphQL name.", nameof(name));
+        }
 
-                    query.AppendLine("}");
+        public string ToQueryString() { return BuildQuery(); }
+
+        // The client supplies its own cursor without mutating the caller's query.
+        internal string BuildQuery()
+        {
+            ValidateName(QueryName);
+            ValidateName(QueryType);            
+            var query = new StringBuilder();
+            query.Append("query ").Append(QueryName).Append(" { ").Append(QueryType);
+            query.Append($"(virkningstid: \"{DateTime.UtcNow.ToString("o")}\", registreringstid: \"{DateTime.UtcNow.ToString("o")}\"");
+            if (Arguments.Count > 0)
+            {
+                query.Append(", where: { ");
+                foreach (var group in Arguments.GroupBy(a => a.Item1))
+                {
+                    query.Append(group.Key).Append(": { ");
+                    foreach (var arg in group)
+                        query.Append(arg.Item2).Append(": ").Append(arg.Item3).Append(' ');
+                    query.Append("} ");
                 }
-
-
-                query.AppendLine(") {");
-
-                query.AppendLine("nodes {");
-
-                foreach (var node in this.Nodes)
-                {
-                    query.AppendLine(node.ToQueryString());
-                }
-
-
-                query.AppendLine("}");
-
-                query.AppendLine("}");
-
-                query.AppendLine("}");
-
-                System.Diagnostics.Debug.WriteLine(query);
-
-                var json = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    query = query.ToString()
-                });
-                return new StringContent(json, Encoding.UTF8,  "application/json");
+                query.Append('}');
             }
+            query.AppendLine(") { nodes {");
+            foreach (var node in Nodes) query.AppendLine(node.ToQueryString());
+            query.AppendLine("} } }");
+
+            System.Diagnostics.Debug.WriteLine(query);
+
+            return query.ToString();
+        }
+
+        public StringContent Body { get { return CreateBody(); } }
+        internal StringContent CreateBody()
+        {
+            return new StringContent(JsonConvert.SerializeObject(new { query = BuildQuery() }),
+                Encoding.UTF8, "application/json");
         }
     }
 }

@@ -6,9 +6,9 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository
 {
     public interface IMatrikelOpslagRepository
     {
-        MatrikelOpslagResultat Get(string ejerlavkode, string matrikelnr);
-        MatrikelOpslagResultat Get(string wkt);
-        string GetEsrEjendomsnummer(string ejerlavkode, string matrikelnr);
-        IList<Matrikel> GetListFromRestService(string wkt);
+        //MatrikelOpslagResultat Get(string ejerlavkode, string matrikelnr);
+        //MatrikelOpslagResultat Get(string wkt);
+        //string GetEsrEjendomsnummer(string ejerlavkode, string matrikelnr);
+        //IList<Matrikel> GetListFromRestService(string wkt);
     }
 }

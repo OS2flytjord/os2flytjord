@@ -20,40 +20,40 @@ namespace Niras.Jordflytning.IntegrationTests.Core
       _repo = _ninjectKernel.Get<IMatrikelOpslagRepository>();
 		}
 
-		[Test]
-		public void GetMatrikelFromPoint()
-		{
-			const string wkt = "POINT(568124.29904483 6219190.04749136)";
-			var res = _repo.GetListFromRestService(wkt);
+		//[Test]
+		//public void GetMatrikelFromPoint()
+		//{
+		//	const string wkt = "POINT(568124.29904483 6219190.04749136)";
+		//	var res = _repo.GetListFromRestService(wkt);
 
-			Assert.IsTrue(res.Count == 1);
-			Assert.IsNotNull(res[0].Geom);
-			Assert.IsNotNullOrEmpty(res[0].Matrikelnr);
-			Assert.IsNotNullOrEmpty(res[0].Ejerlav);
+		//	Assert.IsTrue(res.Count == 1);
+		//	Assert.IsNotNull(res[0].Geom);
+		//	Assert.IsNotNullOrEmpty(res[0].Matrikelnr);
+		//	Assert.IsNotNullOrEmpty(res[0].Ejerlav);
 			
-		}
+		//}
 
-		[Test]
-		public void GetMatrikelFromPolygon()
-		{
-			const string wkt =
-        "POLYGON ((568400.655 6218890.654, 568426.802 6218886.965, 568426.85 6218898.159, 568406.885 6218900.397, 568405.457 6218900.446, 568404.063 6218900.132, 568402.796 6218899.472, 568401.822 6218898.651, 568401.056 6218897.634, 568400.536 6218896.471, 568400.289 6218895.222, 568400.325 6218893.949, 568400.655 6218890.654))";
-      var res = _repo.GetListFromRestService(wkt);
+		//[Test]
+		//public void GetMatrikelFromPolygon()
+		//{
+		//	const string wkt =
+  //      "POLYGON ((568400.655 6218890.654, 568426.802 6218886.965, 568426.85 6218898.159, 568406.885 6218900.397, 568405.457 6218900.446, 568404.063 6218900.132, 568402.796 6218899.472, 568401.822 6218898.651, 568401.056 6218897.634, 568400.536 6218896.471, 568400.289 6218895.222, 568400.325 6218893.949, 568400.655 6218890.654))";
+  //    var res = _repo.GetListFromRestService(wkt);
 
-			Assert.IsTrue(res.Count == 1);
+		//	Assert.IsTrue(res.Count == 1);
 
-		}
+		//}
 
-		[Test]
-		public void GetMatrikelFromPolygon2()
-		{
-			const string wkt =
-				"POLYGON((575110.2000000001 6226422.8,575101.4000000001 6226395.600000001,575127.4 6226387.600000001,575125.0000000001 6226420,575110.2000000001 6226422.8))";
-      var res = _repo.GetListFromRestService(wkt);
+		//[Test]
+		//public void GetMatrikelFromPolygon2()
+		//{
+		//	const string wkt =
+		//		"POLYGON((575110.2000000001 6226422.8,575101.4000000001 6226395.600000001,575127.4 6226387.600000001,575125.0000000001 6226420,575110.2000000001 6226422.8))";
+  //    var res = _repo.GetListFromRestService(wkt);
 
-			Assert.IsTrue(res.Count == 5);
+		//	Assert.IsTrue(res.Count == 5);
 
-		}
+		//}
 
 		//  const string gmlPolygon =
 		//@"<gml:MultiSurface  xmlns:gml=""http://www.opengis.net/gml"">" +

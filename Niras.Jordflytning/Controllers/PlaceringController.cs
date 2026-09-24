@@ -116,10 +116,9 @@ namespace Niras.Jordflytning.Controllers
             string y = null;
             try
             {
-                var result = _matrikelBusiness.GetMatrikel(ejerlavkode, matrikelnr);
-                var props = result.features[0].properties;
-                x = props.centroid_x;
-                y = props.centroid_y;
+                var res = _dawaOpslagBusiness.GetMatrikel(ejerlavkode, matrikelnr);
+                x = ((int)res.geometri.X).ToString();
+                y = ((int)res.geometri.Y).ToString();
             }
             catch { }
             return Json(new { x = x, y = y }, JsonRequestBehavior.AllowGet);
