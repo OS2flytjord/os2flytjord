@@ -7,11 +7,9 @@
     }
 }
 
-<input
-    id="vejnavnOpslag"
-    class="classiclook_kendo_workaround"
-    style="@style"
-/>
+<input id="vejnavnOpslag"
+       class="classiclook_kendo_workaround"
+       style="@style" />
 
 <script>
     $(function () {
@@ -47,43 +45,14 @@
 
                 // Second stage:
                 // A specific road + postcode has been selected.
-                // Send its ID to AdresseController.SearchAllVeje.
-                $.ajax({
-                    url: "/Adresse/SearchAllVeje",
-                    type: "GET",
-                    dataType: "json",
-                    data: {
-                        lokalId: item.id
-                    },
-                    success: function (data) {
-                        if (!data || !data.wkt) {
-                            return;
-                        }
+                if (item.needsLookup) {
+                    // Built from house numbers (road exists in only one postcode):
+                    // look up a house number first to find the road id.
+                    lookupVejFromHusnummer(item);
+                    return;
+                }
 
-                        $("#divAdresseView").show();
-                        $("#divOffVejMapDigPolygon").show();
-
-                        $("#hflAdresse").val(item.vejnavn);
-                        $("#txtAdresse").val(item.vejnavn);
-
-                        $("#hflPostDistrikt").val(item.postdistrikt);
-                        $("#hflPostnummer").val(item.postnr);
-                        $("#txtPostDistrikt").val(item.postdistrikt);
-                        $("#txtPostnummer").val(item.postnr);
-                        $("#txtKommune").val(getKommuneNavn(data.kommuneKode));
-
-                        $("#hflOprindelsesstedWkt").val(data.wkt);
-                        mapStedNavigateToMultiLineStringWkt(data.wkt)
-                       
-                    },
-                    error: function (xhr, status, errorThrown) {
-                        fejlikommunikationVejnavne(
-                            xhr,
-                            status,
-                            errorThrown
-                        );
-                    }
-                });
+                loadVej(item, item.id);
             },
 
             dataSource: {
@@ -102,137 +71,7 @@
                             },
 
                             success: function (response) {
-                                var results = response.fund || [];
-
-                                // Only use navngivenvejpostnummer items
-                                var navngiven = results.filter(function (item) {
-                                    return item &&
-                                        item.type === "navngivenvejpostnummer";
-                                });
-
-                                var input = (address || "")
-                                    .trim()
-                                    .toLowerCase();
-
-                                // If the entered text exactly matches a road name,
-                                // show all postcode variants for that road.
-                                var exactMatches = navngiven.filter(function (item) {
-                                    return (item.vejnavn || "")
-                                        .trim()
-                                        .toLowerCase() === input;
-                                });
-
-                                if (exactMatches.length > 0) {
-                                    var seen = {};
-                                    var items = [];
-
-                                    exactMatches.forEach(function (f) {
-                                        var key =
-                                            (f.postnr || "") +
-                                            "|" +
-                                            (f.id || "");
-
-                                        if (seen[key]) {
-                                            return;
-                                        }
-
-                                        seen[key] = true;
-
-                                        items.push({
-                                            displayname:
-                                                f.titel ||
-                                                (f.vejnavn + " " + f.postnr),
-
-                                            id: f.id || key,
-                                            postnr: f.postnr,
-                                            postdistrikt: f.postdistrikt,
-                                            type: f.type,
-                                            roadOnly: false,
-                                            vejnavn: f.vejnavn
-                                        });
-                                    });
-
-                                    options.success(items);
-                                    return;
-                                }
-
-                                // Find all distinct road names
-                                var vejnavne = [];
-                                var vejSet = {};
-
-                                navngiven.forEach(function (item) {
-                                    var vejnavn = item.vejnavn || "";
-
-                                    if (
-                                        vejnavn &&
-                                        !vejSet[vejnavn]
-                                    ) {
-                                        vejSet[vejnavn] = true;
-                                        vejnavne.push(vejnavn);
-                                    }
-                                });
-
-                                // Only one road exists in the result:
-                                // show all postcode variants directly.
-                                if (vejnavne.length === 1) {
-                                    var only = vejnavne[0];
-
-                                    var seen2 = {};
-                                    var items2 = [];
-
-                                    navngiven.forEach(function (f) {
-                                        if (f.vejnavn !== only) {
-                                            return;
-                                        }
-
-                                        var key =
-                                            (f.postnr || "") +
-                                            "|" +
-                                            (f.id || "");
-
-                                        if (seen2[key]) {
-                                            return;
-                                        }
-
-                                        seen2[key] = true;
-
-                                        items2.push({
-                                            displayname:
-                                                f.titel ||
-                                                (f.vejnavn + " " + f.postnr),
-
-                                            id: f.id || key,
-                                            postnr: f.postnr,
-                                            postdistrikt: f.postdistrikt,
-                                            type: f.type,
-                                            roadOnly: false,
-                                            vejnavn: f.vejnavn
-                                        });
-                                    });
-
-                                    options.success(items2);
-                                    return;
-                                }
-
-                                // Multiple roads:
-                                // only show each road name once.
-                                if (vejnavne.length > 0) {
-                                    var distinctResults =
-                                        vejnavne.map(function (vejnavn) {
-                                            return {
-                                                displayname: vejnavn,
-                                                id: vejnavn,
-                                                roadOnly: true,
-                                                vejnavn: vejnavn
-                                            };
-                                        });
-
-                                    options.success(distinctResults);
-                                    return;
-                                }
-
-                                // No matching navngivenvejpostnummer results
-                                options.success([]);
+                                handleResults(response.fund || [], address, options, true);
                             },
 
                             error: function (
@@ -255,6 +94,301 @@
         }).data("kendoAutoComplete");
     });
 
+    // Builds the dropdown items from an API result.
+    // allowFallback: if the API skipped the road level and returned house numbers,
+    // search once more by road name to get the postcode variants.
+    function handleResults(results, address, options, allowFallback) {
+        // Road names without postcode (broad search, type "vejnavn")
+        // and road + postcode (narrow search, type "navngivenvejpostnummer")
+        var roadItems = results.filter(function (item) {
+            return item &&
+                (item.type === "vejnavn" ||
+                    item.type === "navngivenvejpostnummer");
+        });
+
+        var navngiven = roadItems.filter(function (item) {
+            return item.type === "navngivenvejpostnummer";
+        });
+
+        var input = (address || "")
+            .trim()
+            .toLowerCase();
+
+        // If the entered text exactly matches a road name,
+        // show all postcode variants for that road.
+        var exactMatches = navngiven.filter(function (item) {
+            return getVejnavn(item).toLowerCase() === input;
+        });
+
+        if (exactMatches.length > 0) {
+            options.success(toPostnrItems(exactMatches));
+            return;
+        }
+
+        var vejnavne = distinctVejnavne(roadItems);
+
+        // Only one road exists in the result:
+        // show all postcode variants directly, if we have them.
+        if (vejnavne.length === 1) {
+            var single = toPostnrItems(navngiven.filter(function (f) {
+                return getVejnavn(f) === vejnavne[0];
+            }));
+
+            if (single.length > 0) {
+                options.success(single);
+                return;
+            }
+            // Otherwise fall through and show the road name as roadOnly
+        }
+
+        // Multiple roads (or only "vejnavn" items):
+        // only show each road name once.
+        if (vejnavne.length > 0) {
+            options.success(toRoadOnlyItems(vejnavne));
+            return;
+        }
+
+        // The API skipped the road level and returned house numbers directly
+        // (e.g. "Geranievej "). Get the road names from the house numbers.
+        var husnumre = results.filter(function (item) {
+            return item && item.type === "husnummer";
+        });
+
+        var husVejnavne = distinctVejnavne(husnumre);
+
+        // One road: search by road name to get all postcode variants
+        if (husVejnavne.length === 1 && allowFallback) {
+            searchByVejnavn(husVejnavne[0], options);
+            return;
+        }
+
+        // Still only house numbers for one road: the road exists in a single postcode.
+        // Build the road + postcode item(s) from the house numbers.
+        if (husVejnavne.length === 1) {
+            options.success(toHusnummerRoadItems(husnumre));
+            return;
+        }
+
+        // Several roads: let the user pick the road first
+        if (husVejnavne.length > 1) {
+            options.success(toRoadOnlyItems(husVejnavne));
+            return;
+        }
+
+        // No matching road results
+        options.success([]);
+    }
+
+    // Fallback search using the vejnavn parameter instead of free text,
+    // which returns the road + postcode variants instead of house numbers.
+    function searchByVejnavn(vejnavn, options) {
+        $.ajax({
+            url: "https://adressevaelger.dk/husnumre/soeg",
+            dataType: "json",
+            data: {
+                vejnavn: vejnavn,
+                token: "adressevaelger123"
+            },
+            success: function (response) {
+                // allowFallback = false, so this can never loop
+                handleResults(response.fund || [], vejnavn, options, false);
+            },
+            error: function (xhr, status, errorThrown) {
+                options.error(xhr);
+
+                fejlikommunikationVejnavne(
+                    xhr,
+                    status,
+                    errorThrown
+                );
+            }
+        });
+    }
+
+    // Builds one road + postcode item per postcode from house number results.
+    // titel looks like "Gerbrandsvej 2, 2300 København S"
+    // or "Geranievej 1, Mejrup, 7500 Holstebro".
+    function toHusnummerRoadItems(husnumre) {
+        var seen = {};
+        var items = [];
+
+        husnumre.forEach(function (h) {
+            var titel = h.titel || "";
+            var commaIndex = titel.indexOf(",");
+            var rest = commaIndex >= 0 ? titel.substring(commaIndex + 1).trim() : "";
+
+            var lastPart = rest.split(",").pop().trim();
+            var match = lastPart.match(/^(\d{4})\s+(.+)$/);
+            var postnr = match ? match[1] : "";
+            var postdistrikt = match ? match[2] : "";
+
+            var key = getVejnavn(h) + "|" + postnr;
+
+            if (seen[key]) {
+                return;
+            }
+
+            seen[key] = true;
+
+            items.push({
+                displayname: getVejnavn(h) + (rest ? ", " + rest : ""),
+                id: key,
+                husnummerId: h.id,
+                needsLookup: true,
+                postnr: postnr,
+                postdistrikt: postdistrikt,
+                type: "husnummervej",
+                roadOnly: false,
+                vejnavn: getVejnavn(h)
+            });
+        });
+
+        return items;
+    }
+
+// Looks up a house number by id to find the id of its road.
+function lookupVejFromHusnummer(item) {
+        $.ajax({
+            url: "https://adressevaelger.dk/husnumre/" + encodeURIComponent(item.husnummerId),
+            dataType: "json",
+            data: {
+                token: "adressevaelger123"
+            },
+            success: function (detail) {
+                var lokalId = getVejLokalIdFromHusnummer(detail);
+
+                if (!lokalId) {
+                    console.warn("Could not find a road id in the husnummer lookup", detail);
+                    alert("Vejen kunne ikke findes. Prøv igen eller vælg en anden vej.");
+                    return;
+                }
+
+                loadVej(item, lokalId);
+            },
+            error: function (xhr, status, errorThrown) {
+                fejlikommunikationVejnavne(
+                    xhr,
+                    status,
+                    errorThrown
+                );
+            }
+        });
+    }
+
+    // Gets the road + postcode id (navngivenvejpostnummer) from a /husnumre/{id} lookup.
+    // This is the same kind of id as item.id on navngivenvejpostnummer search results,
+    // which is what AdresseController.SearchAllVeje expects as lokalId.
+    function getVejLokalIdFromHusnummer(detail) {
+        var husnummer = detail && detail.husnummer;
+
+        return (husnummer &&
+            husnummer.navngivenvejpostnummer &&
+            husnummer.navngivenvejpostnummer.id_lokalid) ||
+            null;
+    }
+
+    // Sends the road id to AdresseController.SearchAllVeje and shows the road on the map.
+    function loadVej(item, lokalId) {
+        $.ajax({
+            url: "/Adresse/SearchAllVeje",
+            type: "GET",
+            dataType: "json",
+            data: {
+                lokalId: lokalId
+            },
+            success: function (data) {
+                if (!data || !data.wkt) {
+                    return;
+                }
+
+                $("#divAdresseView").show();
+                $("#divOffVejMapDigPolygon").show();
+
+                $("#hflAdresse").val(item.vejnavn);
+                $("#txtAdresse").val(item.vejnavn);
+
+                $("#hflPostDistrikt").val(item.postdistrikt);
+                $("#hflPostnummer").val(item.postnr);
+                $("#txtPostDistrikt").val(item.postdistrikt);
+                $("#txtPostnummer").val(item.postnr);
+                $("#txtKommune").val(getKommuneNavn(data.kommuneKode));
+
+                $("#hflOprindelsesstedWkt").val(data.wkt);
+                mapStedNavigateToMultiLineStringWkt(data.wkt);
+            },
+            error: function (xhr, status, errorThrown) {
+                fejlikommunikationVejnavne(
+                    xhr,
+                    status,
+                    errorThrown
+                );
+            }
+        });
+    }
+
+    // Distinct road names, in the order they appear
+    function distinctVejnavne(list) {
+        var vejnavne = [];
+        var vejSet = {};
+
+        list.forEach(function (item) {
+            var vejnavn = getVejnavn(item);
+
+            if (vejnavn && !vejSet[vejnavn]) {
+                vejSet[vejnavn] = true;
+                vejnavne.push(vejnavn);
+            }
+        });
+
+        return vejnavne;
+    }
+
+    // Road names as first-stage items (selecting one searches again)
+    function toRoadOnlyItems(vejnavne) {
+        return vejnavne.map(function (vejnavn) {
+            return {
+                displayname: vejnavn,
+                id: vejnavn,
+                roadOnly: true,
+                vejnavn: vejnavn
+            };
+        });
+    }
+
+    // Road name from an API item.
+    // "vejnavn" items may only have titel, so fall back to that.
+    function getVejnavn(item) {
+        return (item.vejnavn || item.titel || "").trim();
+    }
+
+    // Converts navngivenvejpostnummer items to autocomplete items (one per road + postcode)
+    function toPostnrItems(list) {
+        var seen = {};
+        var items = [];
+
+        list.forEach(function (f) {
+            var key = (f.postnr || "") + "|" + (f.id || "");
+
+            if (seen[key]) {
+                return;
+            }
+
+            seen[key] = true;
+
+            items.push({
+                displayname: f.titel || (f.vejnavn + " " + f.postnr),
+                id: f.id || key,
+                postnr: f.postnr,
+                postdistrikt: f.postdistrikt,
+                type: f.type,
+                roadOnly: false,
+                vejnavn: f.vejnavn
+            });
+        });
+
+        return items;
+    }
+
     function fejlikommunikationVejnavne(
         xhr,
         status,
@@ -269,108 +403,108 @@
     }
 
     function getKommuneNavn(kommunekode) {
-            const kommuner = {
-                '0101': 'København',
-                '0147': 'Frederiksberg',
-                '0151': 'Ballerup',
-                '0153': 'Brøndby',
-                '0155': 'Dragør',
-                '0157': 'Gentofte',
-                '0159': 'Gladsaxe',
-                '0161': 'Glostrup',
-                '0163': 'Herlev',
-                '0165': 'Albertslund',
-                '0167': 'Hvidovre',
-                '0169': 'Høje-Taastrup',
-                '0173': 'Lyngby-Taarbæk',
-                '0175': 'Rødovre',
-                '0183': 'Ishøj',
-                '0185': 'Tårnby',
-                '0187': 'Vallensbæk',
-                '0190': 'Furesø',
-                '0201': 'Allerød',
-                '0210': 'Fredensborg',
-                '0217': 'Helsingør',
-                '0219': 'Hillerød',
-                '0223': 'Hørsholm',
-                '0230': 'Rudersdal',
-                '0240': 'Egedal',
-                '0250': 'Frederikssund',
-                '0253': 'Greve',
-                '0259': 'Køge',
-                '0260': 'Halsnæs',
-                '0265': 'Roskilde',
-                '0269': 'Solrød',
-                '0270': 'Gribskov',
-                '0306': 'Odsherred',
-                '0316': 'Holbæk',
-                '0320': 'Faxe',
-                '0326': 'Kalundborg',
-                '0329': 'Ringsted',
-                '0330': 'Slagelse',
-                '0336': 'Stevns',
-                '0340': 'Sorø',
-                '0350': 'Lejre',
-                '0360': 'Lolland',
-                '0370': 'Næstved',
-                '0376': 'Guldborgsund',
-                '0390': 'Vordingborg',
-                '0400': 'Bornholm',
-                '0410': 'Middelfart',
-                '0411': 'Christiansø',
-                '0420': 'Assens',
-                '0430': 'Faaborg-Midtfyn',
-                '0440': 'Kerteminde',
-                '0450': 'Nyborg',
-                '0461': 'Odense',
-                '0479': 'Svendborg',
-                '0480': 'Nordfyns',
-                '0482': 'Langeland',
-                '0492': 'Ærø',
-                '0510': 'Haderslev',
-                '0530': 'Billund',
-                '0540': 'Sønderborg',
-                '0550': 'Tønder',
-                '0561': 'Esbjerg',
-                '0563': 'Fanø',
-                '0573': 'Varde',
-                '0575': 'Vejen',
-                '0580': 'Aabenraa',
-                '0607': 'Fredericia',
-                '0615': 'Horsens',
-                '0621': 'Kolding',
-                '0630': 'Vejle',
-                '0657': 'Herning',
-                '0661': 'Holstebro',
-                '0665': 'Lemvig',
-                '0671': 'Struer',
-                '0706': 'Syddjurs',
-                '0707': 'Norddjurs',
-                '0710': 'Favrskov',
-                '0727': 'Odder',
-                '0730': 'Randers',
-                '0740': 'Silkeborg',
-                '0741': 'Samsø',
-                '0746': 'Skanderborg',
-                '0751': 'Aarhus',
-                '0756': 'Ikast-Brande',
-                '0760': 'Ringkøbing-Skjern',
-                '0766': 'Hedensted',
-                '0773': 'Morsø',
-                '0779': 'Skive',
-                '0787': 'Thisted',
-                '0791': 'Viborg',
-                '0810': 'Brønderslev',
-                '0813': 'Frederikshavn',
-                '0820': 'Vesthimmerlands',
-                '0825': 'Læsø',
-                '0840': 'Rebild',
-                '0846': 'Mariagerfjord',
-                '0849': 'Jammerbugt',
-                '0851': 'Aalborg',
-                '0860': 'Hjørring'
-            }
+        const kommuner = {
+            '0101': 'København',
+            '0147': 'Frederiksberg',
+            '0151': 'Ballerup',
+            '0153': 'Brøndby',
+            '0155': 'Dragør',
+            '0157': 'Gentofte',
+            '0159': 'Gladsaxe',
+            '0161': 'Glostrup',
+            '0163': 'Herlev',
+            '0165': 'Albertslund',
+            '0167': 'Hvidovre',
+            '0169': 'Høje-Taastrup',
+            '0173': 'Lyngby-Taarbæk',
+            '0175': 'Rødovre',
+            '0183': 'Ishøj',
+            '0185': 'Tårnby',
+            '0187': 'Vallensbæk',
+            '0190': 'Furesø',
+            '0201': 'Allerød',
+            '0210': 'Fredensborg',
+            '0217': 'Helsingør',
+            '0219': 'Hillerød',
+            '0223': 'Hørsholm',
+            '0230': 'Rudersdal',
+            '0240': 'Egedal',
+            '0250': 'Frederikssund',
+            '0253': 'Greve',
+            '0259': 'Køge',
+            '0260': 'Halsnæs',
+            '0265': 'Roskilde',
+            '0269': 'Solrød',
+            '0270': 'Gribskov',
+            '0306': 'Odsherred',
+            '0316': 'Holbæk',
+            '0320': 'Faxe',
+            '0326': 'Kalundborg',
+            '0329': 'Ringsted',
+            '0330': 'Slagelse',
+            '0336': 'Stevns',
+            '0340': 'Sorø',
+            '0350': 'Lejre',
+            '0360': 'Lolland',
+            '0370': 'Næstved',
+            '0376': 'Guldborgsund',
+            '0390': 'Vordingborg',
+            '0400': 'Bornholm',
+            '0410': 'Middelfart',
+            '0411': 'Christiansø',
+            '0420': 'Assens',
+            '0430': 'Faaborg-Midtfyn',
+            '0440': 'Kerteminde',
+            '0450': 'Nyborg',
+            '0461': 'Odense',
+            '0479': 'Svendborg',
+            '0480': 'Nordfyns',
+            '0482': 'Langeland',
+            '0492': 'Ærø',
+            '0510': 'Haderslev',
+            '0530': 'Billund',
+            '0540': 'Sønderborg',
+            '0550': 'Tønder',
+            '0561': 'Esbjerg',
+            '0563': 'Fanø',
+            '0573': 'Varde',
+            '0575': 'Vejen',
+            '0580': 'Aabenraa',
+            '0607': 'Fredericia',
+            '0615': 'Horsens',
+            '0621': 'Kolding',
+            '0630': 'Vejle',
+            '0657': 'Herning',
+            '0661': 'Holstebro',
+            '0665': 'Lemvig',
+            '0671': 'Struer',
+            '0706': 'Syddjurs',
+            '0707': 'Norddjurs',
+            '0710': 'Favrskov',
+            '0727': 'Odder',
+            '0730': 'Randers',
+            '0740': 'Silkeborg',
+            '0741': 'Samsø',
+            '0746': 'Skanderborg',
+            '0751': 'Aarhus',
+            '0756': 'Ikast-Brande',
+            '0760': 'Ringkøbing-Skjern',
+            '0766': 'Hedensted',
+            '0773': 'Morsø',
+            '0779': 'Skive',
+            '0787': 'Thisted',
+            '0791': 'Viborg',
+            '0810': 'Brønderslev',
+            '0813': 'Frederikshavn',
+            '0820': 'Vesthimmerlands',
+            '0825': 'Læsø',
+            '0840': 'Rebild',
+            '0846': 'Mariagerfjord',
+            '0849': 'Jammerbugt',
+            '0851': 'Aalborg',
+            '0860': 'Hjørring'
+        };
 
-            return kommuner[kommunekode] || null
-        }
+        return kommuner[kommunekode] || null;
+    }
 </script>
