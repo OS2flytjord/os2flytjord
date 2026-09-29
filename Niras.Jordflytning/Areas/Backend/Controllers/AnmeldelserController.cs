@@ -2053,7 +2053,7 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
                     }
 
                     System.Diagnostics.Trace.TraceInformation("AnmeldelsesController.SendHoerAndenKommune info:");
-                    System.Diagnostics.Trace.TraceInformation(string.Format("Emne : {0} - Besked : {1} - Person : {2]", emne, besked, brugerProfil.Person != null ? brugerProfil.Person.Navn : "NULL"));
+                    System.Diagnostics.Trace.TraceInformation(string.Format("Emne : {0} - Besked : {1} - Person : {2}", emne, besked, brugerProfil.Person != null ? brugerProfil.Person.Navn : "NULL"));
                     var res = _adviseringBusiness.SendHoerAndenKommune(emne, besked, brugerProfil.Person, personSomErLoggetInd, a);
                     if (res)
                         return Json(new { Success = true });
