@@ -386,3 +386,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# Contains credentials, keep local only
+Niras.Jordflytning/Web.config
