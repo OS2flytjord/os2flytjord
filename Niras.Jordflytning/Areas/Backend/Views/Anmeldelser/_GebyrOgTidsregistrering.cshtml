@@ -99,6 +99,7 @@
                               //.Pageable(pager => pager.PageSizes(new[] { 5, 10, 20, 100 })) // Default page sizes are 5, 10 and 20
                               .Selectable(selectable => selectable.Mode(GridSelectionMode.Single))
                               .Sortable()
+                              .Events(ev => ev.Edit("onGebyrTidsregistreringEdit"))
                               .Editable(editable => editable.Mode(GridEditMode.PopUp)
                                 .CreateAt(GridInsertRowPosition.Bottom)
                                 .TemplateName("GebyrTidsregistreringCustomPopupEditor")
@@ -233,28 +234,78 @@
     );
 
     var opgavetyperListe = @Html.Raw(Json.Encode(Model.OpgavetyperListe));
-    function onOpenOpgavetyperListe(e) {
-        var getTimeFromJson = function(jsonDate) {
-            jsonDate = jsonDate.replace("/Date(", " ")
-            jsonDate = jsonDate.replace(")/", " ")
-            return parseInt(jsonDate);
-        }
-        var dato = $("#dpOpgaveDato").data("kendoDatePicker").value().getTime();
+
+    function getTimeFromJson(jsonDate) {
+        jsonDate = jsonDate.replace("/Date(", " ");
+        jsonDate = jsonDate.replace(")/", " ");
+        return parseInt(jsonDate);
+    }
+    function startAfDag(time) {
+        var d = new Date(time);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime();
+    }
+    function opgavetypeGyldigPaaDato(item, dato) {
+        if (item.FraDato != null && startAfDag(getTimeFromJson(item.FraDato)) > dato)
+            return false;
+        if (item.TilDato != null && startAfDag(getTimeFromJson(item.TilDato)) < dato)
+            return false;
+        return true;
+    }
+
+    // Viser kun de opgavetyper der er gyldige på den valgte dato.
+    // Kaldes når popup'en åbnes, når datoen ændres og når listen åbnes, så en gammel
+    // opgavetype (med gammel takst) ikke kan vælges - heller ikke med tastaturet.
+    function filtrerOpgavetyper() {
+        var ddl = $("#Opgavetype").data("kendoDropDownList");
+        var dp = $("#dpOpgaveDato").data("kendoDatePicker");
+        if (!ddl || !dp)
+            return;
+
+        var valgtDato = dp.value();
+        var dato = valgtDato ? startAfDag(valgtDato.getTime()) : null;
         var list = [opgavetyperListe[0]];
         for (var i = 1; i < opgavetyperListe.length; i++) {
             var item = opgavetyperListe[i];
-            if (getTimeFromJson(item.FraDato) <= dato && (item.TilDato == null || getTimeFromJson(item.TilDato) >= dato)) {
+            if (dato == null || opgavetypeGyldigPaaDato(item, dato)) {
                 list.push(item);
             }
         }
-        var dataSource = new kendo.data.DataSource({
-            data: list
-        });
-        this.setDataSource(dataSource);
+
+        var valgtId = ddl.value();
+        var findes = false;
+        for (var j = 1; j < list.length; j++) {
+            if (list[j].Id == valgtId) {
+                findes = true;
+                break;
+            }
+        }
+
+        ddl.setDataSource(new kendo.data.DataSource({ data: list }));
+        if (findes) {
+            ddl.value(valgtId);
+        } else {
+            // Den valgte opgavetype gælder ikke på datoen - nulstil så der skal vælges igen.
+            ddl.select(0);
+            ddl.trigger("change");
+        }
+        opdaterTidsregistreringVisning(ddl);
+    }
+    function opdaterTidsregistreringVisning(ddl) {
+        var item = ddl.dataItem();
+        $("#divTidsregistrering").toggle(!item || item.KraeverTidsregistrering);
+    }
+    function onOpenOpgavetyperListe(e) {
+        filtrerOpgavetyper();
     }
     function onChangeOpgavetyperListe(e) {
-        var kraeverTid = opgavetyperListe[this.selectedIndex].KraeverTidsregistrering;
-        $("#divTidsregistrering").toggle(kraeverTid);
+        opdaterTidsregistreringVisning(this);
+    }
+    function onChangeOpgaveDato(e) {
+        filtrerOpgavetyper();
+    }
+    function onGebyrTidsregistreringEdit(e) {
+        filtrerOpgavetyper();
     }
     function onGebyrTidsregistreringError(args) {
         var errors = args.errors;
