@@ -33,10 +33,35 @@
           <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
           <FullPath>Anmeldelses_Details.sql</FullPath>
         </FileNode>
+        <FileNode Name="Person_Details.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>Person_Details.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Udtræk.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>Udtræk.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Udtræk_Ikke_anmeldepligtige.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>Udtræk_Ikke_anmeldepligtige.sql</FullPath>
+        </FileNode>
       </Items>
     </LogicalFolder>
     <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
-      <Items />
+      <Items>
+        <FileNode Name="Udtræk_Ikke_anmeldepligtige.xlsx">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Udtræk_Ikke_anmeldepligtige.xlsx</FullPath>
+        </FileNode>
+      </Items>
     </LogicalFolder>
   </Items>
 </SqlWorkbenchSqlProject>
