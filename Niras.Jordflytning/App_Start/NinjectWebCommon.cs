@@ -86,6 +86,7 @@ namespace Niras.Jordflytning.App_Start
             kernel.Bind<IKodelisteBusiness>().To<KodelisteBusiness>();
             kernel.Bind<IAnmeldelserBusiness>().To<AnmeldelserBusiness>();
             kernel.Bind<IBrugereBusiness>().To<BrugereBusiness>();
+            kernel.Bind<IBrugerSupportBusiness>().To<BrugerSupportBusiness>();
             //kernel.Bind<IUnitOfWork>().To<UnitOfWork>().WithConstructorArgument("configService", configService); ;
             kernel.Bind<IUnitOfWork>().To<UnitOfWork>();
             kernel.Bind<ISecurityProvider>().To<WebSecurityProvider>();

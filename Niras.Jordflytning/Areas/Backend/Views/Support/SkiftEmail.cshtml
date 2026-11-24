@@ -1,0 +1,158 @@
+﻿@model Niras.Jordflytning.Areas.Backend.ViewModels.SkiftEmailModel
+@{
+    ViewBag.Title = "Brugersupport";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+@section Styles{
+    <style type="text/css">
+        .skiftemail { padding: 10px; max-width: 700px; }
+        .skiftemail fieldset { border: 1px solid #ccc; padding: 10px; margin-bottom: 15px; }
+        .skiftemail legend { font-weight: bold; padding: 0 5px; }
+        .skiftemail label { display: inline-block; width: 140px; }
+        .skiftemail input[type=text] { width: 300px; }
+        .skiftemail table td { padding: 2px 10px 2px 0; vertical-align: top; }
+        .skiftemail .besked { padding: 8px; margin-bottom: 15px; border: 1px solid; }
+        .skiftemail .besked.ok { background: #e6f4e6; border-color: #7bb77b; }
+        .skiftemail .besked.fejl { background: #fbe9e9; border-color: #d47b7b; }
+        .skiftemail .advarsel { color: #a05a00; }
+    </style>
+}
+
+<div class="skiftemail">
+    <h2>Brugersupport</h2>
+    <p>
+        Find en bruger for at skifte email og/eller aktivere/deaktivere brugeren. Alle ændringer logges.
+    </p>
+
+    @if (!string.IsNullOrEmpty(Model.Besked))
+    {
+        <div class="besked @(Model.BeskedErFejl ? "fejl" : "ok")">@Model.Besked</div>
+    }
+
+    <fieldset>
+        <legend>Find bruger</legend>
+        @using (Html.BeginForm("SkiftEmail", "Support", FormMethod.Get))
+        {
+            <label for="email">Nuværende email</label>
+            <input type="text" id="email" name="email" value="@Model.SoegEmail" />
+            <input type="submit" class="k-button" value="Søg" />
+        }
+    </fieldset>
+
+    @if (Model.ErSoegt && Model.Bruger == null)
+    {
+        <div class="besked fejl">Der findes ingen bruger med email '@Model.SoegEmail'.</div>
+    }
+
+    @if (Model.Bruger != null)
+    {
+        <fieldset>
+            <legend>Bruger</legend>
+            <table>
+                <tr><td>BrugerId</td><td>@Model.Bruger.BrugerId</td></tr>
+                <tr><td>Navn</td><td>@(Model.Bruger.Navn ?? "-")</td></tr>
+                <tr><td>Login (BrugerNavn)</td><td>@Model.Bruger.BrugerNavn</td></tr>
+                <tr>
+                    <td>Person email</td>
+                    <td>
+                        @(Model.Bruger.PersonEmail ?? "-")
+                        @if (Model.Bruger.PersonEmail != null && !string.Equals(Model.Bruger.PersonEmail, Model.Bruger.BrugerNavn, StringComparison.Ordinal))
+                        {
+                            <span class="advarsel">(afviger fra login - rettes ved skift)</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Aktiveret (login)</td>
+                    <td>
+                        @if (!Model.Bruger.HarMembership)
+                        {
+                            <span class="advarsel">Ingen login-konto</span>
+                        }
+                        else if (Model.Bruger.Aktiveret == true)
+                        {
+                            @:Ja
+                        }
+                        else
+                        {
+                            <span class="advarsel">Nej - brugeren kan ikke logge ind</span>
+                        }
+                    </td>
+                </tr>
+                <tr><td>Aktiv i organisation</td><td>@(Model.Bruger.PersonAktiv.HasValue ? (Model.Bruger.PersonAktiv.Value ? "Ja" : "Nej") : "-")</td></tr>
+                <tr><td>Fejlede loginforsøg</td><td>@Model.Bruger.FejledeLoginforsoeg</td></tr>
+                <tr><td>Roller</td><td>@(Model.Bruger.Roller.Count > 0 ? string.Join(", ", Model.Bruger.Roller) : "-")</td></tr>
+                @if (Model.Bruger.ModtageanlaegMedKontaktpersonEmail.Count > 0)
+                {
+                    <tr>
+                        <td>Kontaktperson på</td>
+                        <td>@string.Join(", ", Model.Bruger.ModtageanlaegMedKontaktpersonEmail)</td>
+                    </tr>
+                }
+            </table>
+        </fieldset>
+
+        <fieldset>
+            <legend>Ny email</legend>
+            @using (Html.BeginForm("SkiftEmail", "Support", FormMethod.Post, new { id = "skiftEmailForm" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.FraEmail)
+                <p>
+                    @Html.LabelFor(m => m.TilEmail)
+                    @Html.TextBoxFor(m => m.TilEmail, new { maxlength = 40, autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.TilEmail)
+                </p>
+                if (Model.Bruger.ModtageanlaegMedKontaktpersonEmail.Count > 0)
+                {
+                    <p>
+                        @Html.CheckBoxFor(m => m.OpdaterKontaktpersonEmail)
+                        @Html.LabelFor(m => m.OpdaterKontaktpersonEmail, new { style = "width:auto" })
+                    </p>
+                }
+                <input type="submit" class="k-button" value="Skift email" />
+            }
+        </fieldset>
+
+        if (Model.Bruger.HarMembership)
+        {
+            var erAktiveret = Model.Bruger.Aktiveret == true;
+            <fieldset>
+                <legend>Aktivering</legend>
+                @using (Html.BeginForm("SaetAktiveret", "Support", FormMethod.Post, new { id = "aktiveringForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="email" value="@Model.Bruger.BrugerNavn" />
+                    <input type="hidden" name="aktiveret" value="@(erAktiveret ? "false" : "true")" />
+                    <p>
+                        @if (erAktiveret)
+                        {
+                            @:Brugeren er aktiveret og kan logge ind. Deaktivering spærrer for login.
+                        }
+                        else
+                        {
+                            @:Brugeren er ikke aktiveret (har fx ikke brugt linket i aktiveringsmailen). Aktivering giver adgang til at logge ind.
+                        }
+                    </p>
+                    <input type="submit" class="k-button" id="aktiveringKnap" value="@(erAktiveret ? "Deaktivér bruger" : "Aktivér bruger")" />
+                }
+            </fieldset>
+        }
+    }
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#skiftEmailForm").submit(function () {
+                if (!$(this).valid()) return false;
+                var fra = $("#FraEmail").val();
+                var til = $.trim($("#TilEmail").val());
+                return confirm("Skift email fra '" + fra + "' til '" + til + "'?");
+            });
+            $("#aktiveringForm").submit(function () {
+                return confirm($("#aktiveringKnap").val() + " '" + $(this).find("input[name=email]").val() + "'?");
+            });
+        });
+    </script>
+}

@@ -134,6 +134,23 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
                 else
                     model.Menu.MergeMenues(BuildKommuneAdministratorMenu());
             }
+            if (_securityProvider.CurrentUser.IsInRole(ApplicationConstants.MasterAdminRolle))
+            {
+                AddRoleToModel(model, ApplicationConstants.MasterAdminRolle);
+                if (model.Menu == null)
+                    model.Menu = BuildMasterAdminMenu();
+                else
+                    model.Menu.MergeMenues(BuildMasterAdminMenu());
+            }
+        }
+
+        private static Menu BuildMasterAdminMenu()
+        {
+            var menu = new Menu();
+            var menuItemSupport = new MenuItem("Support");
+            menuItemSupport.AddSubItem(new MenuItem("Brugersupport", "Brugersupport", "/Backend/Support/SkiftEmail"));
+            menu.AddMenuItem(menuItemSupport);
+            return menu;
         }
 
         private static Menu BuildKommuneAdministratorMenu()
