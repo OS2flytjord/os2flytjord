@@ -6,7 +6,7 @@ MasterAdmin giver adgang til Support-menuen i backend (fx "Skift email").
 Brugeren skal logge ud og ind igen før menuen vises.
 */
 declare
-	@emailAdress varchar(max) = 'aarhus.flytjord@gmail.com',
+	@emailAdress varchar(max) = 'jcc@niras.dk',
 	@action int = 1,
 	@brugerid int,
 	@roleid int;
@@ -23,6 +23,19 @@ from dbo.Brugerprofil b
 left outer join dbo.webpages_UsersInRoles ur on ur.UserId = b.BrugerId
 left outer join dbo.webpages_Roles r on r.RoleId = ur.RoleId
 where b.BrugerId = @brugerid
+
+-- Kommuner brugeren har adgang til (PersonKommune)
+select b.BrugerId, b.BrugerNavn, k.Kommunenr, k.Navn as Kommune, k.Aktiv as KommuneAktiv
+from dbo.Brugerprofil b
+join dbo.Person p on p.BrugerId = b.BrugerId
+join dbo.PersonKommune pk on pk.PersonId = p.Id
+join dbo.Kommune k on k.Id = pk.KommuneId
+where b.BrugerId = @brugerid
+order by k.Navn
+
+if (@brugerid is not null and not exists (
+	select 1 from dbo.Person p join dbo.PersonKommune pk on pk.PersonId = p.Id where p.BrugerId = @brugerid))
+	select 'Brugeren er ikke tilknyttet nogen kommune' as Info
 
 if (@action = 1 and @brugerid is not null)
 begin
@@ -53,8 +66,15 @@ order by b.BrugerNavn
 /*
 Ændringslog:
 */
-select *
+select p.Navn, p.Efternavn, d.Navn, d.Foer, D.Efter, l.Dato, l.*, d.*
 from Log l
 join Delta d on d.LogId = l.Id
+join person p on p.Id = l.PersonId
 where l.PersonId is not null
 order by l.Dato desc, d.Navn
+
+
+/*
+Nov 26 2026  6:36AM : Tildelt MasterAdmin til bruger med Id = 466, email = Aarhus.FlytJord@gmail.com
+Nov 26 2026  6:37AM : Tildelt MasterAdmin til bruger med Id = 5179, email = jcc@niras.dk
+*/

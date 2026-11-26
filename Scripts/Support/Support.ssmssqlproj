@@ -3,6 +3,34 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
+        <ConnectionNode Name="info-udv-db01:scripter">
+          <Created>2026-11-24T10:24:18.4853136+01:00</Created>
+          <Type>SQL</Type>
+          <Server>info-udv-db01</Server>
+          <UserName>scripter</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>True</TrustServerCertificate>
+          <EncryptionOption>True</EncryptionOption>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName />
+        </ConnectionNode>
+        <ConnectionNode Name="Lucrative.niras.dmz:sa">
+          <Created>2026-11-24T08:18:41.1707976+01:00</Created>
+          <Type>SQL</Type>
+          <Server>Lucrative.niras.dmz</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>master</InitialDB>
+          <LoginTimeout>30</LoginTimeout>
+          <TrustServerCertificate>True</TrustServerCertificate>
+          <EncryptionOption>True</EncryptionOption>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
         <ConnectionNode Name="sql-os2flytjord.database.windows.net:os2flytjord">
           <Created>2026-08-12T12:29:09.8204418+02:00</Created>
           <Type>SQL</Type>
@@ -39,6 +67,12 @@
           <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
           <FullPath>Datarettelse_JordModtager.sql</FullPath>
         </FileNode>
+        <FileNode Name="Faktura_Opgavetype.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:Lucrative.niras.dmz:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>Lucrative.niras.dmz</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Faktura_Opgavetype.sql</FullPath>
+        </FileNode>
         <FileNode Name="Faktureringsfane_Fejl.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
@@ -69,17 +103,17 @@
           <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
           <FullPath>Slet_kommunikation.sql</FullPath>
         </FileNode>
-        <FileNode Name="SQLQuery1.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
-          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
-          <FullPath>SQLQuery1.sql</FullPath>
-        </FileNode>
         <FileNode Name="User_Change_Email.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
           <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
           <FullPath>User_Change_Email.sql</FullPath>
+        </FileNode>
+        <FileNode Name="User_Set_MasterAdmin.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>sql-os2flytjord.database.windows.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>os2flytjord</AssociatedConnUserName>
+          <FullPath>User_Set_MasterAdmin.sql</FullPath>
         </FileNode>
         <FileNode Name="User_Set_PAssword.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:sql-os2flytjord.database.windows.net:False:os2flytjord</AssociatedConnectionMoniker>
@@ -88,9 +122,9 @@
           <FullPath>User_Set_PAssword.sql</FullPath>
         </FileNode>
         <FileNode Name="Work.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
-          <AssociatedConnUserName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:Lucrative.niras.dmz:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>Lucrative.niras.dmz</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
           <FullPath>Work.sql</FullPath>
         </FileNode>
       </Items>

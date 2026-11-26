@@ -1,5 +1,5 @@
 declare
-	@fromEmailAdress varchar(max) = 'mp@fjpas.dk',
+	@fromEmailAdress varchar(max) = 'mail@johs-s.dk',
 	@password varchar(max) = 'AOQvBreu2tcUQ9VrgXchY/Jn7SdMJpx9k1xCwSL+AK3IgLwqg/bcB0vMVpdy4iXUIA==', --f1y1j0rd
 	@update int = 1,
 	@brugerid int;
@@ -34,6 +34,7 @@ select * from dbo.Person where Email = @fromEmailAdress
 
 /*
 Ændringslog:
+Nov 24 2026 10:14AM : Sat password til f1y1j0rd for bruger med Id = 283 fra email = mail@johs-s.dk
 Nov 10 2026  6:03AM : Sat password til f1y1j0rd for bruger med Id = 2751 fra email = Hans.k@loegtved.dk
 Oct 16 2026  5:39AM : Sat password til f1y1j0rd for bruger med Id = 1623 fra email = mp@fjpas.dk
 */
