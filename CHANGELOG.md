@@ -24,10 +24,20 @@ Forventes udgivet som 1.2.0.
 - Versionsnummer vises i topbaren.
 - Ændringslog under Support (MasterAdmin), som viser ændringer pr. version med udgivelsesdato.
 - Databasescripts ligger fremover i `Database\Version\<version>\`. Tabellen `SchemaVersion` registrerer, hvilke scripts der er kørt.
+- Tabellen `EmailLog` registrerer hver mail, systemet forsøger at sende (modtager, emne, tidspunkt, om den blev sendt og evt. fejl). Mailens indhold gemmes ikke.
+
+### Changed
+- Mails sendes med både en tekst- og en HTML-del og med UTF-8, så de i mindre grad fanges af spamfiltre.
+- Links i mails bruger `https://`.
+
+### Security
+- Aktiveringsmailen til en bruger, der selv opretter sig, indeholder ikke længere brugerens password.
+- Mailens indhold (der kan indeholde passwords og aktiveringslinks) skrives ikke længere i loggen.
 
 ### Database
 - Kør `Database\Version\1.2.0\001_SchemaVersion.sql` (opretter tabellen `SchemaVersion`).
 - Kør `Database\Version\1.2.0\002_StatusAfsluttetUdenFuldAdvis.sql` (ny statustype 15 "Afsluttet uden advis til alle parter") FØR koden deployes.
+- Kør `Database\Version\1.2.0\003_EmailLog.sql` (opretter tabellen `EmailLog`). Koden virker uden, men logger så en fejl for hver mail.
 
 ### Fixed
 - Vedhæftede dokumenter kunne mangle på anmeldelsen ("tom side" ved åbning).

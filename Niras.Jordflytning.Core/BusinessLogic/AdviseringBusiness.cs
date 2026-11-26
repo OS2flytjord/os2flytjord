@@ -131,9 +131,9 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
             var template = CreateMessage(null, Guid.Empty, EnumAdvisSkabelon.TilNyBruger);
             //Set attributes.
-            var aktiverUrl = @"http://" + domaine + "/bruger/aktiver/" + activationToken;
+            var aktiverUrl = @"https://" + domaine + "/bruger/aktiver/" + activationToken;
             template.SetAttribute("aktiverUrl", aktiverUrl);
-            template.SetAttribute("PasswordClearText", userProfile.PasswordClearText);
+            // Brugeren har selv valgt sit password - det sendes ikke med i mailen (sikkerhed og spamfiltre).
             const string subject = "FlytJord.dk - meddelse vedrørende aktivering af bruger";
 
 
@@ -147,7 +147,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
             var template = CreateMessage(null, Guid.Empty, EnumAdvisSkabelon.TilNyBrugerOprettetAfAndenBruger);
             //Set attributes.
-            var aktiverUrl = @"http://" + domaine + "/bruger/aktiver/" + activationToken;
+            var aktiverUrl = @"https://" + domaine + "/bruger/aktiver/" + activationToken;
             template.SetAttribute("aktiverUrl", aktiverUrl);
             template.SetAttribute("BrugerNavn", userProfile.BrugerNavn);
             template.SetAttribute("PasswordClearText", userProfile.PasswordClearText);
@@ -165,7 +165,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             var domaine = appSettings["FlytJordDomain"];
 
             template.SetAttribute("newPassword", kode);
-            template.SetAttribute("profilurl", string.Format("http://{0}/Bruger/Profil", domaine));
+            template.SetAttribute("profilurl", string.Format("https://{0}/Bruger/Profil", domaine));
 
             SendEmail(emailSubject, template.ToString(), email);
             return true;
@@ -278,7 +278,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
             //var modtagerPerson = _personRepository.Search(p => p.Email == modtagerEmail).FirstOrDefault();
             var domain = ConfigurationManager.AppSettings["FlytJordDomain"];
-            string url = String.Format("<a href=\"http://{0}/default/AndenKommuneSvar/?id={1}&afsenderEmail={2}&modtagerEmail={3}&afsenderId={4}&modtagerId={5}\">Godkend eller afvis via dette link</a>",
+            string url = String.Format("<a href=\"https://{0}/default/AndenKommuneSvar/?id={1}&afsenderEmail={2}&modtagerEmail={3}&afsenderId={4}&modtagerId={5}\">Godkend eller afvis via dette link</a>",
                 domain, anmeldelse.Id, afsenderPerson.Email, modtagerPerson.Email, afsenderPerson.Id, modtagerPerson.Id);
 
             if (modtagerPerson != null && afsenderPerson != null)
@@ -989,7 +989,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic
                 var domaine = appSettings["FlytJordDomain"];
 
                 template.SetAttribute("stikproevenummer", stikproeve.Nummer);
-                template.SetAttribute("LinkTilStikProeve", string.Format("http://{0}/backend/defaultbackend/index?fane=stikproeve&id={1}", domaine, stikproeve.Id));
+                template.SetAttribute("LinkTilStikProeve", string.Format("https://{0}/backend/defaultbackend/index?fane=stikproeve&id={1}", domaine, stikproeve.Id));
 
                 var emailBody = template.ToString();
                 var emailSubject = "FlytJord - Stikprøvenr." + stikproeve.Nummer;
@@ -1359,28 +1359,28 @@ namespace Niras.Jordflytning.Core.BusinessLogic
         private static string GetVisAnmeldelseLink(Guid anmeldelseId)
         {
             var domain = ConfigurationManager.AppSettings["FlytJordDomain"];
-            var retVal = string.Format("http://{0}/Anmeldelser/VisAnmeldelse/{1}", domain, anmeldelseId);
+            var retVal = string.Format("https://{0}/Anmeldelser/VisAnmeldelse/{1}", domain, anmeldelseId);
             return retVal;
         }
 
         private static string GetAnmeldelseLink(Guid anmeldelseId)
         {
             var domain = ConfigurationManager.AppSettings["FlytJordDomain"];
-            var retVal = string.Format("http://{0}/Anmeldelser/rediger?anmeldelseId={1}", domain, anmeldelseId);
+            var retVal = string.Format("https://{0}/Anmeldelser/rediger?anmeldelseId={1}", domain, anmeldelseId);
             return retVal;
         }
 
         private static string GetAfvisLink(Anmeldelse anmeldelse)
         {
             var domain = ConfigurationManager.AppSettings["FlytJordDomain"];
-            var retVal = string.Format(@"http://{0}/default/gateway?g1={1}&handling={2}&g2={3}", domain, anmeldelse.Id, EnumStatusAnmeldelse.BetalerAfviserBetalingen, anmeldelse.Betaler.Id);
+            var retVal = string.Format(@"https://{0}/default/gateway?g1={1}&handling={2}&g2={3}", domain, anmeldelse.Id, EnumStatusAnmeldelse.BetalerAfviserBetalingen, anmeldelse.Betaler.Id);
             return retVal;
         }
 
         private static string GetAcceptLink(Anmeldelse anmeldelse)
         {
             var domain = ConfigurationManager.AppSettings["FlytJordDomain"];
-            var retVal = string.Format(@"http://{0}/default/gateway?g1={1}&handling={2}&g2={3}", domain, anmeldelse.Id, EnumStatusAnmeldelse.BetalerAccepteretBetalingen, anmeldelse.Betaler.Id);
+            var retVal = string.Format(@"https://{0}/default/gateway?g1={1}&handling={2}&g2={3}", domain, anmeldelse.Id, EnumStatusAnmeldelse.BetalerAccepteretBetalingen, anmeldelse.Betaler.Id);
             return retVal;
         }
 
@@ -1411,15 +1411,9 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
         private void SendEmail(string subject, string content, string emailTo)
         {
-            //Pga af at mailene ryger i spamfiltre, prøver vi nu mail webservicen som anvendes i Lucrative
-            Logger.LogInfo("Email info:");
-            Logger.LogInfo("MailTo: " + emailTo);
-            Logger.LogInfo("Subject: " + subject);
-            Logger.LogInfo("Body: " + content);
-
+            // Mailens indhold logges ikke: det kan indeholde passwords og aktiveringslinks.
+            // MailBusiness logger selv om afsendelsen lykkedes eller fejlede.
             _mailBusiness.SendEmail(subject, content, emailTo);
-            Logger.LogInfo("Email afsendt");
-            Logger.LogInfo("");
         }
 
         #endregion *** Private methods ***

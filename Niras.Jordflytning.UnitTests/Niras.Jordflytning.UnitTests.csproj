@@ -88,6 +88,7 @@
     <Compile Include="Core\BusinessLogic\AnmeldelserTests.cs" />
     <Compile Include="Core\BusinessLogic\BetalerBusinessTests.cs" />
     <Compile Include="Core\BusinessLogic\BrugerProfilTests.cs" />
+    <Compile Include="Core\BusinessLogic\MailBusinessTests.cs" />
     <Compile Include="Core\BusinessLogic\PerformanceAnmeldelserTests.cs" />
     <Compile Include="Core\BusinessLogic\StatusAnmeldelseBussnessTests.cs" />
     <Compile Include="IO\Fakturering\OrderLineTests.cs" />
