@@ -6,7 +6,7 @@ using Ninject;
 using Niras.Jordflytning.Core.BusinessLogic;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
 using Niras.Jordflytning.Infrastructure.Common;
-using Niras.Jordflytning.Infrastructure.DependencyResolution;
+using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
 using Niras.Jordflytning.IntegrationTests.TestsSetup;
 
 namespace Niras.Jordflytning.IntegrationTests.Core
@@ -156,7 +156,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
      
 
       //Source Folder findes ikke
-      Assert.IsFalse(_business.MoveTempDokumentationToAnmeldelseFolder(_personId, _anmeldelseId));
+      Assert.IsFalse(_business.MoveTempDokumentationToAnmeldelseFolder(_personId, _anmeldelseId, new[] { "example.txt" }));
 
       //tilføjer en fil
       var appSettings = System.Configuration.ConfigurationManager.AppSettings;
@@ -173,7 +173,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
       }
 
       //Filen findes og den flyttes til nye mappe
-      Assert.IsTrue(_business.MoveTempDokumentationToAnmeldelseFolder(_personId, _anmeldelseId));
+      Assert.IsTrue(_business.MoveTempDokumentationToAnmeldelseFolder(_personId, _anmeldelseId, new[] { "example.txt" }));
       Assert.IsFalse(File.Exists(sourceFilepath));
       var destinationBaseDir = appSettings["DokumentationBaseFileDir"];
       var destinationFilepath = Path.Combine(destinationBaseDir, _anmeldelseId.ToString(), "example.txt");
@@ -192,7 +192,12 @@ namespace Niras.Jordflytning.IntegrationTests.Core
       {
         writer.WriteLine("content added");
       }
-      Assert.IsTrue(_business.MoveTempDokumentationToAnmeldelseFolder(_personId, _anmeldelseId));
+      var sourceFilepath3 = Path.Combine(sourcePersonpath, "andenAnmeldelse.txt");
+      using (StreamWriter writer = File.CreateText(sourceFilepath3))
+      {
+        writer.WriteLine("content added");
+      }
+      Assert.IsTrue(_business.MoveTempDokumentationToAnmeldelseFolder(_personId, _anmeldelseId, new[] { "example1.txt", "example2.txt" }));
       Assert.IsFalse(File.Exists(sourceFilepath1));
       Assert.IsFalse(File.Exists(sourceFilepath2));
 
@@ -200,10 +205,14 @@ namespace Niras.Jordflytning.IntegrationTests.Core
       var destinationFilepath2 = Path.Combine(destinationBaseDir, _anmeldelseId.ToString(), "example2.txt");
       Assert.IsTrue(File.Exists(destinationFilepath1));
       Assert.IsTrue(File.Exists(destinationFilepath2));
+
+      //En fil, som ikke hører til anmeldelsen (fx uploadet i en anden fane), skal blive i temp-mappen.
+      Assert.IsTrue(File.Exists(sourceFilepath3));
+      Assert.IsFalse(File.Exists(Path.Combine(destinationBaseDir, _anmeldelseId.ToString(), "andenAnmeldelse.txt")));
     }
 
     [Test]
-    public void RemoveDirectoryTest()
+    public void CleanupTempDirectoryTest()
     {
       var appSettings = System.Configuration.ConfigurationManager.AppSettings;
       var sourceBaseDir = appSettings["TempBaseFileDir"];
@@ -211,9 +220,16 @@ namespace Niras.Jordflytning.IntegrationTests.Core
       if (!Directory.Exists(sourcePersonpath))
         Directory.CreateDirectory(sourcePersonpath);
 
-      Assert.IsTrue(Directory.Exists(sourcePersonpath));
-      _business.RemoveTempDirectory(_personId.ToString());
-      Assert.IsTrue(!Directory.Exists(sourcePersonpath));
+      var nyFil = Path.Combine(sourcePersonpath, "ny.txt");
+      var gammelFil = Path.Combine(sourcePersonpath, "gammel.txt");
+      File.WriteAllText(nyFil, "ny");
+      File.WriteAllText(gammelFil, "gammel");
+      File.SetCreationTimeUtc(gammelFil, DateTime.UtcNow.AddDays(-3));
+      File.SetLastWriteTimeUtc(gammelFil, DateTime.UtcNow.AddDays(-3));
+
+      Assert.IsTrue(_business.CleanupTempDirectory(_personId.ToString()));
+      Assert.IsTrue(File.Exists(nyFil)); //Nye filer kan høre til en åben anmeldelse og skal bevares
+      Assert.IsFalse(File.Exists(gammelFil));
     }
       
   }

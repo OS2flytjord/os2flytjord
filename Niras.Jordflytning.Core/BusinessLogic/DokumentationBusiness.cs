@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -7,11 +8,20 @@ using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Infrastructure;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
 using Niras.Jordflytning.Core.Models;
+using Niras.Jordflytning.Library.Logging;
 
 namespace Niras.Jordflytning.Core.BusinessLogic
 {
   public class DokumentationBusiness : GenericBusiness<Dokumentation>, IDokumentationBusiness
   {
+    private static readonly ILogger Logger = LogManager.Instance.GetLogger("Niras.Jordflytning.Core.BusinessLogic.DokumentationBusiness");
+
+    /// <summary>
+    /// Hvor gamle filer i en persons temp-mappe skal være, før de ryddes op.
+    /// Dokumentlisten ligger i Session, så filer ældre end dette kan ikke længere høre til en åben anmeldelse.
+    /// </summary>
+    private static readonly TimeSpan TempFilMaksAlder = TimeSpan.FromDays(2);
+
     private readonly IDokumentationRepository _dokumentationRepository;
     private readonly IKodelisteBusiness _kodelisteBusiness;
 
@@ -42,10 +52,10 @@ namespace Niras.Jordflytning.Core.BusinessLogic
       foreach (var file in dokumentationsFiles)
       {
         var mFile = new FileInfo(file);
-        if (new FileInfo(lDDirInfo + "\\" + mFile.Name).Exists == false) //to remove name collusion
-        {
-          mFile.CopyTo(lDDirInfo + "\\" + mFile.Name);
-        }
+        var target = Path.Combine(lSDirectoryName, mFile.Name);
+        //Overskriv evt. gammel fil med samme navn, så revisionen får den rigtige fil med.
+        mFile.CopyTo(target, true);
+        File.SetCreationTimeUtc(target, DateTime.UtcNow);
       }
 
       return false;
@@ -78,33 +88,44 @@ namespace Niras.Jordflytning.Core.BusinessLogic
       return true;
     }
 
-    public bool MoveTempDokumentationToAnmeldelseFolder(Guid personId, Guid anmeldelsesId)
+    /// <summary>
+    /// Flytter de filer, som anmeldelsen refererer til, fra personens temp-mappe til anmeldelsens mappe.
+    /// Kun filer i <paramref name="filnavne"/> flyttes. Andre filer i temp-mappen kan høre til en anden
+    /// anmeldelse, som brugeren arbejder på samtidig (fx i en anden fane), og skal blive liggende.
+    /// </summary>
+    public bool MoveTempDokumentationToAnmeldelseFolder(Guid personId, Guid anmeldelsesId, IEnumerable<string> filnavne)
     {
       var appSettings = ConfigurationManager.AppSettings;
-      var sourceBaseDir = appSettings["TempBaseFileDir"];
-      var targetBaseDir = appSettings["DokumentationBaseFileDir"];
-      if (!Directory.Exists(Path.Combine(sourceBaseDir, personId.ToString())))
+      var sourceDir = Path.Combine(appSettings["TempBaseFileDir"], personId.ToString());
+      var targetDir = Path.Combine(appSettings["DokumentationBaseFileDir"], anmeldelsesId.ToString());
+
+      if (!Directory.Exists(sourceDir) || filnavne == null)
         return false;
 
-      var dokumentationsFiles = Directory.GetFiles(Path.Combine(sourceBaseDir, personId.ToString()), "*.*", SearchOption.AllDirectories).ToList();
+      var navne = filnavne.Where(f => !string.IsNullOrEmpty(f)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+      if (!navne.Any())
+        return false;
 
-      var lSDirectoryName = Path.Combine(targetBaseDir, anmeldelsesId.ToString());
-      var lDDirInfo = new DirectoryInfo(lSDirectoryName);
-      if (lDDirInfo.Exists == false)
-        Directory.CreateDirectory(lSDirectoryName);
+      if (!Directory.Exists(targetDir))
+        Directory.CreateDirectory(targetDir);
 
-      foreach (var file in dokumentationsFiles)
+      foreach (var filnavn in navne)
       {
-        var mFile = new FileInfo(file);
-        if (new FileInfo(lDDirInfo + "\\" + mFile.Name).Exists == false) //to remove name collusion
-        {
-          mFile.MoveTo(lDDirInfo + "\\" + mFile.Name);
-        }
-      }
+        var source = Path.Combine(sourceDir, Path.GetFileName(filnavn));
+        var target = Path.Combine(targetDir, Path.GetFileName(filnavn));
 
-      //Delete Person folder
-      if (!Directory.GetFiles(Path.Combine(sourceBaseDir, personId.ToString()), "*.*", SearchOption.AllDirectories).Any())
-        Directory.Delete(Path.Combine(sourceBaseDir, personId.ToString()));
+        if (!File.Exists(source))
+        {
+          if (!File.Exists(target))
+            Logger.LogWarning(string.Format("Dokument '{0}' til anmeldelse {1} findes hverken i temp-mappen for person {2} eller i anmeldelsens mappe.", filnavn, anmeldelsesId, personId));
+          continue;
+        }
+
+        if (File.Exists(target)) //Filen er allerede flyttet
+          continue;
+
+        File.Move(source, target);
+      }
 
       return true;
     }
@@ -191,18 +212,38 @@ namespace Niras.Jordflytning.Core.BusinessLogic
       return dokument;
     }
 
-    public bool RemoveTempDirectory(string personId)
+    /// <summary>
+    /// Rydder op i personens temp-mappe. Kun filer ældre end <see cref="TempFilMaksAlder"/> slettes.
+    /// Mappen må ikke tømmes helt, da brugeren kan have en anden anmeldelse åben (fx i en anden fane),
+    /// hvis uploadede filer ligger her, indtil anmeldelsen gemmes.
+    /// </summary>
+    public bool CleanupTempDirectory(string personId)
     {
       var appSettings = ConfigurationManager.AppSettings;
-      var baseDir = appSettings["TempBaseFileDir"];
+      var sourcePersonpath = Path.Combine(appSettings["TempBaseFileDir"], personId);
+      if (!Directory.Exists(sourcePersonpath))
+        return false;
 
-      var sourcePersonpath = Path.Combine(baseDir, personId);
-      if (Directory.Exists(sourcePersonpath))
+      var graense = DateTime.UtcNow - TempFilMaksAlder;
+      foreach (var file in Directory.GetFiles(sourcePersonpath, "*.*", SearchOption.AllDirectories))
       {
-        Directory.Delete(sourcePersonpath, true);
-        return true;
+        try
+        {
+          var fi = new FileInfo(file);
+          var senest = fi.CreationTimeUtc > fi.LastWriteTimeUtc ? fi.CreationTimeUtc : fi.LastWriteTimeUtc;
+          if (senest < graense)
+            fi.Delete();
+        }
+        catch (IOException ex)
+        {
+          Logger.LogException("Kunne ikke rydde op i temp-fil " + file, ex);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+          Logger.LogException("Kunne ikke rydde op i temp-fil " + file, ex);
+        }
       }
-      return false;
+      return true;
     }
 
     public FileStream ReadDokumentation(Guid personId, Guid anmeldelseId, string filNavn)
@@ -214,15 +255,15 @@ namespace Niras.Jordflytning.Core.BusinessLogic
       var anmeldelseFilePath = Path.Combine(anmeldelseBaseDir, anmeldelseId.ToString(), filNavn);
       if (File.Exists(anmeldelseFilePath))
       {
-        return new FileStream(anmeldelseFilePath, FileMode.Open);
+        return new FileStream(anmeldelseFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
       }
 
-      //Prøver så fra person folder. Her ligger filerne, indtil anmeldelsen bliver gemt.   		
+      //Prøver så fra person folder. Her ligger filerne, indtil anmeldelsen bliver gemt.
       var personBaseDir = appSettings["TempBaseFileDir"];
       var tempFilePath = Path.Combine(personBaseDir, personId.ToString(), filNavn);
       if (File.Exists(tempFilePath))
       {
-        return new FileStream(tempFilePath, FileMode.Open);
+        return new FileStream(tempFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
       }
 
       return null;

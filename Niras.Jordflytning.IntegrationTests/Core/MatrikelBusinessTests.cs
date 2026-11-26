@@ -9,6 +9,7 @@ using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
 using Niras.Jordflytning.Core.Models;
 using Niras.Jordflytning.Infrastructure.DataAccess;
 using Niras.Jordflytning.Infrastructure.Services;
+using Niras.Jordflytning.IntegrationTests.TestsSetup;
 
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
@@ -29,6 +30,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
             _ninjectKernel.Bind<IMatrikelBusiness>().To<MatrikelBusiness>();
             _ninjectKernel.Bind<IMatrikelRepository>().To<MatrikelRepository>();
             _ninjectKernel.Bind<IMatrikelOpslagRepository>().To<MatrikelOpslagRepository>();
+            TestSetupUtil.InjectKodelists(_ninjectKernel); //Øvrige afhængigheder (IConfigService m.fl.)
             _business = _ninjectKernel.Get<IMatrikelBusiness>();
 		}
 

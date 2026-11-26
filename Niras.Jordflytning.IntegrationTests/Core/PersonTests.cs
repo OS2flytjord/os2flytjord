@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Infrastructure;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
 using Niras.Jordflytning.Core.Models;
-using Niras.Jordflytning.Infrastructure.DependencyResolution;
+using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
 
 namespace Niras.Jordflytning.IntegrationTests.Core
 {

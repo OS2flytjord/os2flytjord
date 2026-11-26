@@ -1,4 +1,12 @@
-﻿using Ninject;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using Ninject;
+using Ninject.Activation;
+using Ninject.Activation.Providers;
+using Ninject.Infrastructure;
+using Ninject.Parameters;
+using Ninject.Planning.Bindings;
 using Niras.Jordflytning.Core.BusinessLogic;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
@@ -16,112 +24,174 @@ namespace Niras.Jordflytning.IntegrationTests.TestsSetup
 	{
 
 		/// <summary>
-		/// Binding of the all missing bindings
+		/// Tilføjer standard-bindinger for alle repositories, business-klasser og services.
+		///
+		/// Bindingerne er "implicitte" (lav prioritet) og tilføjes kun, hvis interfacet ikke allerede er bundet.
+		/// Derfor kan en fixture frit binde sine egne implementeringer (fx mocks) - både før og efter dette kald,
+		/// og med eller uden ConfigModule/RepositoryModule - uden "More than one matching bindings"-fejl.
+		/// Interfaces uden eksplicit standard bindes til deres eneste implementering i Core/Infrastructure.
 		/// </summary>
 		public static IKodelisteBusiness InjectKodelists(IKernel ninjectKernel)
 		{
-			ninjectKernel.Bind<IConfigService>().To<ConfigService>();
+			//Én DbContext for hele testen - svarer til InRequestScope i webappen.
+			//Med en ny context pr. repository fejler EF med "referenced by multiple instances of IEntityChangeTracker".
+			Standard(ninjectKernel, typeof(IConfigService), typeof(ConfigService), StandardScopeCallbacks.Singleton);
 			var configService = ninjectKernel.Get<IConfigService>();
 
 			
-			ninjectKernel.Bind<IKodelisteBusiness>().To<KodelisteBusiness>();
+			Standard<IKodelisteBusiness, KodelisteBusiness>(ninjectKernel);
 			
-			ninjectKernel.Bind<IDokumentationTypeRepository>().To<DokumentationTypeRepository>();		
-			ninjectKernel.Bind<IKommuneRepository>().To<KommuneRepository>();
-			ninjectKernel.Bind<IOprindelsesstedKlassifikationTypeRepository>().To<OprindelsesstedKlassifikationTypeRepository>();
-			ninjectKernel.Bind<IAndenOprindJordTypeRepository>().To<AndenOprindJordTypeRepository>();
-			ninjectKernel.Bind<IAffaldTypeRepository>().To<AffaldTypeRepository>();
-			ninjectKernel.Bind<IJordKlassifikationTypeRepository>().To<JordKlassifikationTypeRepository>();
-			ninjectKernel.Bind<IJordflytningTypeRepository>().To<JordflytningTypeRepository>();
-			ninjectKernel.Bind<IGraensevaerdierRepository>().To<GraensevaerdierRepository>();
-			ninjectKernel.Bind<IEnhedTypeRepository>().To<EnhedTypeRepository>();
-			ninjectKernel.Bind<IStikproeveRepository>().To<StikproeveRepository>();
-			ninjectKernel.Bind<IModtagerAnlaegRepository>().To<ModtagerAnlaegRepository>();
-			ninjectKernel.Bind<IAnmeldelserRepository>().To<AnmeldelserRepository>();
-			ninjectKernel.Bind<IKommuneJordklassifikationRepository>().To<KommuneJordklassifikationRepository>();
-			ninjectKernel.Bind<IJordmodtagerRepository>().To<JordmodtagerRepository>();
-			ninjectKernel.Bind<IStatusAnmeldelseTypeRepository>().To<StatusAnmeldelseTypeRepository>();
-			ninjectKernel.Bind<IJordanlaegTypeRepository>().To<JordanlaegTypeRepository>();			
-			ninjectKernel.Bind<IDokumentationRepository>().To<DokumentationRepository>();
-			ninjectKernel.Bind<IStatusAnmeldelseRepository>().To<StatusAnmeldelseRepository>();
-			ninjectKernel.Bind<IPlanlagteStikproeverRepository>().To<PlanlagteStikproeverRepository>();
-			ninjectKernel.Bind<IKonfigRepository>().To<KonfigRepository>();
-			ninjectKernel.Bind<IBogholderOpslagstavleRepository>().To<BogholderOpslagstavleRepository>();
-			ninjectKernel.Bind<IAdvisTypeRepository>().To<AdvisTypeRepository>();
-			ninjectKernel.Bind<IAdvisRepository>().To<AdvisRepository>();
-			ninjectKernel.Bind<IStatusStikproeveTypeRepository>().To<StatusStikproeveTypeRepository>();		
-			ninjectKernel.Bind<IStatusBetalerRepository>().To<StatusBetalerRepository>();
-			ninjectKernel.Bind<IKommunikationRepository>().To<KommunikationRepository>();
-			ninjectKernel.Bind<IBetalerRepository>().To<BetalerRepository>();
-			ninjectKernel.Bind<IPersonRepository>().To<PersonRepository>();
-			ninjectKernel.Bind<IBrugereRepository>().To<BrugereRepository>();
-			ninjectKernel.Bind<Iwebpages_RolesRepository>().To<webpages_RolesRepository>();
-			ninjectKernel.Bind<IPersonKommuneRepository>().To<PersonKommuneRepository>();
-			ninjectKernel.Bind<IPersonJordmodtagerRepository>().To<PersonJordmodtagerRepository>();
-			ninjectKernel.Bind<ISagsbehandlerRepository>().To<SagsbehandlerRepository>();
-			ninjectKernel.Bind<IBemyndigedeAnmeldereRepository>().To<BemyndigedeAnmeldereRepository>();
-			ninjectKernel.Bind<IPdfServiceRepository>().To<PdfServiceRepository>();
-			ninjectKernel.Bind<IAlarmRepository>().To<AlarmRepository>();
-			ninjectKernel.Bind<ILogRepository>().To<LogRepository>();
-			ninjectKernel.Bind<IVognlaesRepository>().To<VognlaesRepository>();
-			ninjectKernel.Bind<ITransportoerRepository>().To<TransportoerRepository>();
-			ninjectKernel.Bind<ILastbilRepository>().To<LastbilRepository>();
-			ninjectKernel.Bind<ILandsdelTypeRepository>().To<LandsdelTypeRepository>();
-			ninjectKernel.Bind<IFirmaoplysningerRepository>().To<FirmaoplysningerRepository>();
-			ninjectKernel.Bind<IMiljoePortalRepository>().To<MiljoePortalRepository>();
-			ninjectKernel.Bind<IGeoEnvironRepository>().To<GeoEnvironRepository>();
-			ninjectKernel.Bind<IMatrikelRepository>().To<MatrikelRepository>();
-			ninjectKernel.Bind<IMatrikelOpslagRepository>().To<MatrikelOpslagRepository>();
-			ninjectKernel.Bind<IAnmelderRepository>().To<AnmelderRepository>();
-			ninjectKernel.Bind<IAnalyseDokumentRepository>().To<AnalyseDokumentRepository>();
-			ninjectKernel.Bind<IInteresantRepository>().To<InteresantRepository>();
-			ninjectKernel.Bind<IBeskedRepository>().To<BeskedRepository>();
+			Standard<IDokumentationTypeRepository, DokumentationTypeRepository>(ninjectKernel);		
+			Standard<IKommuneRepository, KommuneRepository>(ninjectKernel);
+			Standard<IOprindelsesstedKlassifikationTypeRepository, OprindelsesstedKlassifikationTypeRepository>(ninjectKernel);
+			Standard<IAndenOprindJordTypeRepository, AndenOprindJordTypeRepository>(ninjectKernel);
+			Standard<IAffaldTypeRepository, AffaldTypeRepository>(ninjectKernel);
+			Standard<IJordKlassifikationTypeRepository, JordKlassifikationTypeRepository>(ninjectKernel);
+			Standard<IJordflytningTypeRepository, JordflytningTypeRepository>(ninjectKernel);
+			Standard<IGraensevaerdierRepository, GraensevaerdierRepository>(ninjectKernel);
+			Standard<IEnhedTypeRepository, EnhedTypeRepository>(ninjectKernel);
+			Standard<IStikproeveRepository, StikproeveRepository>(ninjectKernel);
+			Standard<IModtagerAnlaegRepository, ModtagerAnlaegRepository>(ninjectKernel);
+			Standard<IAnmeldelserRepository, AnmeldelserRepository>(ninjectKernel);
+			Standard<IKommuneJordklassifikationRepository, KommuneJordklassifikationRepository>(ninjectKernel);
+			Standard<IJordmodtagerRepository, JordmodtagerRepository>(ninjectKernel);
+			Standard<IStatusAnmeldelseTypeRepository, StatusAnmeldelseTypeRepository>(ninjectKernel);
+			Standard<IJordanlaegTypeRepository, JordanlaegTypeRepository>(ninjectKernel);			
+			Standard<IDokumentationRepository, DokumentationRepository>(ninjectKernel);
+			Standard<IStatusAnmeldelseRepository, StatusAnmeldelseRepository>(ninjectKernel);
+			Standard<IPlanlagteStikproeverRepository, PlanlagteStikproeverRepository>(ninjectKernel);
+			Standard<IKonfigRepository, KonfigRepository>(ninjectKernel);
+			Standard<IBogholderOpslagstavleRepository, BogholderOpslagstavleRepository>(ninjectKernel);
+			Standard<IAdvisTypeRepository, AdvisTypeRepository>(ninjectKernel);
+			Standard<IAdvisRepository, AdvisRepository>(ninjectKernel);
+			Standard<IStatusStikproeveTypeRepository, StatusStikproeveTypeRepository>(ninjectKernel);		
+			Standard<IStatusBetalerRepository, StatusBetalerRepository>(ninjectKernel);
+			Standard<IKommunikationRepository, KommunikationRepository>(ninjectKernel);
+			Standard<IBetalerRepository, BetalerRepository>(ninjectKernel);
+			Standard<IPersonRepository, PersonRepository>(ninjectKernel);
+			Standard<IBrugereRepository, BrugereRepository>(ninjectKernel);
+			Standard<Iwebpages_RolesRepository, webpages_RolesRepository>(ninjectKernel);
+			Standard<IPersonKommuneRepository, PersonKommuneRepository>(ninjectKernel);
+			Standard<IPersonJordmodtagerRepository, PersonJordmodtagerRepository>(ninjectKernel);
+			Standard<ISagsbehandlerRepository, SagsbehandlerRepository>(ninjectKernel);
+			Standard<IBemyndigedeAnmeldereRepository, BemyndigedeAnmeldereRepository>(ninjectKernel);
+			Standard<IPdfServiceRepository, PdfServiceRepository>(ninjectKernel);
+			Standard<IAlarmRepository, AlarmRepository>(ninjectKernel);
+			Standard<ILogRepository, LogRepository>(ninjectKernel);
+			Standard<IVognlaesRepository, VognlaesRepository>(ninjectKernel);
+			Standard<ITransportoerRepository, TransportoerRepository>(ninjectKernel);
+			Standard<ILastbilRepository, LastbilRepository>(ninjectKernel);
+			Standard<ILandsdelTypeRepository, LandsdelTypeRepository>(ninjectKernel);
+			Standard<IFirmaoplysningerRepository, FirmaoplysningerRepository>(ninjectKernel);
+			Standard<IMiljoePortalRepository, MiljoePortalRepository>(ninjectKernel);
+			Standard<IGeoEnvironRepository, GeoEnvironRepository>(ninjectKernel);
+			Standard<IMatrikelRepository, MatrikelRepository>(ninjectKernel);
+			Standard<IMatrikelOpslagRepository, MatrikelOpslagRepository>(ninjectKernel);
+			Standard<IAnmelderRepository, AnmelderRepository>(ninjectKernel);
+			Standard<IAnalyseDokumentRepository, AnalyseDokumentRepository>(ninjectKernel);
+			Standard<IInteresantRepository, InteresantRepository>(ninjectKernel);
+			Standard<IBeskedRepository, BeskedRepository>(ninjectKernel);
 			
-			ninjectKernel.Bind<IRepository<MiljoeklasseType>>().To<GenericRepository<MiljoeklasseType>>().WithConstructorArgument("dataContext", configService.DataContext);
-			ninjectKernel.Bind<IRepository<Lastbil>>().To<GenericRepository<Lastbil>>().WithConstructorArgument("dataContext", configService.DataContext);
+			Standard(ninjectKernel, typeof(IRepository<MiljoeklasseType>), typeof(GenericRepository<MiljoeklasseType>), null,
+				new ConstructorArgument("dataContext", configService.DataContext));
+			Standard(ninjectKernel, typeof(IRepository<Lastbil>), typeof(GenericRepository<Lastbil>), null,
+				new ConstructorArgument("dataContext", configService.DataContext));
 
-			ninjectKernel.Bind<ITransportoerBusiness>().To<TransportoerBusiness>();
-			ninjectKernel.Bind<ILogBusiness>().To<LogBusiness>();
-			ninjectKernel.Bind<IPdfBusiness>().To<PdfBusiness>();
-			ninjectKernel.Bind<IAlarmBusiness>().To<AlarmBusiness>();
-			ninjectKernel.Bind<IKommunikationBusiness>().To<KommunikationBusiness>();
-			ninjectKernel.Bind<IBrugereBusiness>().To<BrugereBusiness>();
-			ninjectKernel.Bind<IStatusBetalerBusiness>().To<StatusBetalerBusiness>();
-			ninjectKernel.Bind<IJordmodtagerBusiness>().To<JordmodtagerBusiness>();
-			ninjectKernel.Bind<IDokumentationBusiness>().To<DokumentationBusiness>();
-			ninjectKernel.Bind<IAnmeldelserBusiness>().To<AnmeldelserBusiness>();
-			ninjectKernel.Bind<IStatusAnmeldelseBusiness>().To<StatusAnmeldelseBusiness>();
-			ninjectKernel.Bind<IModtagerAnlaegBusiness>().To<ModtagerAnlaegBusiness>();
-			ninjectKernel.Bind<IAdviseringBusiness>().To<AdviseringBusiness>();
-			ninjectKernel.Bind<IBetalerBusiness>().To<BetalerBusiness>();
-			ninjectKernel.Bind<IMailBusiness>().To<MailBusiness>();
-			ninjectKernel.Bind<IKonfigBusiness>().To<KonfigBusiness>();
-			ninjectKernel.Bind<IBomSystemBusiness>().To<BomSystemBusiness>();
-			ninjectKernel.Bind<IPlanlagteStikproeverBusiness>().To<PlanlagteStikproeveBusiness>();
-			ninjectKernel.Bind<IStikproeveBusiness>().To<StikproeveBusiness>();
-			ninjectKernel.Bind<IVognlaesBusiness>().To<VognlaesBusiness>();
-			ninjectKernel.Bind<IStatusStikproeveBusiness>().To<StatusStikproeveBusiness>();
-			ninjectKernel.Bind<IPersonBusiness>().To<PersonBusiness>();
-			ninjectKernel.Bind<IForureningsOpslagBusiness>().To<ForureningsOpslagBusiness>();
-			ninjectKernel.Bind<IMatrikelBusiness>().To<MatrikelBusiness>();
-			ninjectKernel.Bind<ISoegBusiness>().To<SoegBusiness>();
-			ninjectKernel.Bind<IAnmelderBusiness>().To<AnmelderBusiness>();
-			ninjectKernel.Bind<IAnalyseDokumentBusiness>().To<AnalyseDokumentBusiness>();
-			ninjectKernel.Bind<IKommuneBusiness>().To<KommuneBusiness>();
+			Standard<ITransportoerBusiness, TransportoerBusiness>(ninjectKernel);
+			Standard<ILogBusiness, LogBusiness>(ninjectKernel);
+			Standard<IPdfBusiness, PdfBusiness>(ninjectKernel);
+			Standard<IAlarmBusiness, AlarmBusiness>(ninjectKernel);
+			Standard<IKommunikationBusiness, KommunikationBusiness>(ninjectKernel);
+			Standard<IBrugereBusiness, BrugereBusiness>(ninjectKernel);
+			Standard<IStatusBetalerBusiness, StatusBetalerBusiness>(ninjectKernel);
+			Standard<IJordmodtagerBusiness, JordmodtagerBusiness>(ninjectKernel);
+			Standard<IDokumentationBusiness, DokumentationBusiness>(ninjectKernel);
+			Standard<IAnmeldelserBusiness, AnmeldelserBusiness>(ninjectKernel);
+			Standard<IStatusAnmeldelseBusiness, StatusAnmeldelseBusiness>(ninjectKernel);
+			Standard<IModtagerAnlaegBusiness, ModtagerAnlaegBusiness>(ninjectKernel);
+			Standard<IAdviseringBusiness, AdviseringBusiness>(ninjectKernel);
+			Standard<IBetalerBusiness, BetalerBusiness>(ninjectKernel);
+			Standard<IMailBusiness, MailBusiness>(ninjectKernel);
+			Standard<IKonfigBusiness, KonfigBusiness>(ninjectKernel);
+			Standard<IBomSystemBusiness, BomSystemBusiness>(ninjectKernel);
+			Standard<IPlanlagteStikproeverBusiness, PlanlagteStikproeveBusiness>(ninjectKernel);
+			Standard<IStikproeveBusiness, StikproeveBusiness>(ninjectKernel);
+			Standard<IVognlaesBusiness, VognlaesBusiness>(ninjectKernel);
+			Standard<IStatusStikproeveBusiness, StatusStikproeveBusiness>(ninjectKernel);
+			Standard<IPersonBusiness, PersonBusiness>(ninjectKernel);
+			Standard<IForureningsOpslagBusiness, ForureningsOpslagBusiness>(ninjectKernel);
+			Standard<IMatrikelBusiness, MatrikelBusiness>(ninjectKernel);
+			Standard<ISoegBusiness, SoegBusiness>(ninjectKernel);
+			Standard<IAnmelderBusiness, AnmelderBusiness>(ninjectKernel);
+			Standard<IAnalyseDokumentBusiness, AnalyseDokumentBusiness>(ninjectKernel);
+			Standard<IKommuneBusiness, KommuneBusiness>(ninjectKernel);
 
-			var securityProvider = ninjectKernel.TryGet<ISecurityProvider>();
-			if (securityProvider == null)
-			{
-				ninjectKernel.Bind<ISecurityProvider>().To<WebSecurityProvider>();
-			}
+			Standard<ISecurityProvider, WebSecurityProvider>(ninjectKernel);
+			Standard<IUnitOfWork, UnitOfWork>(ninjectKernel);
 
-			ninjectKernel.Bind<IUnitOfWork>().To<UnitOfWork>();   
+			//Alt hvad der ikke er nævnt ovenfor (nye repositories/business-klasser) bindes efter konvention.
+			BindResterendeEfterKonvention(ninjectKernel);
 
 			var bussinesKodeList = ninjectKernel.Get<IKodelisteBusiness>();
 			return bussinesKodeList;
 
 		}
 
+		/// <summary>
+		/// Tilføjer en standard-binding, hvis <typeparamref name="TService"/> ikke allerede er bundet.
+		/// </summary>
+		public static void Standard<TService, TImplementation>(IKernel kernel) where TImplementation : TService
+		{
+			Standard(kernel, typeof(TService), typeof(TImplementation), null);
+		}
 
+		/// <summary>
+		/// Tilføjer en implicit (lav prioritet) binding, hvis servicen ikke allerede er bundet.
+		/// En eksplicit binding, som en fixture laver bagefter, vinder over den implicitte.
+		/// </summary>
+		public static void Standard(IKernel kernel, Type service, Type implementation, Func<IContext, object> scope,
+			params IParameter[] parameters)
+		{
+			if (kernel.GetBindings(service).Any())
+				return;
+
+			var binding = new Binding(service)
+			{
+				ProviderCallback = StandardProvider.GetCreationCallback(implementation),
+				IsImplicit = true
+			};
+			if (scope != null)
+				binding.ScopeCallback = scope;
+			foreach (var p in parameters)
+				binding.Parameters.Add(p);
+
+			kernel.AddBinding(binding);
+		}
+
+		/// <summary>
+		/// Binder alle Niras-interfaces fra Core/Infrastructure, som endnu ikke er bundet,
+		/// til deres eneste konkrete implementering. Interfaces med flere eller ingen implementeringer springes over.
+		/// </summary>
+		private static void BindResterendeEfterKonvention(IKernel kernel)
+		{
+			var typer = new[] { typeof(AnmeldelserBusiness).Assembly, typeof(ConfigService).Assembly }
+				.SelectMany(a =>
+				{
+					try { return a.GetTypes(); }
+					catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t != null).ToArray(); }
+				})
+				.ToList();
+
+			var implementeringer = typer.Where(t => t.IsClass && !t.IsAbstract && !t.ContainsGenericParameters).ToList();
+			var interfaces = typer.Where(t => t.IsInterface && !t.ContainsGenericParameters
+			                                  && t.Namespace != null && t.Namespace.StartsWith("Niras.Jordflytning"));
+
+			foreach (var service in interfaces)
+			{
+				var impl = implementeringer.Where(service.IsAssignableFrom).ToList();
+				if (impl.Count == 1)
+					Standard(kernel, service, impl[0], null);
+			}
+		}
 	}
 }

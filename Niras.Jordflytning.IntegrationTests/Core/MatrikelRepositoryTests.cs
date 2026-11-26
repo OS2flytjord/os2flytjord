@@ -3,6 +3,7 @@ using Ninject;
 using Niras.Jordflytning.Core.BusinessLogic;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
 using Niras.Jordflytning.Infrastructure.DataAccess;
+using Niras.Jordflytning.IntegrationTests.TestsSetup;
 
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
@@ -17,6 +18,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			// Init Ninject kernel
 			_ninjectKernel = new StandardKernel();
 			_ninjectKernel.Bind<IMatrikelRepository>().To<MatrikelRepository>();
+			TestSetupUtil.InjectKodelists(_ninjectKernel); //Øvrige afhængigheder (IConfigService m.fl.)
       _repo = _ninjectKernel.Get<IMatrikelRepository>();
 		}
 

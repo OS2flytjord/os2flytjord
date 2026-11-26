@@ -1,0 +1,21 @@
+@*
+    Sender sidens formular-nøgle med alle jQuery ajax-kald (inkl. Kendo grids og Ajax.BeginForm).
+    Dokumentlisterne i Session er knyttet til nøglen, så to anmeldelser åbnet i hver sin fane
+    ikke deler dokumentliste. Kendo Upload bruger ikke jQuery ajax, så her sendes nøglen som feltet "formKey".
+*@
+@{
+    var formKey = ViewBag.FormKey as string ?? string.Empty;
+}
+<script type="text/javascript">
+    (function ($) {
+        window.flytJordFormKey = '@formKey';
+        if (!window.flytJordFormKeyPrefilter) {
+            window.flytJordFormKeyPrefilter = true;
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                if (!options.crossDomain && window.flytJordFormKey) {
+                    jqXHR.setRequestHeader('@Niras.Jordflytning.Controllers.AnmeldelserController.FormKeyHeader', window.flytJordFormKey);
+                }
+            });
+        }
+    })(jQuery);
+</script>

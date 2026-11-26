@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using Niras.Jordflytning.Core.Models;
@@ -28,11 +29,17 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
     /// </summary>
     bool CopyDokumentationToTempFolder(Guid personId, Guid anmeldelsesId);
 
-    bool MoveTempDokumentationToAnmeldelseFolder(Guid personId, Guid anmeldelsesId);
-    
+    /// <summary>
+    /// Flytter de angivne filer fra personens temp-mappe til anmeldelsens mappe.
+    /// </summary>
+    bool MoveTempDokumentationToAnmeldelseFolder(Guid personId, Guid anmeldelsesId, IEnumerable<string> filnavne);
+
 		bool SaveTempDokument(string baseDir, string personId, HttpPostedFileBase file);
 
-    bool RemoveTempDirectory(string personId);
+    /// <summary>
+    /// Sletter forældede filer i personens temp-mappe. Filer, der kan høre til en åben anmeldelse, bevares.
+    /// </summary>
+    bool CleanupTempDirectory(string personId);
     FileStream ReadDokumentation(Guid personId, Guid anmeldelseId, string filNavn);
     bool RemoveDokumentation(Guid personId, Guid anmeldelseId, string filNavn, Guid dokumentationId);
 

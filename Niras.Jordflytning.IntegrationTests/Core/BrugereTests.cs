@@ -10,7 +10,7 @@ using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Infrastructure;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
 using Niras.Jordflytning.Core.Models;
 using Niras.Jordflytning.Infrastructure.Common;
-using Niras.Jordflytning.Infrastructure.DependencyResolution;
+using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
 using Niras.Jordflytning.IntegrationTests.TestsSetup;
 
 namespace Niras.Jordflytning.IntegrationTests.Core

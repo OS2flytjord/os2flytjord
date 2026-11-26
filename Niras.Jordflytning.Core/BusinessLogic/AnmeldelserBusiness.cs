@@ -1513,8 +1513,12 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             var g = Guid.Empty;
             if (udfoertAfPerson != null)
                 g = udfoertAfPerson.Id;
-            //Flyt filer fra temp folder hvis de findes til foldernavn med anmeldelsesGuid 
-            _dokumentationBusiness.MoveTempDokumentationToAnmeldelseFolder(g, nyanmeldelse.Id);
+            //Flyt anmeldelsens filer fra temp folder til foldernavn med anmeldelsesGuid.
+            //Kun anmeldelsens egne filer flyttes - andre filer i temp-mappen kan høre til en anden åben anmeldelse.
+            var filnavne = nyanmeldelse.Jord != null && nyanmeldelse.Jord.Dokumentation != null
+                ? nyanmeldelse.Jord.Dokumentation.Select(d => d.Filnavn).ToList()
+                : new List<string>();
+            _dokumentationBusiness.MoveTempDokumentationToAnmeldelseFolder(g, nyanmeldelse.Id, filnavne);
         }
 
         public Dokumentation AttributeCopyDokumenation(Dokumentation i, Dokumentation o)

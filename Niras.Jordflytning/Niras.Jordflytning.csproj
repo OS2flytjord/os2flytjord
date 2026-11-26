@@ -1177,6 +1177,7 @@
     <Content Include="Areas\Backend\Views\Administration\AdminJordmodtager.cshtml" />
     <Content Include="Views\Anmeldelser\_Sted.cshtml" />
     <Content Include="Views\Anmeldelser\_Jorden.cshtml" />
+    <Content Include="Views\Anmeldelser\_FormKey.cshtml" />
     <Content Include="Views\Anmeldelser\_ModtagerOgTransportoer.cshtml" />
     <Content Include="Views\Shared\_LoginStatusPartial.cshtml" />
     <Content Include="Views\Adresse\Opslag.cshtml" />

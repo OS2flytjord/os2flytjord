@@ -35,7 +35,10 @@ namespace Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution
 			//Bind<IJordmodtagerRepository>().To<JordmodtagerRepository>().WithConstructorArgument("configService", configService);
       //Bind<IAnmeldelserRepository>().To<AnmeldelserRepository>().WithConstructorArgument("configService", configService);
       //Bind<IStatusAnmeldelseTypeRepository>().To<StatusAnmeldelseTypeRepository>().WithConstructorArgument("configService", configService);
-			
+
+      //Standard-bindinger for alle repositories og business-klasser (lav prioritet - fixtures kan binde deres egne).
+      TestSetupUtil.InjectKodelists(Kernel);
+
 
       
 

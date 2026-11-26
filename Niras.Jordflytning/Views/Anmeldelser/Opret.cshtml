@@ -8,6 +8,7 @@
 }
 
 @section Scripts{
+    @Html.Partial("_FormKey")
     <script src='@(Model.KortApiUrl)' type='text/javascript'></script>
     <script src="~/Scripts/Map/MapSted.js" type="text/javascript"></script>
 
@@ -1234,7 +1235,8 @@
         e.data = {
             dokumentationTypeId: $("#drpAfslutDocType").val(),
             metadataDato: $("#datAfslutDocDate").val(),
-            anmeldelseId: $("#hflAnmeldelseId").val()
+            anmeldelseId: $("#hflAnmeldelseId").val(),
+            formKey: window.flytJordFormKey
         };
     }
 

@@ -325,11 +325,11 @@ namespace Niras.Jordflytning.Controllers
         [AllowAnonymous]
         public ActionResult ReadDokumentation([DataSourceRequest] DataSourceRequest request)
         {
-            if (Session["docList"] == null)
+            if (Session[DocListKey] == null)
             {
-                Session["docList"] = new Collection<Dokumentation>();
+                Session[DocListKey] = new Collection<Dokumentation>();
             }
-            var dl = (ICollection<Dokumentation>)Session["docList"];
+            var dl = (ICollection<Dokumentation>)Session[DocListKey];
             var dd =
               from d in dl
               select new DokumentationModel
@@ -348,11 +348,11 @@ namespace Niras.Jordflytning.Controllers
         [HttpPost]
         public ActionResult ReadDokumentationForRevision([DataSourceRequest] DataSourceRequest request)
         {
-            if (Session["docListRev"] == null)
+            if (Session[DocListRevKey] == null)
             {
-                Session["docListRev"] = new Collection<Dokumentation>();
+                Session[DocListRevKey] = new Collection<Dokumentation>();
             }
-            var dl = (ICollection<Dokumentation>)Session["docListRev"];
+            var dl = (ICollection<Dokumentation>)Session[DocListRevKey];
             var dd =
               from d in dl
               select new DokumentationModel
@@ -406,11 +406,11 @@ namespace Niras.Jordflytning.Controllers
         [AllowAnonymous]
         public ActionResult ReadAnalyseDokumentation([DataSourceRequest] DataSourceRequest request)
         {
-            if (Session["analyseDocList"] == null)
+            if (Session[AnalyseDocListKey] == null)
             {
-                Session["analyseDocList"] = new Collection<Dokumentation>();
+                Session[AnalyseDocListKey] = new Collection<Dokumentation>();
             }
-            var dl = (ICollection<Dokumentation>)Session["analyseDocList"];
+            var dl = (ICollection<Dokumentation>)Session[AnalyseDocListKey];
             var dd =
               from d in dl
               select new DokumentationModel
@@ -515,8 +515,8 @@ namespace Niras.Jordflytning.Controllers
         {
             var opretModel = new OpretModel();
             Guid anmeldelseId = Guid.Empty;
-            Session["docList"] = null;
-            Session["analyseDocList"] = null;
+            Session[DocListKey] = null;
+            Session[AnalyseDocListKey] = null;
 
             if (Guid.TryParse(id, out anmeldelseId))
             {
@@ -561,9 +561,9 @@ namespace Niras.Jordflytning.Controllers
 
                 if (opretModel.Anmeldelse != null && opretModel.Anmeldelse.Jord != null && opretModel.Anmeldelse.Jord.Dokumentation.Count > 0)
                 { 
-                    Session["docList"] = opretModel.Anmeldelse.Jord.Dokumentation.ToArray();
+                    Session[DocListKey] = opretModel.Anmeldelse.Jord.Dokumentation.ToArray();
 
-                    var dl = (ICollection<Dokumentation>)Session["docList"];
+                    var dl = (ICollection<Dokumentation>)Session[DocListKey];
                     var nyDocList = new Collection<Dokumentation>();
                     foreach (var dokumentation in dl)
                     {
@@ -571,7 +571,7 @@ namespace Niras.Jordflytning.Controllers
                         d = _anmeldelserBusiness.AttributeCopyDokumenation(dokumentation, d);
                         nyDocList.Add(d);
                     }
-                    Session["docList"] = nyDocList;
+                    Session[DocListKey] = nyDocList;
                 }
 
 
@@ -690,9 +690,9 @@ namespace Niras.Jordflytning.Controllers
             model.Anmeldelse.Jord = new Jord();
 
             Session["Matrikler"] = null;
-            Session["docList"] = null;
-            Session["docListRev"] = null;
-            Session["analyseDocList"] = null;
+            Session[DocListKey] = null;
+            Session[DocListRevKey] = null;
+            Session[AnalyseDocListKey] = null;
             Session["Interesanter"] = null;
             Session["Jordforureningsopslag"] = null;
             Session["anmeldelse_kvittering"] = null;
@@ -703,8 +703,8 @@ namespace Niras.Jordflytning.Controllers
             if (person != null)
             {
                 //Ryd op i dokumenter
-                //slet indhold af personid mappe, hvis der skulle liggen noget fra en tidligere session.
-                _dokumentationBusiness.RemoveTempDirectory(person.Id.ToString());
+                //Ryd op i forældede filer i personid mappen (tømmes ikke helt - en anden fane kan have uploadede filer her).
+                _dokumentationBusiness.CleanupTempDirectory(person.Id.ToString());
 
                 //Anmelder
                 if (model.Anmeldelse.Anmelder == null)
@@ -1036,9 +1036,9 @@ namespace Niras.Jordflytning.Controllers
         private OpretModel CreateOpretModel(Guid anmeldelseId)
         {
             Session["Matrikler"] = null;
-            Session["docList"] = null;
-            Session["docListRev"] = null;
-            Session["analyseDocList"] = null;
+            Session[DocListKey] = null;
+            Session[DocListRevKey] = null;
+            Session[AnalyseDocListKey] = null;
             Session["Interesanter"] = null;
             Session["Jordforureningsopslag"] = null;
             Session["anmeldelse_kvittering"] = null;
@@ -1104,7 +1104,7 @@ namespace Niras.Jordflytning.Controllers
                     opretModel.Anmeldelse.Jord.JordKlassifikationType.Navn;
 
             if (opretModel.Anmeldelse != null && opretModel.Anmeldelse.Jord != null && opretModel.Anmeldelse.Jord.Dokumentation.Count > 0)
-                Session["docList"] = opretModel.Anmeldelse.Jord.Dokumentation;
+                Session[DocListKey] = opretModel.Anmeldelse.Jord.Dokumentation;
                 
             if (opretModel.Anmeldelse.Oprindelsessted.OprindelsesstedKlassifikationType != null && opretModel.Anmeldelse.Jordforureningsopslag != null) //NMR MULIGVIS FORKERT MAPNING
             {
@@ -1246,7 +1246,7 @@ namespace Niras.Jordflytning.Controllers
 
                     // Tilføj eventuelle dokumenter på revisionen:
                     if (opretModel.RevisionAnmeldelse.Jord != null && opretModel.RevisionAnmeldelse.Jord.Dokumentation != null && opretModel.RevisionAnmeldelse.Jord.Dokumentation.Any())
-                        Session["docListRev"] = opretModel.RevisionAnmeldelse.Jord.Dokumentation.ToList();
+                        Session[DocListRevKey] = opretModel.RevisionAnmeldelse.Jord.Dokumentation.ToList();
                 }
 
                 //Hvis anmeldelsen er afsluttet skal den ikke kunne afsluttes igen.
@@ -1312,9 +1312,9 @@ namespace Niras.Jordflytning.Controllers
                 {
                     var currentPerson = GetPerson();
                     var newDocs = new List<Dokumentation>();
-                    if (Session["analyseDocList"] != null)
+                    if (Session[AnalyseDocListKey] != null)
                     {
-                        var dl = (ICollection<Dokumentation>)Session["analyseDocList"];                        
+                        var dl = (ICollection<Dokumentation>)Session[AnalyseDocListKey];                        
                         foreach (var dd in dl)
                         {
                             var d = new Dokumentation();
@@ -1331,7 +1331,7 @@ namespace Niras.Jordflytning.Controllers
                     var mes = res ? "Anmeldelsen er afsluttet" : "Anmeldelsen kunne ikke afsluttes";
 
                     if (res == true)
-                        _dokumentationBusiness.MoveTempDokumentationToAnmeldelseFolder(currentPerson.Id, g);
+                        _dokumentationBusiness.MoveTempDokumentationToAnmeldelseFolder(currentPerson.Id, g, newDocs.Select(d => d.Filnavn));
 
                     ViewBag.Message = mes;
 
@@ -1591,20 +1591,20 @@ namespace Niras.Jordflytning.Controllers
             var person = GetPerson();
             if (person != null)
             {
-                if (Session["docList"] == null)
+                if (Session[DocListKey] == null)
                 {
-                    //slet indhold af personid mappe, hvis der skulle ligge noget fra en tidligere session.
-                    _dokumentationBusiness.RemoveTempDirectory(person.Id.ToString());
-                    Session["docList"] = new Collection<Dokumentation>();
+                    //Ryd op i forældede filer i personid mappen (tømmes ikke helt - en anden fane kan have uploadede filer her).
+                    _dokumentationBusiness.CleanupTempDirectory(person.Id.ToString());
+                    Session[DocListKey] = new Collection<Dokumentation>();
                 }
                 // The Name of the Upload component is "attachments" 
-                var dl = (ICollection<Dokumentation>)Session["docList"];
+                var dl = (ICollection<Dokumentation>)Session[DocListKey];
                 foreach (var file in files)
                 {
                     var dok = _dokumentationBusiness.CreateTempDokument(person.Id.ToString(), anmeldelseId, file, dokumentationTypeId, metadataDato);
                     dl.Add(dok);
                 }
-                Session["docList"] = dl;
+                Session[DocListKey] = dl;
                 result = true;
             }
             return Json(new { res = result }, "text/plain");
@@ -1617,20 +1617,20 @@ namespace Niras.Jordflytning.Controllers
             var person = GetPerson();
             if (person != null)
             {
-                if (Session["docListRev"] == null)
+                if (Session[DocListRevKey] == null)
                 {
-                    //slet indhold af personid mappe, hvis der skulle ligge noget fra en tidligere session.
-                    _dokumentationBusiness.RemoveTempDirectory(person.Id.ToString());
-                    Session["docListRev"] = new Collection<Dokumentation>();
+                    //Ryd op i forældede filer i personid mappen (tømmes ikke helt - en anden fane kan have uploadede filer her).
+                    _dokumentationBusiness.CleanupTempDirectory(person.Id.ToString());
+                    Session[DocListRevKey] = new Collection<Dokumentation>();
                 }
                 // The Name of the Upload component is "attachments" 
-                var dl = (ICollection<Dokumentation>)Session["docListRev"];
+                var dl = (ICollection<Dokumentation>)Session[DocListRevKey];
                 foreach (var file in files)
                 {
                     var dok = _dokumentationBusiness.CreateTempDokument(person.Id.ToString(), anmeldelseId, file, dokumentationTypeId, metadataDato);
                     dl.Add(dok);
                 }
-                Session["docListRev"] = dl;
+                Session[DocListRevKey] = dl;
                 result = true;
             }
             return Json(new { res = result }, "text/plain");
@@ -1644,20 +1644,20 @@ namespace Niras.Jordflytning.Controllers
             var person = GetPerson();
             if (person != null)
             {
-                if (Session["analyseDocList"] == null)
+                if (Session[AnalyseDocListKey] == null)
                 {
-                    //slet indhold af personid mappe, hvis der skulle ligge noget fra en tidligere session.
-                    _dokumentationBusiness.RemoveTempDirectory(person.Id.ToString());
-                    Session["analyseDocList"] = new Collection<Dokumentation>();
+                    //Ryd op i forældede filer i personid mappen (tømmes ikke helt - en anden fane kan have uploadede filer her).
+                    _dokumentationBusiness.CleanupTempDirectory(person.Id.ToString());
+                    Session[AnalyseDocListKey] = new Collection<Dokumentation>();
                 }
                 // The Name of the Upload component is "attachments" 
-                var dl = (ICollection<Dokumentation>)Session["analyseDocList"];
+                var dl = (ICollection<Dokumentation>)Session[AnalyseDocListKey];
                 foreach (var file in files)
                 {
                     var dok = _dokumentationBusiness.CreateTempDokument(person.Id.ToString(), anmeldelseId, file, dokumentationTypeId, metadataDato);
                     dl.Add(dok);
                 }
-                Session["analyseDocList"] = dl;
+                Session[AnalyseDocListKey] = dl;
                 result = true;
             }
             return Json(new { res = result }, "text/plain");
@@ -1666,7 +1666,7 @@ namespace Niras.Jordflytning.Controllers
 
         //[Authorize]
         [AllowAnonymous]
-        public FileStreamResult DownloadDokumentation(Guid anmeldelseId, string filnavn)
+        public ActionResult DownloadDokumentation(Guid anmeldelseId, string filnavn)
         {
             var b = _brugerBusiness.Read(_securityProvider.CurrentUser.Identity.Name);
             Guid personId = Guid.Empty;
@@ -1676,23 +1676,32 @@ namespace Niras.Jordflytning.Controllers
             var fs = _dokumentationBusiness.ReadDokumentation(personId, anmeldelseId, filnavn);
             if (fs != null && fs.Length > 0)
                 return File(fs, "application/octet-stream", filnavn); //d.Filnavn
-            return null;
+
+            if (fs != null)
+                fs.Dispose();
+            return DokumentFindesIkke(anmeldelseId, filnavn, fs != null);
         }
 
         //[Authorize]
         [AllowAnonymous]
-        public FileStreamResult DownloadHistoriskDokumenter(Guid anmeldelseId, Guid stikproeveId, string filnavn)
+        public ActionResult DownloadHistoriskDokumenter(Guid anmeldelseId, Guid stikproeveId, string filnavn)
         {
             var b = _brugerBusiness.Read(_securityProvider.CurrentUser.Identity.Name);
             Guid personId = Guid.Empty;
             if (b != null && b.Person != null)
                 personId = b.Person.Id;
 
+            var tom = false;
             if (anmeldelseId != Guid.Empty)
             {
                 var fs = _dokumentationBusiness.ReadDokumentation(personId, anmeldelseId, filnavn);
                 if (fs != null && fs.Length > 0)
                     return File(fs, "application/octet-stream", filnavn); //d.Filnavn
+                if (fs != null)
+                {
+                    tom = true;
+                    fs.Dispose();
+                }
             }
 
             if (stikproeveId != Guid.Empty)
@@ -1700,9 +1709,34 @@ namespace Niras.Jordflytning.Controllers
                 var fs = _analyseDokumentBusiness.ReadAnalyseDokument(stikproeveId, filnavn);
                 if (fs != null && fs.Length > 0)
                     return File(fs, "application/octet-stream", filnavn); //d.Filnavn
+                if (fs != null)
+                {
+                    tom = true;
+                    fs.Dispose();
+                }
             }
-            
-            return null;
+
+            return DokumentFindesIkke(anmeldelseId != Guid.Empty ? anmeldelseId : stikproeveId, filnavn, tom);
+        }
+
+        /// <summary>
+        /// Svar når et vedhæftet dokument ikke kan findes eller er tomt.
+        /// Tidligere blev der returneret null, hvilket gav en tom side uden forklaring.
+        /// </summary>
+        private ActionResult DokumentFindesIkke(Guid id, string filnavn, bool filenErTom)
+        {
+            Logger.LogWarning(string.Format("Dokument kunne ikke åbnes. Id: {0}, filnavn: '{1}', årsag: {2}",
+                id, filnavn, filenErTom ? "filen er tom (0 bytes)" : "filen findes ikke"));
+
+            Response.StatusCode = 404;
+            Response.TrySkipIisCustomErrors = true;
+            var besked = filenErTom
+                ? "Dokumentet '{0}' er tomt og kan ikke åbnes."
+                : "Dokumentet '{0}' kunne ikke findes.";
+            return Content(string.Format("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Dokument ikke fundet</title></head>" +
+                                         "<body style=\"font-family:sans-serif;padding:2em\"><h3>" + besked + "</h3>" +
+                                         "<p>Kontakt venligst support og oplys anmeldelsens løbenummer og dokumentets navn.</p></body></html>",
+                                         HttpUtility.HtmlEncode(filnavn)), "text/html", System.Text.Encoding.UTF8);
         }
 
         [AcceptVerbs(HttpVerbs.Post)]
@@ -1710,9 +1744,9 @@ namespace Niras.Jordflytning.Controllers
         {
             if (dokumentation != null)
             {
-                if (Session["docList"] == null)
-                    Session["docList"] = new Collection<Dokumentation>();
-                var dl = (ICollection<Dokumentation>)Session["docList"];
+                if (Session[DocListKey] == null)
+                    Session[DocListKey] = new Collection<Dokumentation>();
+                var dl = (ICollection<Dokumentation>)Session[DocListKey];
 
                 foreach (var d in dl)
                 {
@@ -1728,7 +1762,7 @@ namespace Niras.Jordflytning.Controllers
                         continue;
 
                     dl.Remove(d);
-                    Session["docList"] = dl;
+                    Session[DocListKey] = dl;
                     break;
                 }
             }
@@ -1740,9 +1774,9 @@ namespace Niras.Jordflytning.Controllers
         {
             if (dokumentation != null)
             {
-                if (Session["docListRev"] == null)
-                    Session["docListRev"] = new Collection<Dokumentation>();
-                var dl = (ICollection<Dokumentation>)Session["docListRev"];
+                if (Session[DocListRevKey] == null)
+                    Session[DocListRevKey] = new Collection<Dokumentation>();
+                var dl = (ICollection<Dokumentation>)Session[DocListRevKey];
 
                 foreach (var d in dl)
                 {
@@ -1758,7 +1792,7 @@ namespace Niras.Jordflytning.Controllers
                         continue;
 
                     dl.Remove(d);
-                    Session["docListRev"] = dl;
+                    Session[DocListRevKey] = dl;
                     break;
                 }
             }
@@ -1771,9 +1805,9 @@ namespace Niras.Jordflytning.Controllers
         {
             if (dokumentation != null)
             {
-                if (Session["analyseDocList"] == null)
-                    Session["analyseDocList"] = new Collection<Dokumentation>();
-                var dl = (ICollection<Dokumentation>)Session["analyseDocList"];
+                if (Session[AnalyseDocListKey] == null)
+                    Session[AnalyseDocListKey] = new Collection<Dokumentation>();
+                var dl = (ICollection<Dokumentation>)Session[AnalyseDocListKey];
 
                 foreach (var d in dl)
                 {
@@ -1789,7 +1823,7 @@ namespace Niras.Jordflytning.Controllers
                         continue;
 
                     dl.Remove(d);
-                    Session["analyseDocList"] = dl;
+                    Session[AnalyseDocListKey] = dl;
                     break;
                 }
             }
@@ -2058,9 +2092,9 @@ namespace Niras.Jordflytning.Controllers
 
                 //Data i sessions skal tømmes for nøgler til den oprindelige anmeldelse, ellers får man EF fejl.
                 //Dokumenter
-                if (Session["docList"] != null)
+                if (Session[DocListKey] != null)
                 {
-                    var dl = (ICollection<Dokumentation>)Session["docList"];
+                    var dl = (ICollection<Dokumentation>)Session[DocListKey];
                     var nyDocList = new Collection<Dokumentation>();
                     foreach (var dokumentation in dl)
                     {
@@ -2068,11 +2102,11 @@ namespace Niras.Jordflytning.Controllers
                         d = _anmeldelserBusiness.AttributeCopyDokumenation(dokumentation, d);
                         nyDocList.Add(d);
                     }
-                    Session["docList"] = nyDocList;
+                    Session[DocListKey] = nyDocList;
                 }
-                if (Session["docListRev"] != null)
+                if (Session[DocListRevKey] != null)
                 {
-                    var dl = (ICollection<Dokumentation>)Session["docListRev"];
+                    var dl = (ICollection<Dokumentation>)Session[DocListRevKey];
                     var nyDocList = new Collection<Dokumentation>();
                     foreach (var dokumentation in dl)
                     {
@@ -2080,7 +2114,7 @@ namespace Niras.Jordflytning.Controllers
                         d = _anmeldelserBusiness.AttributeCopyDokumenation(dokumentation, d);
                         nyDocList.Add(d);
                     }
-                    Session["docListRev"] = nyDocList;
+                    Session[DocListRevKey] = nyDocList;
                 }
 
                 if (Session["Matrikler"] != null)
@@ -2436,12 +2470,12 @@ namespace Niras.Jordflytning.Controllers
                 a.Jord.StraksGodkendJordhaandteringsplan = opretModel.Anmeldelse.Jord.StraksGodkendJordhaandteringsplan;
             }
 
-            if (Session["docList"] != null)
+            if (Session[DocListKey] != null)
             {
                 //Delete dokumentation
                 _anmeldelserBusiness.DeleteDokumentation(a);
 
-                var dl = (ICollection<Dokumentation>)Session["docList"];
+                var dl = (ICollection<Dokumentation>)Session[DocListKey];
 
 
                 var newDocs = new List<Dokumentation>();
@@ -2462,12 +2496,12 @@ namespace Niras.Jordflytning.Controllers
 
                 a.Jord.Dokumentation = newDocs;
             }
-            if (Session["docListRev"] != null) // Dette ser bare ud til at nulstille sidste operation?
+            if (Session[DocListRevKey] != null) // Dette ser bare ud til at nulstille sidste operation?
             {
                 //Delete dokumentation
                 _anmeldelserBusiness.DeleteDokumentation(a);
 
-                var dl = (ICollection<Dokumentation>)Session["docListRev"];
+                var dl = (ICollection<Dokumentation>)Session[DocListRevKey];
 
 
                 var newDocs = new List<Dokumentation>();
@@ -3038,9 +3072,9 @@ namespace Niras.Jordflytning.Controllers
                           opretModel.Anmeldelse.Kommune.Kommunenr))
                         {
                             var docVal = false;
-                            if (Session["docList"] != null)
+                            if (Session[DocListKey] != null)
                             {
-                                var dl = (ICollection<Dokumentation>)Session["docList"];
+                                var dl = (ICollection<Dokumentation>)Session[DocListKey];
                                 docVal = dl.Any();
                             }
 
@@ -3069,9 +3103,9 @@ namespace Niras.Jordflytning.Controllers
                 if (!string.IsNullOrEmpty(opretModel.Anmeldelse.Jord.LinkTilGodkendtAnmeldelse))
                     godkendtAnmeldelse = true;
 
-                if (Session["docList"] != null)
+                if (Session[DocListKey] != null)
                 {
-                    var dl = (ICollection<Dokumentation>)Session["docList"];
+                    var dl = (ICollection<Dokumentation>)Session[DocListKey];
                     var res = dl.Where(d => d.DokumentationType.Kode == (short)EnumDokumentationType.AnmeldelseAndenKommune).FirstOrDefault();
                     if (res != null)
                         godkendtAnmeldelse = true;
@@ -3491,6 +3525,75 @@ namespace Niras.Jordflytning.Controllers
         }
 
         #endregion Private methods
+
+        #region Formular-nøgle til dokumentlister i Session
+
+        /// <summary>
+        /// Navn på den header (og formularfelt "formKey"), som klienten sender formularens nøgle i.
+        /// </summary>
+        public const string FormKeyHeader = "X-FlytJord-FormKey";
+        private const string FormKeyListeSessionKey = "FormKeys";
+        private const int MaksAntalFormKeys = 10;
+
+        private string _formKey;
+
+        /// <summary>
+        /// Unik nøgle for den side (fane), som brugeren arbejder i.
+        /// Dokumentlisterne i Session er knyttet til denne nøgle, så to anmeldelser, der redigeres samtidig
+        /// i hver sin fane, ikke deler dokumentliste. Ellers kan dokumenter ende på den forkerte anmeldelse,
+        /// og filerne mangle på den anden (tom side ved åbning).
+        /// Sendes ingen nøgle (sideindlæsning), oprettes en ny, som viewet får via ViewBag.FormKey.
+        /// </summary>
+        private string FormKey
+        {
+            get
+            {
+                if (_formKey != null)
+                    return _formKey;
+
+                var k = Request.Headers[FormKeyHeader];
+                if (string.IsNullOrEmpty(k))
+                    k = Request["formKey"];
+
+                Guid g;
+                if (Guid.TryParse(k, out g))
+                {
+                    _formKey = g.ToString("N");
+                }
+                else
+                {
+                    _formKey = Guid.NewGuid().ToString("N");
+                    RegistrerNyFormKey(_formKey);
+                }
+
+                ViewBag.FormKey = _formKey;
+                return _formKey;
+            }
+        }
+
+        /// <summary>
+        /// Husker de seneste formular-nøgler og fjerner dokumentlister for de ældste, så Session ikke vokser.
+        /// </summary>
+        private void RegistrerNyFormKey(string formKey)
+        {
+            var keys = Session[FormKeyListeSessionKey] as List<string> ?? new List<string>();
+            keys.Add(formKey);
+            while (keys.Count > MaksAntalFormKeys)
+            {
+                var gammel = keys[0];
+                keys.RemoveAt(0);
+                Session.Remove("docList_" + gammel);
+                Session.Remove("docListRev_" + gammel);
+                Session.Remove("analyseDocList_" + gammel);
+            }
+            Session[FormKeyListeSessionKey] = keys;
+        }
+
+        private string DocListKey { get { return "docList_" + FormKey; } }
+        private string DocListRevKey { get { return "docListRev_" + FormKey; } }
+        private string AnalyseDocListKey { get { return "analyseDocList_" + FormKey; } }
+
+        #endregion
 
 
         public JsonResult HentMidlertidigtAnlaeg(Guid anlaegId, Guid? anmeldelseId)

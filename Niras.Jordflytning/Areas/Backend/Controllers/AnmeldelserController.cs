@@ -1944,8 +1944,9 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
             {
                 if (Session["docList_" + anmeldelseId] == null)
                 {
-                    //slet indhold af personid mappe, hvis der skulle ligge noget fra en tidligere session.
-                    _dokumentationBusiness.RemoveTempDirectory(person.Id.ToString());
+                    //Ryd op i forældede filer i personid mappen. Mappen må ikke tømmes helt, da brugeren kan have
+                    //en anden anmeldelse åben, hvis uploadede filer ligger her.
+                    _dokumentationBusiness.CleanupTempDirectory(person.Id.ToString());
                     Session["docList_" + anmeldelseId] = new Collection<Dokumentation>();
                 }
                 // The Name of the Upload component is "attachments" 
@@ -2694,8 +2695,9 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
         }
 
         [Authorize]
-        public FileStreamResult DownloadDokumentation(Guid anmeldelseId, string filnavn)
+        public ActionResult DownloadDokumentation(Guid anmeldelseId, string filnavn)
         {
+            var tom = false;
             var person = GetPerson();
             if (person != null)
             {
@@ -2703,13 +2705,19 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
 
                 if (fs != null && fs.Length > 0)
                     return File(fs, "application/octet-stream", filnavn);
+                if (fs != null)
+                {
+                    tom = true;
+                    fs.Dispose();
+                }
             }
-            return null;
+            return DokumentFindesIkke(anmeldelseId, filnavn, tom);
         }
 
         [Authorize]
-        public FileStreamResult DownloadHistoriskDokumenter(Guid anmeldelseId, Guid stikproeveId, string filnavn)
+        public ActionResult DownloadHistoriskDokumenter(Guid anmeldelseId, Guid stikproeveId, string filnavn)
         {
+            var tom = false;
             var person = GetPerson();
             if (person != null)
             {
@@ -2718,6 +2726,11 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
                     var fs = _dokumentationBusiness.ReadDokumentation(person.Id, anmeldelseId, filnavn);
                     if (fs != null && fs.Length > 0)
                         return File(fs, "application/octet-stream", filnavn); //d.Filnavn
+                    if (fs != null)
+                    {
+                        tom = true;
+                        fs.Dispose();
+                    }
                 }
 
                 if (stikproeveId != Guid.Empty)
@@ -2725,9 +2738,34 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
                     var fs = _analyseDokumentBusiness.ReadAnalyseDokument(stikproeveId, filnavn);
                     if (fs != null && fs.Length > 0)
                         return File(fs, "application/octet-stream", filnavn); //d.Filnavn
+                    if (fs != null)
+                    {
+                        tom = true;
+                        fs.Dispose();
+                    }
                 }
             }
-            return null;
+            return DokumentFindesIkke(anmeldelseId != Guid.Empty ? anmeldelseId : stikproeveId, filnavn, tom);
+        }
+
+        /// <summary>
+        /// Svar når et vedhæftet dokument ikke kan findes eller er tomt.
+        /// Tidligere blev der returneret null, hvilket gav en tom side uden forklaring.
+        /// </summary>
+        private ActionResult DokumentFindesIkke(Guid id, string filnavn, bool filenErTom)
+        {
+            Logger.LogWarning(string.Format("Dokument kunne ikke åbnes (backend). Id: {0}, filnavn: '{1}', årsag: {2}",
+                id, filnavn, filenErTom ? "filen er tom (0 bytes)" : "filen findes ikke"));
+
+            Response.StatusCode = 404;
+            Response.TrySkipIisCustomErrors = true;
+            var besked = filenErTom
+                ? "Dokumentet '{0}' er tomt og kan ikke åbnes."
+                : "Dokumentet '{0}' kunne ikke findes.";
+            return Content(string.Format("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Dokument ikke fundet</title></head>" +
+                                         "<body style=\"font-family:sans-serif;padding:2em\"><h3>" + besked + "</h3>" +
+                                         "<p>Filen mangler på serveren. Kontakt venligst support med anmeldelsens løbenummer og dokumentets navn.</p></body></html>",
+                                         HttpUtility.HtmlEncode(filnavn)), "text/html", System.Text.Encoding.UTF8);
         }
 
         private IEnumerable<Forureningskomponent> GetForureningskomponents()
