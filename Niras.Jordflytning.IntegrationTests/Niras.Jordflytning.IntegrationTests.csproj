@@ -132,6 +132,7 @@
     <Compile Include="Core\PdfReposotoryTest.cs" />
     <Compile Include="Core\SoegBusinessTests.cs" />
     <Compile Include="Core\DokumentationBusinessTests.cs" />
+    <Compile Include="Core\AfslutAnmeldelseAdvisTests.cs" />
     <Compile Include="Core\GemAnmeldelseDokumentationTests.cs" />
     <Compile Include="Core\KonfigBusinessTests.cs" />
     <Compile Include="Core\MatrikelBusinessTests.cs" />

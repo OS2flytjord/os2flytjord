@@ -1259,7 +1259,10 @@ namespace Niras.Jordflytning.Controllers
                 }
                 else
                 {
-                    opretModel.LockButtonAfslut = false;
+                    // En anmeldelse, som aldrig er indsendt (kladde), skal ikke kunne afsluttes.
+                    // Anmelderen kan ellers komme til at afslutte i stedet for at indsende (fx løbenr. 122281).
+                    var effektivStatus = opretModel.Anmeldelse.AnmeldelseEffektivStatus;
+                    opretModel.LockButtonAfslut = effektivStatus == null || _statusAnmeldelseBusiness.IsAnmeldelseIkkeIndsendt(effektivStatus);
                 }
 
                 if (opretModel.Revision)
@@ -1302,7 +1305,7 @@ namespace Niras.Jordflytning.Controllers
 
 
         [HttpPost]
-        public ActionResult AfslutAnmeldelse(string anmeldelsesId)
+        public ActionResult AfslutAnmeldelse(string anmeldelsesId, bool afslutTrodsManglendeAdvis = false)
         {
             const string message = "Der skete en fejl!";
             try
@@ -1310,7 +1313,25 @@ namespace Niras.Jordflytning.Controllers
                 Guid g;
                 if (Guid.TryParse(anmeldelsesId, out g))
                 {
+                    // Server-side tjek svarende til LockButtonAfslut: kladder og allerede afsluttede anmeldelser kan ikke afsluttes.
+                    var anmeldelse = _anmeldelserBusiness.Read(g);
+                    if (anmeldelse == null)
+                        return Json(new { Success = false, Message = message });
+                    if (_statusAnmeldelseBusiness.IsAnmeldelseAfsluttet(anmeldelse))
+                        return Json(new { Success = false, Message = "Anmeldelsen er allerede afsluttet." });
+                    if (anmeldelse.AnmeldelseEffektivStatus == null || _statusAnmeldelseBusiness.IsAnmeldelseIkkeIndsendt(anmeldelse.AnmeldelseEffektivStatus))
+                        return Json(new { Success = false, Message = "Anmeldelsen er ikke indsendt og kan derfor ikke afsluttes. Brug \"Indsend\" for at sende anmeldelsen til kommunen." });
+
                     var currentPerson = GetPerson();
+
+                    // Kan nogen parter ikke adviseres, skal brugeren bekræfte, før der afsluttes.
+                    if (!afslutTrodsManglendeAdvis)
+                    {
+                        var manglendeAdvis = _anmeldelserBusiness.FindParterDerIkkeKanAdviseresVedAfslut(g, currentPerson);
+                        if (manglendeAdvis.Any())
+                            return Json(new { Success = false, KraeverBekraeftelse = true, Message = LavManglendeAdvisBesked(manglendeAdvis) });
+                    }
+
                     var newDocs = new List<Dokumentation>();
                     if (Session[AnalyseDocListKey] != null)
                     {
@@ -1327,16 +1348,14 @@ namespace Niras.Jordflytning.Controllers
                             newDocs.Add(d);
                         }
                     }
-                    var res = _anmeldelserBusiness.AfslutAnmeldelse(g, currentPerson, newDocs);
+                    var res = _anmeldelserBusiness.AfslutAnmeldelse(g, currentPerson, newDocs, afslutTrodsManglendeAdvis);
                     var mes = res ? "Anmeldelsen er afsluttet" : "Anmeldelsen kunne ikke afsluttes";
 
                     if (res == true)
                         _dokumentationBusiness.MoveTempDokumentationToAnmeldelseFolder(currentPerson.Id, g, newDocs.Select(d => d.Filnavn));
 
                     ViewBag.Message = mes;
-
-                    ViewBag.Message = mes;
-                    return Json(new { Success = true, Message = mes });
+                    return Json(new { Success = res, Message = mes });
                 }
                 return Json(new { Success = false, Message = message });
             }
@@ -1345,6 +1364,13 @@ namespace Niras.Jordflytning.Controllers
                 Logger.LogException(ex);
                 return Json(new { Success = false, Message = message });
             }
+        }
+
+        private static string LavManglendeAdvisBesked(IEnumerable<string> manglendeAdvis)
+        {
+            return "Følgende kan ikke modtage advis om, at anmeldelsen afsluttes:\n\n- " +
+                   string.Join("\n- ", manglendeAdvis) +
+                   "\n\nVil du afslutte anmeldelsen alligevel?\nDet registreres i anmeldelsens historik, at der er afsluttet uden advis til alle parter.";
         }
 
         private enum OpretHandling

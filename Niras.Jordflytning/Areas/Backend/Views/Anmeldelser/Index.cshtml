@@ -290,16 +290,35 @@
             }
         });
 
+        // Afslut anmeldelsen. Kan nogen parter ikke adviseres, svarer serveren med KraeverBekraeftelse,
+        // og sagsbehandleren kan vælge at afslutte alligevel (registreres i historikken) eller lade være.
+        function afslutAnmeldelse(afslutTrodsManglendeAdvis) {
+            $("#divProgress").show();
+            var aid = $("#hflAnmeldelseId").val();
+            $.post("@Url.Action("AfslutAnmeldelse", "Anmeldelser", new {Area = "Backend"})",
+                { anmeldelsesId: aid, afslutTrodsManglendeAdvis: afslutTrodsManglendeAdvis },
+                function(result) {
+                    $("#divProgress").hide();
+
+                    if (result.KraeverBekraeftelse == true) {
+                        if (confirm(result.Message)) {
+                            afslutAnmeldelse(true);
+                        }
+                        return;
+                    }
+
+                    if (result.Success == true) {
+                        onFormSuccess();
+                    } else if (result.Message) {
+                        alert(result.Message);
+                    }
+                });
+        }
+
         $("#btnAfslut").click(function(e) {
             e.preventDefault();
             if (confirm('Anmeldelsen inaktiveres og kan ikke benyttes længere.\n\nEr du sikker på, at du vil afslutte anmeldelsen?')) {
-                $("#divProgress").show();
-                var aid = $("#hflAnmeldelseId").val();
-                $.post("@Url.Action("AfslutAnmeldelse", "Anmeldelser", new {Area = "Backend"})", { anmeldelsesId: aid }, function(result) {
-                    if (result.Success == true) {
-                        onFormSuccess();
-                    }
-                });
+                afslutAnmeldelse(false);
             }
         });
 

@@ -38,6 +38,8 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
         AnmeldelseAktiv = 13,
         [Description("Forureningsstatus ændret")]
         ForureningsstatusAendret = 14,
+        [Description("Afsluttet uden advis til alle parter")]
+        AfsluttetUdenFuldAdvis = 15,
     }
 
 

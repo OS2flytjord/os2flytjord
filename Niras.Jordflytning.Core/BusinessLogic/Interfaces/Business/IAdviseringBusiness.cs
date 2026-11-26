@@ -68,6 +68,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
     bool SendAktiveretAnmeldelse(Anmeldelse anmeldelse);
     bool SendAktiveretRevideretAnmeldelse(Anmeldelse anmeldelse);
     bool SendAfsluttetAnmeldelse(Anmeldelse anmeldelse, bool isCaseWorker = false);
+    IList<string> FindParterDerIkkeKanAdviseresVedAfslut(Anmeldelse anmeldelse, bool isCaseWorker = false);
     bool SendBeskedTilJordmodtageranlæggetsKontaktperson(Anmeldelse anmeldelse);
 
    // StringTemplate CreateMessage(string kommuneNr, Guid jordmodtagerId, EnumAdvisSkabelon skabelon);

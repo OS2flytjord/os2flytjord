@@ -105,7 +105,8 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
         Matrikel AttributeCopyMatrikel(Matrikel i, Matrikel o);
         Dokumentation AttributeCopyDokumenation(Dokumentation i, Dokumentation o);
 
-        bool AfslutAnmeldelse(Guid anmeldelseId, Person udfoertAfPerson, IEnumerable<Dokumentation> analyseDocs = null);
+        bool AfslutAnmeldelse(Guid anmeldelseId, Person udfoertAfPerson, IEnumerable<Dokumentation> analyseDocs = null, bool afslutTrodsManglendeAdvis = false);
+        IList<string> FindParterDerIkkeKanAdviseresVedAfslut(Guid anmeldelseId, Person udfoertAfPerson);
 
         /// <summary>
         /// Bestemmer om der er krav om dokumentation

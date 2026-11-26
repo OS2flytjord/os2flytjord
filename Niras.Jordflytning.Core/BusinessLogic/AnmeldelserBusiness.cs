@@ -186,13 +186,65 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             return dokumentationer;
         }
 
-        public bool AfslutAnmeldelse(Guid anmeldelseId, Person udfoertAfPerson, IEnumerable<Dokumentation> analyseDocs = null)
+        /// <summary>
+        /// Parter, som ikke kan adviseres, hvis udfoertAfPerson afslutter anmeldelsen nu.
+        /// Tom liste betyder, at alle relevante parter kan adviseres.
+        /// </summary>
+        public IList<string> FindParterDerIkkeKanAdviseresVedAfslut(Guid anmeldelseId, Person udfoertAfPerson)
+        {
+            var a = Read(anmeldelseId);
+            if (a == null)
+                return new List<string>();
+
+            return _adviseringBusiness.FindParterDerIkkeKanAdviseresVedAfslut(a, ErSagsbehandler(udfoertAfPerson));
+        }
+
+        private static bool ErSagsbehandler(Person person)
+        {
+            return person != null && person.Sagsbehandler != null;
+        }
+
+        /// <param name="afslutTrodsManglendeAdvis">
+        /// Skal være true, hvis en bruger afslutter og en eller flere parter ikke kan adviseres
+        /// (se FindParterDerIkkeKanAdviseresVedAfslut). Brugerens valg registreres i statusloggen.
+        /// Ved systemafslutning (udfoertAfPerson == null) ignoreres parameteren.
+        /// </param>
+        public bool AfslutAnmeldelse(Guid anmeldelseId, Person udfoertAfPerson, IEnumerable<Dokumentation> analyseDocs = null, bool afslutTrodsManglendeAdvis = false)
         {
             var a = Read(anmeldelseId);
             if (a != null)
             {
-               a.StatusAnmeldelse = _statusAnmeldelseBusiness.Read(a.Id);
+                var manglendeAdvis = udfoertAfPerson != null
+                    ? _adviseringBusiness.FindParterDerIkkeKanAdviseresVedAfslut(a, ErSagsbehandler(udfoertAfPerson))
+                    : new List<string>();
+
+                // Brugeren skal have bekræftet, at der afsluttes selvom ikke alle parter kan adviseres.
+                if (manglendeAdvis.Any() && !afslutTrodsManglendeAdvis)
+                    return false;
+
+                a.StatusAnmeldelse = _statusAnmeldelseBusiness.Read(a.Id);
                 var s = _statusAnmeldelseBusiness.CreateStatus(EnumStatusAnmeldelse.Afsluttet, udfoertAfPerson);
+
+                if (manglendeAdvis.Any())
+                {
+                    Logger.LogWarning("AfslutAnmeldelse: Anmeldelse " + a.Nummer + " (" + a.Id + ") afsluttes af " +
+                                      udfoertAfPerson.Navn + " " + udfoertAfPerson.Efternavn +
+                                      " selvom følgende ikke kan adviseres: " + string.Join("; ", manglendeAdvis));
+
+                    // Registreres i statusloggen (historik) lige før "Afsluttet", så "Afsluttet" forbliver seneste status.
+                    var udenAdvis = _statusAnmeldelseBusiness.CreateStatus(EnumStatusAnmeldelse.AfsluttetUdenFuldAdvis, udfoertAfPerson);
+                    if (udenAdvis.StatusAnmeldelseType != null)
+                    {
+                        udenAdvis.Tid = s.Tid.AddSeconds(-1);
+                        a.StatusAnmeldelse.Add(udenAdvis);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("AfslutAnmeldelse: StatusAnmeldelseType med kode " + (short)EnumStatusAnmeldelse.AfsluttetUdenFuldAdvis +
+                                          " findes ikke i databasen. Kør Database/V0.19/StatusAfsluttetUdenFuldAdvis.sql.");
+                    }
+                }
+
                 a.StatusAnmeldelse.Add(s);
 
                 if (analyseDocs != null) {
@@ -209,11 +261,18 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
                 //SetAnmeldelseStatus(anmeldelseId, udfoertAfPerson, EnumStatusAnmeldelse.Afsluttet);
 
-                var isCaseWorker = false;
-                if (udfoertAfPerson != null)
-                    isCaseWorker = udfoertAfPerson.Sagsbehandler != null;
+                var isCaseWorker = ErSagsbehandler(udfoertAfPerson);
 
-                _adviseringBusiness.SendAfsluttetAnmeldelse(a, isCaseWorker);
+                // Anmeldelsen er nu afsluttet og gemt. En fejl i adviseringen må ikke få afslutningen
+                // til at fremstå som fejlet - så prøver brugeren igen og der oprettes flere "Afsluttet"-statusser.
+                try
+                {
+                    _adviseringBusiness.SendAfsluttetAnmeldelse(a, isCaseWorker);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException("AfslutAnmeldelse: Anmeldelse " + a.Nummer + " (" + a.Id + ") er afsluttet, men advis kunne ikke sendes.", ex);
+                }
                 return true;
             }
 
@@ -1410,8 +1469,11 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             //StatusAnmeldelse - Tilføjer til de eksisterende
             foreach (var sai in revA.StatusAnmeldelse)
             {
-                if (sai != null && sai.StatusAnmeldelseType != null && sai.StatusAnmeldelseType.Kode != (short)EnumStatusAnmeldelse.Afsluttet)
+                if (sai != null && sai.StatusAnmeldelseType != null &&
+                    sai.StatusAnmeldelseType.Kode != (short)EnumStatusAnmeldelse.Afsluttet &&
+                    sai.StatusAnmeldelseType.Kode != (short)EnumStatusAnmeldelse.AfsluttetUdenFuldAdvis)
                 {
+                    // "Afsluttet uden advis til alle parter" hører sammen med "Afsluttet" og overføres heller ikke.
                     //Vi må ikke overføre statusanmeldeelser af typen Afsluttet, da den oprindelige anmeldelse hermed vil bliver afsluttet. 
                     //Man kan komme ud for sådan et tilfælde, hvis betaleren acceptere betalingen for en revideret anmeldelse flere gange. http://jira.niras.dk/browse/JF-405
 

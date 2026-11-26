@@ -1819,7 +1819,7 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
         }
 
         [HttpPost]
-        public ActionResult AfslutAnmeldelse(string anmeldelsesId)
+        public ActionResult AfslutAnmeldelse(string anmeldelsesId, bool afslutTrodsManglendeAdvis = false)
         {
             const string message = "Der skete en fejl!";
             Guid g;
@@ -1827,10 +1827,23 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
             {
                 var currentPerson = GetPerson();
 
-                var res = _anmeldelserBusiness.AfslutAnmeldelse(g, currentPerson);
+                // Kan nogen parter ikke adviseres, skal sagsbehandleren bekræfte, før der afsluttes.
+                if (!afslutTrodsManglendeAdvis)
+                {
+                    var manglendeAdvis = _anmeldelserBusiness.FindParterDerIkkeKanAdviseresVedAfslut(g, currentPerson);
+                    if (manglendeAdvis.Any())
+                    {
+                        var besked = "Følgende kan ikke modtage advis om, at anmeldelsen afsluttes:\n\n- " +
+                                     string.Join("\n- ", manglendeAdvis) +
+                                     "\n\nVil du afslutte anmeldelsen alligevel?\nDet registreres i anmeldelsens historik, at der er afsluttet uden advis til alle parter.";
+                        return Json(new { Success = false, KraeverBekraeftelse = true, Message = besked });
+                    }
+                }
+
+                var res = _anmeldelserBusiness.AfslutAnmeldelse(g, currentPerson, null, afslutTrodsManglendeAdvis);
                 var mes = res ? "Anmeldelsen er afsluttet" : "Anmeldelsen kunne ikke afsluttes";
                 ViewBag.Message = mes;
-                return Json(new { Success = true, Message = mes });
+                return Json(new { Success = res, Message = mes });
             }
 
             return Json(new { Success = false, Message = message });

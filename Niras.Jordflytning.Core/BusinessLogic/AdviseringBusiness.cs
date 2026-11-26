@@ -601,21 +601,81 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             return false;
         }
 
+        /// <summary>
+        /// Finder de parter, som skulle have haft advis ved afslutning af anmeldelsen, men som ikke kan adviseres
+        /// (manglende personoplysninger eller e-mail). Bruges til at advare brugeren inden afslutning.
+        /// Reglerne svarer til modtagerne i SendAfsluttetAnmeldelse.
+        /// </summary>
+        public IList<string> FindParterDerIkkeKanAdviseresVedAfslut(Anmeldelse anmeldelse, bool isCaseWorker = false)
+        {
+            var mangler = new List<string>();
+            if (anmeldelse == null)
+                return mangler;
+
+            var anmelderPerson = anmeldelse.Anmelder != null ? anmeldelse.Anmelder.Person : null;
+
+            // Anmelder
+            if (anmelderPerson == null)
+                mangler.Add("Anmelderen (personoplysninger mangler)");
+            else if ((isCaseWorker || anmelderPerson.FrivilligeAdvis) && String.IsNullOrWhiteSpace(anmelderPerson.Email))
+                mangler.Add("Anmelderen " + PersonNavn(anmelderPerson) + " (e-mail mangler)");
+
+            // Betaler - kun hvis betaleren er en anden end anmelderen
+            if (anmeldelse.Betaler != null)
+            {
+                var betalerPerson = anmeldelse.Betaler.Person;
+                if (betalerPerson == null)
+                    mangler.Add("Betaleren (personoplysninger mangler)");
+                else if ((anmelderPerson == null || anmelderPerson.Id != betalerPerson.Id) &&
+                         (isCaseWorker || betalerPerson.FrivilligeAdvis) && String.IsNullOrWhiteSpace(betalerPerson.Email))
+                    mangler.Add("Betaleren " + PersonNavn(betalerPerson) + " (e-mail mangler)");
+            }
+
+            // Transportør - kun hvis transportøren er en anden end anmelderen
+            if (anmeldelse.Transportoer != null)
+            {
+                var transportoerPerson = anmeldelse.Transportoer.Person;
+                if (transportoerPerson == null)
+                    mangler.Add("Transportøren (personoplysninger mangler)");
+                else if ((anmelderPerson == null || anmelderPerson.Id != transportoerPerson.Id) &&
+                         (isCaseWorker || transportoerPerson.FrivilligeAdvis) && String.IsNullOrWhiteSpace(transportoerPerson.Email))
+                    mangler.Add("Transportøren " + PersonNavn(transportoerPerson) + " (e-mail mangler)");
+            }
+
+            return mangler;
+        }
+
+        private static string PersonNavn(Person p)
+        {
+            return ((p.Navn ?? string.Empty) + " " + (p.Efternavn ?? string.Empty)).Trim();
+        }
+
         public bool SendAfsluttetAnmeldelse(Anmeldelse anmeldelse, bool isCaseWorker = false)
         {
             if (anmeldelse != null)
             {
                 var domain = ConfigurationManager.AppSettings["FlytJordDomain"];
                 var template = CreateMessage(null, Guid.Empty, EnumAdvisSkabelon.AfslutAnmeldelse);
-                template.SetAttribute("adresse", anmeldelse.Oprindelsessted.Adresse);
+                var adresse = anmeldelse.Oprindelsessted != null ? anmeldelse.Oprindelsessted.Adresse : string.Empty;
+                template.SetAttribute("adresse", adresse);
                 template.SetAttribute("blanketUrl", string.Format("https://{0}/blanketter/{1}", domain, anmeldelse.Id));
                 template.SetAttribute("flytjordUrl", GetVisAnmeldelseLink(anmeldelse.Id));
 
                 var emailBody = template.ToString();
-                var emailSubject = string.Format("FlytJord.dk - meddelelse vedrørende {0}", anmeldelse.Oprindelsessted.Adresse);
+                var emailSubject = string.Format("FlytJord.dk - meddelelse vedrørende {0}", adresse);
 
                 var persons = new List<Person>();
                 var emailModtagere = new List<string>();
+
+                // Parterne kan mangle på en anmeldelse (fx manglende Anmelder.Person, løbenr. 122281).
+                // Manglende parter springes over, så de øvrige stadig får advis.
+                var anmelderPerson = anmeldelse.Anmelder != null ? anmeldelse.Anmelder.Person : null;
+                var betalerPerson = anmeldelse.Betaler != null ? anmeldelse.Betaler.Person : null;
+                var transportoerPerson = anmeldelse.Transportoer != null ? anmeldelse.Transportoer.Person : null;
+                var modtagerAnlaeg = anmeldelse.ModtagerAnlaeg;
+
+                if (anmelderPerson == null)
+                    Logger.LogWarning("SendAfsluttetAnmeldelse: Anmeldelse " + anmeldelse.Nummer + " (" + anmeldelse.Id + ") mangler anmelder/person. Anmelder får ikke advis.");
 
                 // Advis til sagsbehandler. Tilføjet 9.6.2017 efter ønske fra Hvidovre Kommune.
                 if (anmeldelse.Kommune != null && anmeldelse.Kommune.Kommunenr == 167 && anmeldelse.Sagsbehandler != null && anmeldelse.Sagsbehandler.Person != null)
@@ -625,73 +685,78 @@ namespace Niras.Jordflytning.Core.BusinessLogic
                 if (isCaseWorker)
                 {
                     // Anmelder
-                    persons.Add(anmeldelse.Anmelder.Person);
-                    emailModtagere.Add(anmeldelse.Anmelder.Person.Email);
-
-                    //hvis anmelder ikke er betaler
-                    if (anmeldelse.Betaler != null && anmeldelse.Betaler.Person != null && anmeldelse.Anmelder.Person.Id != anmeldelse.Betaler.Person.Id)
+                    if (anmelderPerson != null)
                     {
-                        persons.Add(anmeldelse.Betaler.Person);
-                        emailModtagere.Add(anmeldelse.Betaler.Person.Email);
+                        persons.Add(anmelderPerson);
+                        emailModtagere.Add(anmelderPerson.Email);
                     }
 
-                    //Transportør
-                    if (anmeldelse.Anmelder != null && anmeldelse.Anmelder.Person != null &&
-              anmeldelse.Transportoer != null && anmeldelse.Transportoer.Person != null &&
-              anmeldelse.Anmelder.Person.Id != anmeldelse.Transportoer.Person.Id) //hvis anmelder ikke er betaler
+                    //hvis anmelder ikke er betaler
+                    if (betalerPerson != null && (anmelderPerson == null || anmelderPerson.Id != betalerPerson.Id))
                     {
-                        persons.Add(anmeldelse.Transportoer.Person);
-                        emailModtagere.Add(anmeldelse.Transportoer.Person.Email);
+                        persons.Add(betalerPerson);
+                        emailModtagere.Add(betalerPerson.Email);
+                    }
+
+                    //Transportør - hvis anmelder ikke er transportør
+                    if (transportoerPerson != null && (anmelderPerson == null || anmelderPerson.Id != transportoerPerson.Id))
+                    {
+                        persons.Add(transportoerPerson);
+                        emailModtagere.Add(transportoerPerson.Email);
                     }
 
                     //Modtageranlæg
-                    if(!String.IsNullOrWhiteSpace(anmeldelse.ModtagerAnlaeg.KontaktpersonEmail))
-                        emailModtagere.Add(anmeldelse.ModtagerAnlaeg.KontaktpersonEmail);
+                    if (modtagerAnlaeg != null && !String.IsNullOrWhiteSpace(modtagerAnlaeg.KontaktpersonEmail))
+                        emailModtagere.Add(modtagerAnlaeg.KontaktpersonEmail);
                 }
                 else
                 {
                     // Anmelder
-                    if (anmeldelse.Anmelder.Person.FrivilligeAdvis)
+                    if (anmelderPerson != null && anmelderPerson.FrivilligeAdvis)
                     {
-                        persons.Add(anmeldelse.Anmelder.Person);
-                        emailModtagere.Add(anmeldelse.Anmelder.Person.Email);
+                        persons.Add(anmelderPerson);
+                        emailModtagere.Add(anmelderPerson.Email);
                     }
 
                     //hvis anmelder ikke er betaler
-                    if (anmeldelse.Betaler != null && anmeldelse.Betaler.Person != null && anmeldelse.Anmelder.Person.Id != anmeldelse.Betaler.Person.Id)
+                    if (betalerPerson != null && (anmelderPerson == null || anmelderPerson.Id != betalerPerson.Id))
                     {
-                        if (anmeldelse.Betaler.Person.FrivilligeAdvis)
+                        if (betalerPerson.FrivilligeAdvis)
                         {
-                            persons.Add(anmeldelse.Betaler.Person);
-                            emailModtagere.Add(anmeldelse.Betaler.Person.Email);
+                            persons.Add(betalerPerson);
+                            emailModtagere.Add(betalerPerson.Email);
                         }
                     }
 
-                    //Transportør
-                    if (anmeldelse.Anmelder != null && anmeldelse.Anmelder.Person != null &&
-              anmeldelse.Transportoer != null && anmeldelse.Transportoer.Person != null &&
-              anmeldelse.Anmelder.Person.Id != anmeldelse.Transportoer.Person.Id) //hvis anmelder ikke er betaler
+                    //Transportør - hvis anmelder ikke er transportør
+                    if (transportoerPerson != null && (anmelderPerson == null || anmelderPerson.Id != transportoerPerson.Id))
                     {
-                        if (anmeldelse.Transportoer.Person.FrivilligeAdvis)
+                        if (transportoerPerson.FrivilligeAdvis)
                         {
-                            persons.Add(anmeldelse.Transportoer.Person);
-                            emailModtagere.Add(anmeldelse.Transportoer.Person.Email);
+                            persons.Add(transportoerPerson);
+                            emailModtagere.Add(transportoerPerson.Email);
                         }
                     }
 
                     //Modtageranlæg
-                    if (anmeldelse.ModtagerAnlaeg.Advis)
+                    if (modtagerAnlaeg != null && modtagerAnlaeg.Advis)
                     {
-                        if (!String.IsNullOrWhiteSpace(anmeldelse.ModtagerAnlaeg.KontaktpersonEmail))
-                            emailModtagere.Add(anmeldelse.ModtagerAnlaeg.KontaktpersonEmail);
+                        if (!String.IsNullOrWhiteSpace(modtagerAnlaeg.KontaktpersonEmail))
+                            emailModtagere.Add(modtagerAnlaeg.KontaktpersonEmail);
                     }
                 }
 
                 //Interessenter
-                foreach (var i in anmeldelse.Interesant)
+                if (anmeldelse.Interesant != null)
                 {
-                    emailModtagere.Add(i.Email);
+                    foreach (var i in anmeldelse.Interesant)
+                    {
+                        emailModtagere.Add(i.Email);
+                    }
                 }
+
+                // Tomme adresser sendes ikke
+                emailModtagere = emailModtagere.Where(e => !String.IsNullOrWhiteSpace(e)).ToList();
 
                 var besked = new Besked { Tekst = emailBody, Tid = DateTime.Now };
 
