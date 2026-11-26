@@ -3,7 +3,8 @@
 -- Script  : NNN_Beskrivelse.sql
 -- Formål  : <Kort beskrivelse af ændringen>
 -- =============================================================================
--- Kopiér filen til Database\Version\<version>\NNN_Beskrivelse.sql og ret
+-- Kopiér filen fra Database\Version\Tools\ til Database\Version\<version>\NNN_Beskrivelse.sql,
+-- tilføj den til versionens projekt i FlytJord_UpgradeScripts, og ret
 -- @Version og @Script herunder, så de passer til mappe og filnavn.
 
 SET XACT_ABORT ON;

@@ -5,16 +5,32 @@ i en mappe med versionsnummeret for den release, de kommer med:
 
 ```
 Database\Version\
-    _Skabelon.sql            Skabelon til nye scripts
+    FlytJord_UpgradeScripts.ssmssln   SSMS-solution med alle projekter (.slnx til SSMS 22)
+    Tools\
+        Tools.ssmssqlproj
+        README.md                     Denne fil
+        _Skabelon.sql                 Skabelon til nye scripts
     1.2.0\
+        010200.ssmssqlproj
         001_SchemaVersion.sql
         002_<Beskrivelse>.sql
     1.2.1\
+        010201.ssmssqlproj
         001_<Beskrivelse>.sql
 ```
 
 Versionsnummeret er det samme som i `SharedAssemblyInfo.cs`, `CHANGELOG.md` og git-tagget `vX.Y.Z`.
 De ældre mapper `Database\V0.x` er historik og bruges ikke længere til nye ændringer.
+
+## SSMS-solution
+
+`FlytJord_UpgradeScripts.ssmssln` (og `FlytJord_UpgradeScripts.slnx` til SSMS 22) samler scripts for alle versioner.
+Projektet `Tools` indeholder denne README og skabelonen.
+Hver version har sit eget SQL Server Scripts-projekt i versionsmappen, navngivet med versionsnummeret som
+to cifre pr. del, fx `1.2.0\010200.ssmssqlproj`.
+
+Ny version: opret projektet i den nye versionsmappe (Tilføj > Nyt projekt > SQL Server Scripts i SSMS),
+tilføj det til solution og læg versionens scripts i projektet.
 
 ## Regler
 
