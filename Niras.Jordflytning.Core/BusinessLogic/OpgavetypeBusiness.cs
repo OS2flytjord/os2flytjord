@@ -22,5 +22,18 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             return _repository.Search(x => x.Kommune.Id == kommuneId).OrderBy(x => x.Sortering);
         }
 
+        public bool ErGyldigPaaDato(Opgavetype opgavetype, DateTime dato)
+        {
+            if (opgavetype == null)
+                return false;
+
+            var dag = dato.Date;
+            if (opgavetype.FraDato.HasValue && opgavetype.FraDato.Value.Date > dag)
+                return false;
+            if (opgavetype.TilDato.HasValue && opgavetype.TilDato.Value.Date < dag)
+                return false;
+            return true;
+        }
+
     }
 }

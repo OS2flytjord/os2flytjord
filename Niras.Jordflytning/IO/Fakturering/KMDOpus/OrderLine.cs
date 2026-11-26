@@ -127,7 +127,9 @@ namespace Niras.Jordflytning.IO.Fakturering.KMDOpus
 
         public static IEnumerable<OrderLine> FromList(IEnumerable<GebyrTidsregistrering> gebyrTidsregistreringer, IConfigProvider configProvider)
         {
-            foreach (var group in gebyrTidsregistreringer.GroupBy(x => x.Opgavetype.Kode))
+            // Grupperes pr. opgavetype (ikke pr. kode), så registreringer på forskellige takstperioder
+            // med samme kode ikke slås sammen og får takst/materialenummer fra den første registrering.
+            foreach (var group in gebyrTidsregistreringer.GroupBy(x => x.Opgavetype.Id))
                 yield return new OrderLine(group.ToArray(), configProvider);
         }
 

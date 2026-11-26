@@ -9,5 +9,10 @@ namespace Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business
 
         IEnumerable<Opgavetype> ForKommune(Guid kommuneId);
 
+        /// <summary>
+        /// Angiver om opgavetypen (takst) er gyldig på den angivne dato ud fra FraDato/TilDato (begge inklusiv).
+        /// </summary>
+        bool ErGyldigPaaDato(Opgavetype opgavetype, DateTime dato);
+
     }
 }

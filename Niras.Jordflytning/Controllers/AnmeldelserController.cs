@@ -159,9 +159,23 @@ namespace Niras.Jordflytning.Controllers
 
             if (model.Opgavetype == null || model.Opgavetype.Id == Guid.Empty)
                 ModelState.AddModelError("Opgavetype", "Vælg opgavetype");
+            else
+            {
+                // Opgavetypen (og dermed taksten) skal være gyldig på registreringens dato,
+                // ellers kommer der gamle takster med i fakturaudtrækket.
+                var opgavetype = _opgavetypeBusiness.Read(model.Opgavetype.Id);
+                if (opgavetype == null)
+                    ModelState.AddModelError("Opgavetype", "Vælg opgavetype");
+                else
+                {
+                    model.Opgavetype = OpgavetypeViewModel.Create(opgavetype);
+                    if (!_opgavetypeBusiness.ErGyldigPaaDato(opgavetype, model.Dato))
+                        ModelState.AddModelError("Opgavetype", $"Opgavetypen '{opgavetype.Navn}' gælder ikke d. {model.Dato:dd-MM-yyyy}. Vælg en opgavetype der gælder for datoen.");
+                }
+            }
 
             // Opstartsgebyr har ikke krav om tidsforbrug. (Kode 0)
-            if (model.ForbrugtTid == TimeSpan.Zero && model.Opgavetype.KraeverTidsregistrering)
+            if (model.ForbrugtTid == TimeSpan.Zero && model.Opgavetype != null && model.Opgavetype.KraeverTidsregistrering)
             {
                 var tidTimer = System.Web.HttpContext.Current.Request["ForbrugtTid.Hours"];
                 var tidMinutter = System.Web.HttpContext.Current.Request["ForbrugtTid.Minutes"];

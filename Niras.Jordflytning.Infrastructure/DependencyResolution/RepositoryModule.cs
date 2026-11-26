@@ -56,6 +56,7 @@ namespace Niras.Jordflytning.Infrastructure.DependencyResolution
             Bind<IAlarmRepository>().To<AlarmRepository>();
             Bind<IBeskedRepository>().To<BeskedRepository>();
             Bind<ILogRepository>().To<LogRepository>();
+            Bind<Iwebpages_MembershipRepository>().To<webpages_MembershipRepository>();
             Bind<IInteresantRepository>().To<InteresantRepository>();
             Bind<IGebyrTidsregistreringRepository>().To<GebyrTidsregistreringRepository>();
             Bind<IOpgavetypeRepository>().To<OpgavetypeRepository>();

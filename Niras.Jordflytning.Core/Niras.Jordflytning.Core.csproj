@@ -217,6 +217,7 @@
     <Compile Include="BusinessLogic\BaseBusiness.cs" />
     <Compile Include="BusinessLogic\BomSystemBusiness.cs" />
     <Compile Include="BusinessLogic\BrugereBusiness.cs" />
+    <Compile Include="BusinessLogic\BrugerSupportBusiness.cs" />
     <Compile Include="BusinessLogic\BetalerBusiness.cs" />
     <Compile Include="BusinessLogic\AnmelderBusiness.cs" />
     <Compile Include="BusinessLogic\BogholderOpslagstavleBusiness.cs" />
@@ -248,6 +249,7 @@
     <Compile Include="BusinessLogic\Interfaces\Business\IAlarmBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\Business\IKommunikationBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\Repository\ILogRepository.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Repository\Iwebpages_MembershipRepository.cs" />
     <Compile Include="BusinessLogic\Interfaces\Repository\IBeskedRepository.cs" />
     <Compile Include="BusinessLogic\Interfaces\Repository\IKommunikationRepository.cs" />
     <Compile Include="BusinessLogic\Interfaces\Repository\IAlarmRepository.cs" />
@@ -603,6 +605,7 @@
     <Compile Include="BusinessLogic\Interfaces\Business\IStatusAnmeldelseBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\Business\IAnmeldelserBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\Business\IBrugereBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\Business\IBrugerSupportBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\Business\IKodelisteBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\Business\IKommuneBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\Business\IMatrikelBusiness.cs" />

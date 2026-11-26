@@ -89,6 +89,7 @@
     <Compile Include="Core\BusinessLogic\BrugerProfilTests.cs" />
     <Compile Include="Core\BusinessLogic\PerformanceAnmeldelserTests.cs" />
     <Compile Include="Core\BusinessLogic\StatusAnmeldelseBussnessTests.cs" />
+    <Compile Include="IO\Fakturering\OrderLineTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Compile Include="TestsSetup\DependencyResolution\ConfigModule.cs" />

@@ -254,6 +254,7 @@
     <Compile Include="App_Start\ViewEngineConfig.cs" />
     <Compile Include="Areas\Backend\BackendAreaRegistration.cs" />
     <Compile Include="Areas\Backend\Controllers\AdministrationController.cs" />
+    <Compile Include="Areas\Backend\Controllers\SupportController.cs" />
     <Compile Include="Areas\Backend\Controllers\AnmeldelserController.cs" />
     <Compile Include="Areas\Backend\Controllers\FrontpagesController.cs" />
     <Compile Include="Areas\Backend\Controllers\SearchController.cs" />
@@ -264,6 +265,7 @@
     <Compile Include="Areas\Backend\ViewModels\BogholderOpslagstavleModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\AdvisListeModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\PersonFileModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\SkiftEmailModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\GebyrUdtraek.cs" />
     <Compile Include="Areas\Backend\ViewModels\HistorikAnmeldelseModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\AdminSoegModel.cs" />
@@ -1171,6 +1173,7 @@
     <Content Include="Views\Backend\StartMiljoemedarbejder.cshtml" />
     <Content Include="Views\Backend\StartProevetager.cshtml" />
     <Content Include="Areas\Backend\Views\Administration\AdminBrugere.cshtml" />
+    <Content Include="Areas\Backend\Views\Support\SkiftEmail.cshtml" />
     <Content Include="Areas\Backend\Views\Administration\AdminJordmodtager.cshtml" />
     <Content Include="Views\Anmeldelser\_Sted.cshtml" />
     <Content Include="Views\Anmeldelser\_Jorden.cshtml" />

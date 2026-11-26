@@ -127,6 +127,7 @@
     <Compile Include="DataAccess\FirmaoplysningerRepository.cs" />
     <Compile Include="DataAccess\LandsdelTypeRepository.cs" />
     <Compile Include="DataAccess\LogRepository.cs" />
+    <Compile Include="DataAccess\webpages_MembershipRepository.cs" />
     <Compile Include="DataAccess\KommunikationRepository.cs" />
     <Compile Include="DataAccess\LastbilRepository.cs" />
     <Compile Include="DataAccess\MatrikelOpslagRepository.cs" />

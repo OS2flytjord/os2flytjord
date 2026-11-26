@@ -7,6 +7,7 @@
         </div>
         <div class="editor-field">
             @(Html.Kendo().DatePickerFor(model => model.Dato)
+                .Events(e => e.Change("onChangeOpgaveDato"))
                 .HtmlAttributes(new { type = "text", data_tooltip = "Angiv dato", style = "width: 125px", id = "dpOpgaveDato" }))
         </div>
         <div class="editor-label">

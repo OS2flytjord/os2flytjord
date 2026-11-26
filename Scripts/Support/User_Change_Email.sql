@@ -1,9 +1,9 @@
 declare
-	@fromEmailAdress varchar(max) = 'info@ds-jord.dk',
-	@toEmailAdress varchar(max) = 'CM@ds-jord.dk',
-	@update int = 1
+	@fromEmailAdress varchar(max) = 'mcgedved@gmail.com',
+	@toEmailAdress varchar(max) = 'mc@g-e-f.dk',
+	@update int = 0
 
-
+--update [dbo].[webpages_Membership] set PasswordFailuresSinceLastSuccess = 0, LastPasswordFailureDate = null where UserId = 1623
 
 --Tjek for om email findes i 
 
@@ -46,7 +46,11 @@ select * from dbo.Person where Email = @toEmailAdress
 
 /*
 Ændringslog:
-
+Nov 23 2026  7:14AM : Opdateret bruger med Id = 950 fra email = mcgedved@gmail.com, til email = mc@g-e-f.dk
+Nov 23 2026  7:14AM : Opdateret person med Id = 5CC70DF8-1ACA-4532-9537-F0C721FE7C52 fra email = mcgedved@gmail.com, til email = mc@g-e-f.dk
+15/10-2026 : update [dbo].[webpages_Membership] set PasswordFailuresSinceLastSuccess = 0, LastPasswordFailureDate = null where UserId = 1623
+Oct  9 2026  9:27AM : Opdateret bruger med Id = 1059 fra email = jansimonsentransport@hotmail.com, til email = jansimonsentransport@outlook.dk
+Oct  9 2026  9:27AM : Opdateret person med Id = BE927D09-0310-40C1-81AC-67EA8184E672 fra email = jansimonsentransport@hotmail.com, til email = jansimonsentransport@outlook.dk
 Sep 24 2026  7:30AM : Opdateret bruger med Id = 5126 fra email = info@ds-jord.dk, til email = CM@ds-jord.dk
 Sep 24 2026  7:30AM : Opdateret person med Id = 1DDF4376-C32F-49D9-9305-75FC4B73A3F4 fra email = info@ds-jord.dk, til email = CM@ds-jord.dk
 24/8-2026 : update person set Email = 'info@ds-jord.dk' where id = '1DDF4376-C32F-49D9-9305-75FC4B73A3F4' --Ændret email for person også....
