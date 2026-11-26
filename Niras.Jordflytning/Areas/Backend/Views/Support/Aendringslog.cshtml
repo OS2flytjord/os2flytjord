@@ -1,0 +1,81 @@
+﻿@model Niras.Jordflytning.Areas.Backend.ViewModels.AendringslogModel
+@{
+    ViewBag.Title = "Ændringslog";
+    Layout = "~/Areas/Backend/Views/Shared/_LayoutBackendContent.cshtml";
+}
+@section Styles{
+    <style type="text/css">
+        .aendringslog { padding: 10px; max-width: 800px; }
+        .aendringslog h2, .aendringslog h3, .aendringslog h4 { color: #444; }
+        .aendringslog .intro { color: #676767; margin-bottom: 15px; }
+        .aendringslog .version { border: 1px solid #ccc; padding: 10px 15px; margin-bottom: 15px; }
+        .aendringslog .version.aktuel { border-color: #00ADEE; border-width: 2px; }
+        .aendringslog .version h3 { margin: 0 0 4px 0; font-size: 1.2em; }
+        .aendringslog .dato { color: #676767; font-weight: normal; font-size: 0.85em; margin-left: 8px; }
+        .aendringslog .maerke { display: inline-block; font-size: 0.75em; font-weight: normal; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
+        .aendringslog .maerke.aktuel { background: #00ADEE; color: #fff; }
+        .aendringslog .maerke.kommende { background: #fdf1d8; color: #7a5200; border: 1px solid #e6c57a; }
+        .aendringslog .beskrivelse { color: #676767; font-style: italic; margin: 4px 0 8px 0; }
+        .aendringslog h4 { margin: 10px 0 4px 0; font-size: 1em; }
+        .aendringslog ul { margin: 0 0 0 20px; padding: 0; }
+        .aendringslog li { margin-bottom: 3px; }
+    </style>
+}
+
+<div class="aendringslog">
+    <h2>Ændringslog</h2>
+    <p class="intro">
+        Ændringer i FlytJord pr. version, nyeste øverst. Den kørende version er <strong>v@(Model.AktuelVersion)</strong>.
+    </p>
+
+    @if (Model.Versioner.Count == 0)
+    {
+        <p>Ændringsloggen kunne ikke indlæses.</p>
+    }
+
+    @foreach (var version in Model.Versioner)
+    {
+        var erAktuel = version.Version == Model.AktuelVersion;
+        <div class="version @(erAktuel ? "aktuel" : "")">
+            <h3>
+                @if (version.ErIkkeUdgivet)
+                {
+                    @:Næste version
+                    <span class="maerke kommende">Ikke udgivet endnu</span>
+                }
+                else
+                {
+                    @:Version @version.Version
+                    if (version.Udgivet.HasValue)
+                    {
+                        <span class="dato">Udgivet @version.Udgivet.Value.ToString("dd-MM-yyyy")</span>
+                    }
+                    if (erAktuel)
+                    {
+                        <span class="maerke aktuel">Kørende version</span>
+                    }
+                }
+            </h3>
+
+            @if (!string.IsNullOrEmpty(version.Beskrivelse))
+            {
+                <div class="beskrivelse">@version.Beskrivelse</div>
+            }
+
+            @foreach (var afsnit in version.Afsnit)
+            {
+                if (afsnit.Punkter.Count == 0)
+                {
+                    continue;
+                }
+                <h4>@afsnit.Navn</h4>
+                <ul>
+                    @foreach (var punkt in afsnit.Punkter)
+                    {
+                        <li>@punkt</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+</div>

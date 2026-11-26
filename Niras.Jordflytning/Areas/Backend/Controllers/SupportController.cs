@@ -78,6 +78,14 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
             return Tilbage(email, resultat.Besked, !resultat.Succes);
         }
 
+        [HttpGet]
+        public ActionResult Aendringslog()
+        {
+            var model = AendringslogModel.Indlaes();
+            model.AktuelVersion = VersionHelper.Version;
+            return View(model);
+        }
+
         private ActionResult Tilbage(string email, string besked, bool erFejl)
         {
             TempData["Besked"] = besked;

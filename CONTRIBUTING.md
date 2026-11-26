@@ -43,3 +43,28 @@ If all changes have been committed, you can push the branch to your fork of the 
 ### Reviews on releases
 
 All pull requests will be reviewed before they are merged to a release branch. As well as being reviewed for functionality and following the code style they will be checked with the steering committee and/or the coordination group for the project.
+
+# Versionering og release (OS2flytjord)
+
+OS2flytjord bruger [Semantic Versioning](https://semver.org/lang/da/) (`MAJOR.MINOR.PATCH`) og [Keep a Changelog](CHANGELOG.md).
+
+## Hvor står versionen?
+Versionen står kun i `SharedAssemblyInfo.cs` i roden af solution. Filen er linket ind i alle projekter, så hele løsningen altid har samme version. `Properties/AssemblyInfo.cs` i de enkelte projekter må ikke indeholde versionsattributter.
+
+## Branches
+- `develop` – det daglige arbejde. Nye ændringer skrives under `## [Unreleased]` i `CHANGELOG.md`.
+- `main` – det, der er (eller skal i) drift. Hver release på `main` tagges `vX.Y.Z`.
+- `hotfix/X.Y.Z` – akutte rettelser. Laves fra `main` og merges tilbage til både `main` og `develop`.
+
+## Sådan laves en release
+1. På `develop`: opdatér versionen i `SharedAssemblyInfo.cs` (alle tre attributter).
+2. I `CHANGELOG.md`: omdøb `## [Unreleased]` til `## [X.Y.Z] - ÅÅÅÅ-MM-DD`, tilføj et nyt tomt `## [Unreleased]` øverst og opdatér links i bunden.
+3. Commit: `Release X.Y.Z`.
+4. Merge `develop` ind i `main`, og tag merge-commit'en:
+   ```
+   git checkout main
+   git merge --no-ff develop
+   git tag -a vX.Y.Z -m "Release X.Y.Z"
+   git push origin main --tags
+   ```
+5. Deploy fra tagget `vX.Y.Z`.

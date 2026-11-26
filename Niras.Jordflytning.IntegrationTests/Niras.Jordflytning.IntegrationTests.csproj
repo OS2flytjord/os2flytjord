@@ -148,6 +148,9 @@
     <Compile Include="Core\KommuneTests.cs" />
     <Compile Include="Core\PersonTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Compile Include="TestsSetup\DependencyResolution\ConfigModule.cs" />
     <Compile Include="TestsSetup\DependencyResolution\RepositoryModule.cs" />

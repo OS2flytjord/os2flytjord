@@ -149,6 +149,7 @@ namespace Niras.Jordflytning.Areas.Backend.Controllers
             var menu = new Menu();
             var menuItemSupport = new MenuItem("Support");
             menuItemSupport.AddSubItem(new MenuItem("Brugersupport", "Brugersupport", "/Backend/Support/SkiftEmail"));
+            menuItemSupport.AddSubItem(new MenuItem("Ændringslog", "Ændringslog", "/Backend/Support/Aendringslog"));
             menu.AddMenuItem(menuItemSupport);
             return menu;
         }

@@ -1,72 +1,49 @@
-# Change Log in OS2 projects/products
+# Changelog
 
-All notable changes to the project MUST be documented in this file.
- 
-The format can be based on [Keep a Changelog](http://keepachangelog.com/)
-and the project versioning could adher to [Semantic Versioning](http://semver.org/).
+Alle væsentlige ændringer i OS2flytjord dokumenteres i denne fil.
 
-## Guiding Principles
+Formatet følger [Keep a Changelog](https://keepachangelog.com/da/1.1.0/),
+og projektet bruger [Semantic Versioning](https://semver.org/lang/da/):
 
-* Changelogs are for humans, not machines.
-* There should be an entry for every single version.
-* The same types of changes should be grouped.
-* Versions and sections should be linkable.
-* The latest version comes first.
-* The release date of each version is displayed.
-* Mention whether you follow Semantic Versioning.
+* **MAJOR** – ændringer der ikke er bagudkompatible (fx større databaseændringer eller ændrede integrationer)
+* **MINOR** – ny funktionalitet
+* **PATCH** – fejlrettelser
 
-## Types of changes
+Typer af ændringer: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
 
-* Added for new features.
-* Changed for changes in existing functionality.
-* Deprecated for soon-to-be removed features.
-* Removed for now removed features.
-* Fixed for any bug fixes.
-* Security in case of vulnerabilitie 
+Versionsnummeret sættes i [SharedAssemblyInfo.cs](SharedAssemblyInfo.cs). Se
+"Versionering og release" i [CONTRIBUTING.md](CONTRIBUTING.md).
 
-# Example
+## [Unreleased]
 
-## [Unreleased] - yyyy-mm-dd
- 
-Here we write upgrading notes for brands. It's a team effort to make them as
-straightforward as possible.
- 
+Forventes udgivet som 1.2.0.
+
 ### Added
-- [PROJECTNAME-XXXX](http://tickets.projectname.com/browse/PROJECTNAME-XXXX)
-  MINOR Ticket title goes here.
-- [PROJECTNAME-YYYY](http://tickets.projectname.com/browse/PROJECTNAME-YYYY)
-  PATCH Ticket title goes here.
- 
-### Changed
- 
+- Advarsel ved afslutning af anmeldelse, når parter ikke kan adviseres.
+- Fælles versionsnummer for alle projekter (`SharedAssemblyInfo.cs`) og denne changelog.
+- Versionsnummer vises i topbaren.
+- Ændringslog under Support (MasterAdmin), som viser ændringer pr. version med udgivelsesdato.
+
 ### Fixed
- 
-## [1.2.4] - 2017-03-15
-  
-Here we would have the update steps for 1.2.4 for people to follow.
- 
+- Vedhæftede dokumenter kunne mangle på anmeldelsen ("tom side" ved åbning).
+- Kladder kan ikke længere afsluttes.
+
+## [1.1.2] - 2026-11-26
+
+Version i drift, da versionsstyring blev indført. Changelog er rekonstrueret ud fra git-historikken siden marts 2026.
+
 ### Added
- 
+- Masteradmin kan skifte email på en bruger og aktivere/deaktivere brugeren.
+
 ### Changed
-  
-- [PROJECTNAME-ZZZZ](http://tickets.projectname.com/browse/PROJECTNAME-ZZZZ)
-  PATCH Drupal.org is now used for composer.
- 
+- Adressesøgning omskrevet til DAWA (søgning på vejnavne, adresser med mellemrum, adressevælger i flere layouts).
+- Vejopslag viser op til 200 forslag (tidligere 100).
+- Opgavetype skal være gyldig på registreringens dato.
+- Randers: tilretninger til fakturering, telefonnummer i fakturaudlæsning og ny toptekst.
+
 ### Fixed
- 
-- [PROJECTNAME-TTTT](http://tickets.projectname.com/browse/PROJECTNAME-TTTT)
-  PATCH Add logic to runsheet teaser delete to delete corresponding
-  schedule cards.
- 
-## [1.2.3] - 2017-03-14
- 
-### Added
-   
-### Changed
- 
-### Fixed
- 
-- [PROJECTNAME-UUUU](http://tickets.projectname.com/browse/PROJECTNAME-UUUU)
-  MINOR Fix module foo tests
-- [PROJECTNAME-RRRR](http://tickets.projectname.com/browse/PROJECTNAME-RRRR)
-  MAJOR Module foo's timeline uses the browser timezone for date resolution
+- Fejl i layoutfil.
+- Logning af exceptions i `Exception(Exception exc)`.
+
+[Unreleased]: https://github.com/OS2flytjord/os2flytjord/compare/v1.1.2...develop
+[1.1.2]: https://github.com/OS2flytjord/os2flytjord/releases/tag/v1.1.2

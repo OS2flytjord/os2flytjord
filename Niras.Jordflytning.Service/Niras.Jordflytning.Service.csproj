@@ -71,6 +71,9 @@
     <Compile Include="Model\BomAnmeldelse.cs" />
     <Compile Include="Model\Vognlaes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

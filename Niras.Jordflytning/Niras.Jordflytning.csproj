@@ -245,6 +245,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\CHANGELOG.md">
+      <Link>CHANGELOG.md</Link>
+      <LogicalName>Niras.Jordflytning.CHANGELOG.md</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="AdvisService.svc.cs">
       <DependentUpon>AdvisService.svc</DependentUpon>
     </Compile>
@@ -266,6 +272,7 @@
     <Compile Include="Areas\Backend\ViewModels\AdvisListeModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\PersonFileModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\SkiftEmailModel.cs" />
+    <Compile Include="Areas\Backend\ViewModels\AendringslogModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\GebyrUdtraek.cs" />
     <Compile Include="Areas\Backend\ViewModels\HistorikAnmeldelseModel.cs" />
     <Compile Include="Areas\Backend\ViewModels\AdminSoegModel.cs" />
@@ -320,7 +327,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Extensions\LabelHelper.cs" />
+    <Compile Include="Extensions\VersionHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Compile Include="ViewModels\Anmeldelse\HistorikAnmeldelseModel.cs" />
     <Compile Include="ViewModels\Anmeldelse\GebyrTidsregistreringViewModel.cs" />
@@ -1174,6 +1185,7 @@
     <Content Include="Views\Backend\StartProevetager.cshtml" />
     <Content Include="Areas\Backend\Views\Administration\AdminBrugere.cshtml" />
     <Content Include="Areas\Backend\Views\Support\SkiftEmail.cshtml" />
+    <Content Include="Areas\Backend\Views\Support\Aendringslog.cshtml" />
     <Content Include="Areas\Backend\Views\Administration\AdminJordmodtager.cshtml" />
     <Content Include="Views\Anmeldelser\_Sted.cshtml" />
     <Content Include="Views\Anmeldelser\_Jorden.cshtml" />
