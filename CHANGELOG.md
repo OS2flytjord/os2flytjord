@@ -23,6 +23,11 @@ Forventes udgivet som 1.2.0.
 - Fælles versionsnummer for alle projekter (`SharedAssemblyInfo.cs`) og denne changelog.
 - Versionsnummer vises i topbaren.
 - Ændringslog under Support (MasterAdmin), som viser ændringer pr. version med udgivelsesdato.
+- Databasescripts ligger fremover i `Database\Version\<version>\`. Tabellen `SchemaVersion` registrerer, hvilke scripts der er kørt.
+
+### Database
+- Kør `Database\Version\1.2.0\001_SchemaVersion.sql` (opretter tabellen `SchemaVersion`).
+- Kør `Database\Version\1.2.0\002_StatusAfsluttetUdenFuldAdvis.sql` (ny statustype 15 "Afsluttet uden advis til alle parter") FØR koden deployes.
 
 ### Fixed
 - Vedhæftede dokumenter kunne mangle på anmeldelsen ("tom side" ved åbning).

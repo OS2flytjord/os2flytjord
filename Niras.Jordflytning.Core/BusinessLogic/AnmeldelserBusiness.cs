@@ -241,7 +241,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic
                     else
                     {
                         Logger.LogWarning("AfslutAnmeldelse: StatusAnmeldelseType med kode " + (short)EnumStatusAnmeldelse.AfsluttetUdenFuldAdvis +
-                                          " findes ikke i databasen. Kør Database/V0.19/StatusAfsluttetUdenFuldAdvis.sql.");
+                                          " findes ikke i databasen. Kør Database/Version/1.2.0/002_StatusAfsluttetUdenFuldAdvis.sql.");
                     }
                 }
 

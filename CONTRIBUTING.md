@@ -51,6 +51,9 @@ OS2flytjord bruger [Semantic Versioning](https://semver.org/lang/da/) (`MAJOR.MI
 ## Hvor står versionen?
 Versionen står kun i `SharedAssemblyInfo.cs` i roden af solution. Filen er linket ind i alle projekter, så hele løsningen altid har samme version. `Properties/AssemblyInfo.cs` i de enkelte projekter må ikke indeholde versionsattributter.
 
+## Databaseændringer
+Scripts til databasen lægges i `Database\Version\<versionsnummer>\` som `NNN_Beskrivelse.sql`. Se [Database/Version/README.md](Database/Version/README.md).
+
 ## Branches
 - `develop` – det daglige arbejde. Nye ændringer skrives under `## [Unreleased]` i `CHANGELOG.md`.
 - `main` – det, der er (eller skal i) drift. Hver release på `main` tagges `vX.Y.Z`.
@@ -58,6 +61,7 @@ Versionen står kun i `SharedAssemblyInfo.cs` i roden af solution. Filen er link
 
 ## Sådan laves en release
 1. På `develop`: opdatér versionen i `SharedAssemblyInfo.cs` (alle tre attributter).
+   Tjek at databasescripts til versionen ligger i `Database\Version\X.Y.Z\` (se [Database/Version/README.md](Database/Version/README.md)).
 2. I `CHANGELOG.md`: omdøb `## [Unreleased]` til `## [X.Y.Z] - ÅÅÅÅ-MM-DD`, tilføj et nyt tomt `## [Unreleased]` øverst og opdatér links i bunden.
 3. Commit: `Release X.Y.Z`.
 4. Merge `develop` ind i `main`, og tag merge-commit'en:
@@ -67,4 +71,5 @@ Versionen står kun i `SharedAssemblyInfo.cs` i roden af solution. Filen er link
    git tag -a vX.Y.Z -m "Release X.Y.Z"
    git push origin main --tags
    ```
-5. Deploy fra tagget `vX.Y.Z`.
+5. Kør databasescripts fra `Database\Version\X.Y.Z\` i rækkefølge efter filnavn.
+6. Deploy fra tagget `vX.Y.Z`.

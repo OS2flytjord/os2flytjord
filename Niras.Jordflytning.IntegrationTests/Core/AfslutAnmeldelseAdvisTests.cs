@@ -18,7 +18,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
   /// - Kan alle adviseres, afsluttes der som hidtil.
   ///
   /// Testen skriver i databasen (DefaultConnection) og rydder op i TearDown. Mail og PDF er erstattet af stubbe.
-  /// Kræver at Database/V0.19/StatusAfsluttetUdenFuldAdvis.sql er kørt.
+  /// Kræver at Database/Version/1.2.0/002_StatusAfsluttetUdenFuldAdvis.sql er kørt.
   /// </summary>
   [TestFixture]
   public class AfslutAnmeldelseAdvisTests
@@ -44,7 +44,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
       using (var cn = OpenConnection())
       {
         var antal = (int)new SqlCommand("SELECT COUNT(*) FROM StatusAnmeldelseType WHERE Kode = " + KodeAfsluttetUdenFuldAdvis, cn).ExecuteScalar();
-        Assert.AreEqual(1, antal, "Statustype 15 mangler - kør Database/V0.19/StatusAfsluttetUdenFuldAdvis.sql");
+        Assert.AreEqual(1, antal, "Statustype 15 mangler - kør Database/Version/1.2.0/002_StatusAfsluttetUdenFuldAdvis.sql");
 
         // En anmelder, der ønsker advis og har e-mail
         using (var r = new SqlCommand(@"SELECT TOP 1 a.Id, p.Email FROM Anmelder a JOIN Person p ON p.Id = a.Id
