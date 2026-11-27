@@ -92,7 +92,11 @@ namespace Niras.Jordflytning.UnitTests.TestsSetup.DependencyResolution
       Bind<IAnmeldelserRepository>().To<AnmeldelserRepository>().WithConstructorArgument("configService", configService);
       
       Bind<IUnitOfWork>().To<UnitOfWork>();
-      
+
+      //Alt hvad der ikke er nævnt ovenfor (nye repositories/business-klasser) bindes efter konvention.
+      //Det sker, når modulet er loadet, så fixturens egne Bind<>()-kald vinder over de implicitte bindinger.
+      TestSetupUtil.BindResterendeEfterKonvention(Kernel);
+
       
 
     }

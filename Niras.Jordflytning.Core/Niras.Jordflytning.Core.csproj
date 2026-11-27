@@ -254,6 +254,7 @@
     <Compile Include="BusinessLogic\Interfaces\Repository\IKommunikationRepository.cs" />
     <Compile Include="BusinessLogic\Interfaces\Repository\IAlarmRepository.cs" />
     <Compile Include="BusinessLogic\KommunikationBusiness.cs" />
+    <Compile Include="BusinessLogic\SkabelonMappe.cs" />
     <Compile Include="BusinessLogic\MailBusiness.cs" />
     <Compile Include="BusinessLogic\OpgavetypeBusiness.cs" />
     <Compile Include="BusinessLogic\SoegAdminBusiness.cs" />

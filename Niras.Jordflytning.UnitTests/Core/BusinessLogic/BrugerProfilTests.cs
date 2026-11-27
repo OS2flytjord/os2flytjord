@@ -6,6 +6,7 @@ using Niras.Jordflytning.Infrastructure.DataAccess;
 namespace Niras.Jordflytning.UnitTests
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	public class BrugerProfilTests
 	{
 		public BrugerProfilTests()

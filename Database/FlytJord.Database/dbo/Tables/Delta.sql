@@ -1,0 +1,19 @@
+CREATE TABLE [dbo].[Delta] (
+    [Id]    UNIQUEIDENTIFIER CONSTRAINT [DF_Delta_Id] DEFAULT (newid()) NOT NULL,
+    [LogId] UNIQUEIDENTIFIER NOT NULL,
+    [Navn]  NVARCHAR (40)    NOT NULL,
+    [Foer]  NVARCHAR (MAX)   NULL,
+    [Efter] NVARCHAR (MAX)   NULL,
+    CONSTRAINT [PK_Delta] PRIMARY KEY CLUSTERED ([Id] ASC) WITH (FILLFACTOR = 80),
+    CONSTRAINT [Log_Delta] FOREIGN KEY ([LogId]) REFERENCES [dbo].[Log] ([Id])
+);
+
+
+GO
+
+CREATE NONCLUSTERED INDEX [IDX_Delta_1_FK]
+    ON [dbo].[Delta]([LogId] ASC);
+
+
+GO
+

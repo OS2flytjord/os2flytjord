@@ -14,6 +14,8 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 	public class JordForureningBusinessTests
 	{
 

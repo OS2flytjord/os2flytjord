@@ -12,6 +12,7 @@ namespace Niras.Jordflytning.UnitTests.IO.Fakturering
     /// Kræver ikke database - opgavetyper og tidsregistreringer bygges i hukommelsen.
     /// </summary>
     [TestFixture]
+    [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
     public class OrderLineTests
     {
         private const string PSP = "XD-2423200560-00001";

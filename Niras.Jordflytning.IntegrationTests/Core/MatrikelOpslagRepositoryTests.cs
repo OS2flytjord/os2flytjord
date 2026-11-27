@@ -7,6 +7,7 @@ using Niras.Jordflytning.Infrastructure.DataAccess;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	public class MatrikelOpslagRepositoryTests
 	{
     private readonly IMatrikelOpslagRepository _repo;

@@ -15,6 +15,7 @@ using Niras.Jordflytning.UnitTests.TestsSetup.DependencyResolution;
 namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class StatusAnmeldelseBussnessTests
   {
     private IKernel _ninjectKernel;
@@ -30,7 +31,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
          );
 
       mockStatusAnmeldelse = new Mock<IStatusAnmeldelseRepository>();
-      _ninjectKernel.Bind<IStatusAnmeldelseRepository>().ToConstant(mockStatusAnmeldelse.Object);
+      _ninjectKernel.Rebind<IStatusAnmeldelseRepository>().ToConstant(mockStatusAnmeldelse.Object);
 
       _ninjectKernel.Bind<IStatusAnmeldelseBusiness>().To<StatusAnmeldelseBusiness>();
       _statusAnmeldelseBusiness = _ninjectKernel.Get<IStatusAnmeldelseBusiness>();

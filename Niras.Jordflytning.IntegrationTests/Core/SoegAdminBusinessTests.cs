@@ -6,10 +6,12 @@ using Niras.Jordflytning.Core.BusinessLogic;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
 using Niras.Jordflytning.Core.Models;
 using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
+using Niras.Jordflytning.IntegrationTests.MockData;
 
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	public class SoegAdminBusinessTests
 	{
 		// Ninject kernel
@@ -30,13 +32,15 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 
 		#region *** Betaler søgning ***
 
+		// Betalersøgningen viser kun betalere hos brugerens egne jordmodtagere, så der søges som jordmodtagerens
+		// administrator. Data: MockData\BetalereMock (Anne Anmelder og Bo Kollega er kernekunder, Tina Transport er ikke).
+
 		[Test]
 		public void BetalerSoegSoegByBetalerNavnTest()
 		{
-			// Arrange
 			//Act
-			var resultatList = _business.GetBetalereBy("", "kve", 0, 0, Guid.Empty);
-			//Assert 
+			var resultatList = _business.GetBetalereBy("", "anmelder", 0, 0, Testdata.JordmodtagerAdminId);
+			//Assert
 			Assert.IsNotNull(resultatList);
 			Assert.AreEqual(1, resultatList.Count);
 		}
@@ -44,10 +48,9 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		[Test]
 		public void BetalerSoegSoegByKerneKundeTest()
 		{
-			// Arrange
-			//Act
-			var resultatList = _business.GetBetalereBy("", "", 0, 1, Guid.Empty);
-			//Assert 
+			//Act - kerneKunde 2 = ikke kernekunde
+			var resultatList = _business.GetBetalereBy("", "", 0, 2, Testdata.JordmodtagerAdminId);
+			//Assert
 			Assert.IsNotNull(resultatList);
 			Assert.AreEqual(1, resultatList.Count);
 		}
@@ -55,12 +58,21 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		[Test]
 		public void BetalerSoegTest()
 		{
-			// Arrange
-			//Act
-			var resultatList = _business.GetBetalereBy("", "", 0, 1, _brugerId);
-			//Assert 
+			//Act - kerneKunde 1 = kernekunde
+			var resultatList = _business.GetBetalereBy("", "", 0, 1, Testdata.JordmodtagerAdminId);
+			//Assert
 			Assert.IsNotNull(resultatList);
 			Assert.AreEqual(2, resultatList.Count);
+		}
+
+		[Test]
+		public void BetalerSoegUdenJordmodtagerTest()
+		{
+			//Act - anmelderen er ikke tilknyttet en jordmodtager og ser derfor ingen betalere
+			var resultatList = _business.GetBetalereBy("", "", 0, 0, _brugerId);
+			//Assert
+			Assert.IsNotNull(resultatList);
+			Assert.AreEqual(0, resultatList.Count);
 		}
 
 		#endregion *** Betaler søgning ***

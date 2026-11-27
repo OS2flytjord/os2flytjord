@@ -8,6 +8,7 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class KodelisteTests
   {
 
@@ -88,9 +89,12 @@ namespace Niras.Jordflytning.IntegrationTests.Core
     [Test]
     public void ReadAktiveJordKlassifikationTypesForKommune()
     {
+      // Kommunen hedder "Aarhus" i kodelisten, og metoden for kommuner tager kommunens navn
+      // (ReadAktiveJordKlassifikationTypesForLandsdel tager et landsdels-Id, ikke et kommune-Id).
       var aarhus =
-        (from k in _kommuneBusiness.ReadAktiveKommuner() where k.Navn == "Århus Kommune" select k).FirstOrDefault();
-      var j = _kodelisteBusiness.ReadAktiveJordKlassifikationTypesForLandsdel(aarhus.Id);
+        (from k in _kommuneBusiness.ReadAktiveKommuner() where k.Kommunenr == 751 select k).FirstOrDefault();
+      Assert.IsNotNull(aarhus, "Aarhus Kommune (751) mangler i kodelisten");
+      var j = _kodelisteBusiness.ReadAktiveJordKlassifikationTypesForKommune(aarhus.Navn);
       Assert.IsTrue(j.Count>0);
     }
 

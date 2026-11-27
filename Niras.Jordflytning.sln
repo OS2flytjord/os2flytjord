@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Niras.Jordflytning.ServiceT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Niras.Jordflytning.BatchJob", "Niras.Jordflytning.BatchJob\Niras.Jordflytning.BatchJob\Niras.Jordflytning.BatchJob.csproj", "{6F52DF2C-C023-4489-AAD7-ACF17DB74431}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "FlytJord.Database", "Database\FlytJord.Database\FlytJord.Database.sqlproj", "{6B1E4C1A-3F7D-4C55-9A0B-2E8F5D7C9A41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F52DF2C-C023-4489-AAD7-ACF17DB74431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B1E4C1A-3F7D-4C55-9A0B-2E8F5D7C9A41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B1E4C1A-3F7D-4C55-9A0B-2E8F5D7C9A41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B1E4C1A-3F7D-4C55-9A0B-2E8F5D7C9A41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B1E4C1A-3F7D-4C55-9A0B-2E8F5D7C9A41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

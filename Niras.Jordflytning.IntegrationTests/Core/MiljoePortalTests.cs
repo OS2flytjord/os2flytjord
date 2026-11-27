@@ -11,6 +11,8 @@ using Niras.Jordflytning.Infrastructure.DataAccess;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
     [TestFixture]
+    [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
+    [Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS)")]
     public class MiljoePortalTests
     {
         // Ninject kernel

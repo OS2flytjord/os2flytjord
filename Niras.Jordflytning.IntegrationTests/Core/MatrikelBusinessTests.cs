@@ -14,6 +14,8 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Datafordeler (kræver appSetting datafordelerApiKey)")]
 	public class MatrikelBusinessTests
 	{
 

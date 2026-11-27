@@ -15,6 +15,7 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	public class ForureningsOpslagBusinessTests
 	{
 
@@ -42,6 +43,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 
 
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void GetJordForureningTest()
 		{
 			const string matrikelNummer = "12ab";
@@ -63,6 +65,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		}
 
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void GetJordForureningjordklassTest()
 		{
 			const string matrikelNummer = "12ab";
@@ -85,6 +88,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		}
 
     [Test]
+    [Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
     public void GetJordForureningjordklassOffentligVejAarhusTest()
     {
       const string matrikelNummer = "12ab";
@@ -107,6 +111,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
     }
 
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void GetJordForureningPointTest()
 		{
 			const string matrikelNummer = "12ab";
@@ -146,12 +151,9 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			
 			oprSted.Matrikel.Add(mtr);
 
-			var areal = _business.Read(oprSted, aarhusGuid);
-			var list = areal.GetResultList();
-
-			var klassType = list.Find(e => e.Header.Contains("Systemfejl!"));
-
-			Assert.IsNotNull(klassType, "Der burde være een klassifikation med typen 'Systemfejl'");
+			// Uden kommune afvises opslaget nu med en ArgumentException (tidligere et "Systemfejl"-resultat).
+			var ex = Assert.Throws<ArgumentException>(() => _business.Read(oprSted, aarhusGuid));
+			StringAssert.Contains("Der mangler kommune guid", ex.Message);
 		}
 
 		[Test]
@@ -169,11 +171,8 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			var aarhusGuid = new Guid();
 			oprSted.Matrikel.Add(mtr);
 
-			var areal = _business.Read(oprSted, aarhusGuid);
-
-			var skalAnmeldes = areal.HasAnmeldePligt(0,1);//Ikke århus regel vedr. offentlig vej
-
-			Assert.IsTrue(skalAnmeldes);
+			// Uden kommune afvises opslaget, før der spørges eksterne tjenester (og før anmeldepligt kan vurderes).
+			Assert.Throws<ArgumentException>(() => _business.Read(oprSted, aarhusGuid));
 		}
 
 		/// <summary>
@@ -210,6 +209,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		//Områdeklassificering: Analysekode: 1, Tekst: Analysefrit område (Kategori 1) 
 		//Det er nødvendig at lave en anmeldelse.
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void TestKlokkerfaldet6()
 		{
 			// Arrange
@@ -234,6 +234,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		//Områdeklassificering: Analysekode: 2, Tekst: Analysefrit område (Kategori 2) 
 		//Det er nødvendig at lave en anmeldelse.
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void TestKlokkervej19()
 		{
 			// Arrange
@@ -262,6 +263,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		//Kortlagt forurening: Ja, Vidensniveau: V2, Dato: - , Nuancering: IkkeNuanceretEndnu, Lokalitets id: 751-00726-00, Bemærkninger: Region Midtjylland/tidligere Århus Amt har kortlagt ejendommen på vidensniveau 2 efter lov om forurenet jord. Der er udført forureningsundersøgelse på ejendommen, som har påvist forurening, der overskrider gældende grænseværdier og som har begrundet, at ejendommen kortlægges. Jorden på ejendommen kan derfor ikke håndteres frit. I tilfælde af, at jord ønskes bortgravet og flyttet, skal jordflytningen anmeldes til Aarhus Kommune. Yderligere oplysninger kan fås ved henvendelse til Region Midtjylland, Miljø, e-mail: miljoe@ru.rm.dk, tlf.: 78 41 19 99 eller Natur og Miljø, Aarhus Kommune, tlf.: 89 40 45 22, mail: jordgruppen@mtm.aarhus.dk. 
 		//Det ER nødvendig at lave en anmeldelse.
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void TestFrejasvej27()
 		{
 			// Arrange
@@ -290,6 +292,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		//Kortlagt forurening: Ja, Vidensniveau: V1, Dato: 28-06-2006, Nuancering: IkkeNuanceretEndnu, Lokalitets id: 751-02799-00, Bemærkninger: Region Midtjylland/tidligere Århus Amt har kortlagt ejendommen på vidensniveau 1 efter lov om forurenet jord. Kortlægningen er foretaget, idet aktiviteterne på ejendommen KAN have medført forurening. Yderligere oplysninger kan fås ved henvendelse til Region Midtjylland, Miljø, e-mail: miljoe@ru.rm.dk eller tlf.: 7841 1999. 
 		//Det ER nødvendig at lave en anmeldelse.
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void TestLokesvej7()
 		{
 			// Arrange
@@ -318,6 +321,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		//"Elmsager 5"
 		//Det er IKKE nødvendig at lave en anmeldelse.
 		[Test]
+		[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("Danmarks Miljøportal (WFS) og GeoEnviron")]
 		public void TestElmsager5()
 		{
 			// Arrange

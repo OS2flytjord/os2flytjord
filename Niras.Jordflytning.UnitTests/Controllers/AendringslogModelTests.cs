@@ -5,6 +5,7 @@ using NUnit.Framework;
 namespace Niras.Jordflytning.UnitTests.Controllers
 {
     [TestFixture]
+    [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
     public class AendringslogModelTests
     {
         private const string Changelog =

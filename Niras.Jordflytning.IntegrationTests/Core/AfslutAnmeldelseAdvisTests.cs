@@ -21,6 +21,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
   /// Kræver at Database/Version/1.2.0/002_StatusAfsluttetUdenFuldAdvis.sql er kørt.
   /// </summary>
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class AfslutAnmeldelseAdvisTests
   {
     private const short KodeAfsluttet = (short)EnumStatusAnmeldelse.Afsluttet;

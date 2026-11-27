@@ -16,6 +16,7 @@ using Niras.Jordflytning.UnitTests.TestsSetup.DependencyResolution;
 namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class AnmeldelserTests
   {
     Guid gUdenforKategori = new Guid("08DD6EB4-9F10-4078-A1FC-56B2931839D8	");
@@ -69,6 +70,21 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       _anmeldelserBusiness = _ninjectKernel.Get<IAnmeldelserBusiness>();
 
       _kodelisteBusiness = _ninjectKernel.Get<IKodelisteBusiness>();
+      _repo = _ninjectKernel.Get<IAnmeldelserRepository>();
+    }
+
+    /// <summary>
+    /// CheckAutoKommuneGodkendAnmeldelse kræver et modtageranlæg og et oprindelsessted på anmeldelsen.
+    /// Testene her handler om reglerne for jordforureningsopslag, så mangler de, sættes neutrale værdier:
+    /// et modtageranlæg uden ophævet autogodkendelse og uden anden kommunekode, og et oprindelsessted uden klassifikation.
+    /// </summary>
+    private bool KommuneGodkenderAutomatisk(Anmeldelse anmeldelse, Kommune kommune)
+    {
+      if (anmeldelse.ModtagerAnlaeg == null)
+        anmeldelse.ModtagerAnlaeg = new ModtagerAnlaeg { AnvenderJF = true };
+      if (anmeldelse.Oprindelsessted == null)
+        anmeldelse.Oprindelsessted = new Oprindelsessted();
+      return _anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse, kommune);
     }
 
     /// <summary>
@@ -190,7 +206,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori1);//Resultat af jordforureningsopslag.
       a.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       a.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(a, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(a, kom));
     }
 
     [Test]
@@ -210,7 +226,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       anmeldelse_V2.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Brugerens valg
       opslag.V2 = true;
       anmeldelse_V2.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_V2, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_V2, kom));
 
       var anmeldelse_V1 = new Anmeldelse() { Jord = new Jord() { Dokumentation = new Collection<Dokumentation>() }, Kommune = kom };
       anmeldelse_V1.Jord.ForventetJordmaengdeTon = 1;
@@ -219,7 +235,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_V1.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Brugerens valg
       anmeldelse_V1.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_V1, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_V1, kom));
 
       var anmeldelse_Geoenviron = new Anmeldelse() { Jord = new Jord() { Dokumentation = new Collection<Dokumentation>() }, Kommune = kom };
       anmeldelse_Geoenviron.Jord.ForventetJordmaengdeTon = 1;
@@ -227,7 +243,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Geoenviron.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Brugerens valg
       anmeldelse_Geoenviron.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Geoenviron, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Geoenviron, kom));
 
       var anmeldelse_OmkAnalysePligt = new Anmeldelse() { Jord = new Jord() { Dokumentation = new Collection<Dokumentation>() }, Kommune = kom };
       anmeldelse_OmkAnalysePligt.Jord.ForventetJordmaengdeTon = 18;
@@ -235,10 +251,10 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_OmkAnalysePligt.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Brugerens valg
       anmeldelse_OmkAnalysePligt.Jordforureningsopslag = opslag;
-      Assert.IsTrue(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_OmkAnalysePligt, kom));
+      Assert.IsTrue(KommuneGodkenderAutomatisk(anmeldelse_OmkAnalysePligt, kom));
 
       anmeldelse_OmkAnalysePligt.Jord.ForventetJordmaengdeTon = 19;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_OmkAnalysePligt, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_OmkAnalysePligt, kom));
 
 
       var anmeldelse_OmkLet = new Anmeldelse() { Jord = new Jord() { Dokumentation = new Collection<Dokumentation>() }, Kommune = kom };
@@ -247,10 +263,10 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Resultat af jordforureningsopslag.
       anmeldelse_OmkLet.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_OmkLet.Jordforureningsopslag = opslag;
-      Assert.IsTrue(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_OmkLet, kom));
+      Assert.IsTrue(KommuneGodkenderAutomatisk(anmeldelse_OmkLet, kom));
 
       anmeldelse_OmkLet.Jord.ForventetJordmaengdeTon = 151;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_OmkLet, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_OmkLet, kom));
 
       var anmeldelse_OmkRen = new Anmeldelse() { Jord = new Jord() { Dokumentation = new Collection<Dokumentation>() }, Kommune = kom };
       anmeldelse_OmkRen.Jord.ForventetJordmaengdeTon = 150;
@@ -258,10 +274,10 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori1);//Resultat af jordforureningsopslag.
       anmeldelse_OmkRen.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori1);//Brugerens valg
       anmeldelse_OmkRen.Jordforureningsopslag = opslag;
-      Assert.IsTrue(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_OmkRen, kom));
+      Assert.IsTrue(KommuneGodkenderAutomatisk(anmeldelse_OmkRen, kom));
 
       anmeldelse_OmkRen.Jord.ForventetJordmaengdeTon = 151;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_OmkRen, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_OmkRen, kom));
 
       var anmeldelse_Negativ = new Anmeldelse() { Jord = new Jord() { Dokumentation = new Collection<Dokumentation>() }, Kommune = kom };
       anmeldelse_Negativ.Jord.ForventetJordmaengdeTon = 1;
@@ -269,10 +285,10 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori1);//Resultat af jordforureningsopslag.
       anmeldelse_Negativ.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori1);//Brugerens valg
       anmeldelse_Negativ.Jordforureningsopslag = opslag;
-      Assert.IsTrue(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Negativ, kom));
+      Assert.IsTrue(KommuneGodkenderAutomatisk(anmeldelse_Negativ, kom));
 
       anmeldelse_Negativ.Jord.ForventetJordmaengdeTon = 1510;
-      Assert.IsTrue(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Negativ, kom));
+      Assert.IsTrue(KommuneGodkenderAutomatisk(anmeldelse_Negativ, kom));
 
       #endregion
 
@@ -282,7 +298,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       var jordflytningsType = new JordflytningType { Kode = 2 };
       anmeldelse_akut.Jord.JordflytningType = jordflytningsType;
       anmeldelse_akut.Jordforureningsopslag = new Jordforureningsopslag();
-      Assert.IsTrue(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_akut, kom));
+      Assert.IsTrue(KommuneGodkenderAutomatisk(anmeldelse_akut, kom));
 
       #endregion
 
@@ -299,28 +315,28 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
       //Nedklassifivering fra V1 til Kategori2
       opslag = new Jordforureningsopslag() { V1 = true };
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
       //Nedklassifivering fra Kommunesmiljødatabase til Kategori2
       opslag = new Jordforureningsopslag() { KommunensMiljoeDb = "Jorden er ikke ren, dummy tekst" };
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
       //Nedklassifivering fra Kommunesmiljødatabase til Kategori2
       opslag = new Jordforureningsopslag() { KommunensMiljoeDb = "Jorden er ikke ren, dummy tekst" };
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
       //Nedklassifivering fra OmkAnalyseplig til Kategori1 
       anmeldelse_Nedgradering.Jord.ForventetJordmaengdeTon = 1;
@@ -328,7 +344,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori1);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
 
       //Nedklassifivering fra OmkAnalyseplig til Kategori2 - OBS her er undtagelsen i Århus
@@ -337,7 +353,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
       //Nedklassifivering fra OmkAnalyseplig til Kategori2 - OBS her er undtagelsen i Århus
       anmeldelse_Nedgradering.Jord.ForventetJordmaengdeTon = 18;
@@ -345,7 +361,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsTrue(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsTrue(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
       //Nedklassifivering fra OmkAnalyseplig til Kategori2 - OBS her er undtagelsen i Andre kommuner
       kom.Kommunenr = 100;
@@ -354,7 +370,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
       //Nedklassifivering fra OmkAnalyseplig til Kategori2 - OBS her er undtagelsen i Andre kommuner
       kom.Kommunenr = 100;
@@ -363,7 +379,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
 
 
       #endregion
@@ -614,7 +630,7 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
       opslag.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gUdenforKategori);//Resultat af jordforureningsopslag.
       anmeldelse_Nedgradering.Jord.JordKlassifikationType = _kodelisteBusiness.ReadJordKlassifikationType(gKategori2);//Brugerens valg
       anmeldelse_Nedgradering.Jordforureningsopslag = opslag;
-      Assert.IsFalse(_anmeldelserBusiness.CheckAutoKommuneGodkendAnmeldelse(anmeldelse_Nedgradering, kom));
+      Assert.IsFalse(KommuneGodkenderAutomatisk(anmeldelse_Nedgradering, kom));
     }
 
     [Test]

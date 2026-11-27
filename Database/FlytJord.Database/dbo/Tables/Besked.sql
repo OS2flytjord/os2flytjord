@@ -1,0 +1,10 @@
+CREATE TABLE [dbo].[Besked] (
+    [Id]    UNIQUEIDENTIFIER CONSTRAINT [DEF_Besked_Id] DEFAULT (newid()) NOT NULL,
+    [Tekst] NVARCHAR (MAX)   NOT NULL,
+    [Tid]   DATETIME         NOT NULL,
+    CONSTRAINT [PK_Besked] PRIMARY KEY CLUSTERED ([Id] ASC) WITH (FILLFACTOR = 80)
+);
+
+
+GO
+

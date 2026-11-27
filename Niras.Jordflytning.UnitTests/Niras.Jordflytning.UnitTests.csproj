@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnitTestAdapter.2.3.0\build\NUnitTestAdapter.props" Condition="Exists('..\packages\NUnitTestAdapter.2.3.0\build\NUnitTestAdapter.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -63,7 +64,10 @@
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
@@ -92,6 +96,9 @@
     <Compile Include="Core\BusinessLogic\PerformanceAnmeldelserTests.cs" />
     <Compile Include="Core\BusinessLogic\StatusAnmeldelseBussnessTests.cs" />
     <Compile Include="IO\Fakturering\OrderLineTests.cs" />
+    <Compile Include="MockData\JordKlassifikationTypeMock.cs" />
+    <Compile Include="MockData\LandsdelTypeMock.cs" />
+    <Compile Include="MockData\StatusAnmeldelseTypeMock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
@@ -99,6 +106,9 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Compile Include="TestsSetup\DependencyResolution\ConfigModule.cs" />
     <Compile Include="TestsSetup\DependencyResolution\RepositoryModule.cs" />
+    <Compile Include="..\Niras.Jordflytning.IntegrationTests\TestsSetup\TestDatabase.cs">
+      <Link>TestsSetup\TestDatabase.cs</Link>
+    </Compile>
     <Compile Include="TestsSetup\TestSetupUtil.cs" />
     <Compile Include="UnitTest1.cs" />
   </ItemGroup>
@@ -107,6 +117,11 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="..\Database\FlytJord.Database\bin\$(Configuration)\FlytJord.Database.dacpac">
+      <Link>FlytJord.Database.dacpac</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\Models\" />
@@ -115,6 +130,14 @@
     <ProjectReference Include="..\Niras.Jordflytning.Core\Niras.Jordflytning.Core.csproj">
       <Project>{bbaf3d72-f702-497d-bec6-0e2125db767f}</Project>
       <Name>Niras.Jordflytning.Core</Name>
+    </ProjectReference>
+    <!-- Bygger SQL-projektet først, så FlytJord.Database.dacpac findes, når testene publicerer en manglende testdatabase. -->
+    <ProjectReference Include="..\Database\FlytJord.Database\FlytJord.Database.sqlproj">
+      <Project>{6B1E4C1A-3F7D-4C55-9A0B-2E8F5D7C9A41}</Project>
+      <Name>FlytJord.Database</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <Private>false</Private>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
     </ProjectReference>
     <ProjectReference Include="..\Niras.Jordflytning.Infrastructure\Niras.Jordflytning.Infrastructure.csproj">
       <Project>{f4d2423f-9b3d-4495-bc62-d0c91650fb84}</Project>

@@ -52,10 +52,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic
 
 
 
-            if (HttpContext.Current != null)
-                skabelonBaseDir = HttpContext.Current.Server.MapPath(@"~\App_Data\skabeloner");
-            else
-                skabelonBaseDir = @"C:\projects\jordflytning\trunk\Niras.Jordflytning\App_Data\Skabeloner";
+            skabelonBaseDir = SkabelonMappe.Find();
             
             var skabelonOrganisationDir = Path.Combine(skabelonBaseDir, "Kommune", hoerAnsvarligKommuneNr);
             var templates = new StringTemplateGroup("FlytJord", skabelonOrganisationDir);

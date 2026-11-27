@@ -1,38 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-//using WebMatrix.WebData;
+using NUnit.Framework;
+using WebMatrix.WebData;
 
 namespace Niras.Jordflytning.IntegrationTests.TestsSetup
 {
+	/// <summary>
+	/// Initialiserer ASP.NET SimpleMembership (WebSecurity) mod testdatabasen - som Global.asax gør i webappen.
+	/// Sker én gang pr. testkørsel, lige før den første fixture med attributten kører. På det tidspunkt har
+	/// TestDatabaseSetup oprettet databasen, så initialiseringen kan ikke ske tidligere (fx i attributtens constructor).
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-	public sealed class InitializeSimpleMembershipAttribute : Attribute
+	public sealed class InitializeSimpleMembershipAttribute : Attribute, ITestAction
 	{
-		private static SimpleMembershipInitializer _initializer;
-		private static object _initializerLock = new object();
-		private static bool _isInitialized;
+		private static readonly object Laas = new object();
 
-		public InitializeSimpleMembershipAttribute()
+		public ActionTargets Targets
 		{
-			// Ensure ASP.NET Simple Membership is initialized only once per app start
-			LazyInitializer.EnsureInitialized(ref _initializer, ref _isInitialized, ref _initializerLock);
+			get { return ActionTargets.Suite; }
 		}
 
-		private class SimpleMembershipInitializer
+		public void BeforeTest(TestDetails testDetails)
 		{
-			public SimpleMembershipInitializer()
+			lock (Laas)
 			{
+				if (WebSecurity.Initialized)
+					return;
+
 				try
 				{
-					//WebSecurity.InitializeDatabaseConnection("DefaultConnection", "BrugerProfil", "BrugerId", "BrugerNavn", autoCreateTables: true);
+					WebSecurity.InitializeDatabaseConnection(TestDatabase.ConnectionStringName, "BrugerProfil", "BrugerId", "BrugerNavn", autoCreateTables: true);
 				}
 				catch (Exception ex)
 				{
-					throw new InvalidOperationException("The ASP.NET Simple Membership database could not be initialized. For more information, please see http://go.microsoft.com/fwlink/?LinkId=256588", ex);
+					throw new InvalidOperationException("ASP.NET SimpleMembership kunne ikke initialiseres mod testdatabasen.", ex);
 				}
 			}
+		}
+
+		public void AfterTest(TestDetails testDetails)
+		{
 		}
 	}
 }

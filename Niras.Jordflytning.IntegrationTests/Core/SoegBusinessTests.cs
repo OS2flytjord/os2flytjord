@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
+using Niras.Jordflytning.IntegrationTests.MockData;
 using Ninject;
 using Niras.Jordflytning.Core.BusinessLogic;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
@@ -11,6 +13,7 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	public class SoegBusinessTests
 	{
 		// Ninject kernel
@@ -158,16 +161,13 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			//Act
 			var resultatList = _business.GetAktiveAnmeldelser(brugerId, false);
 
-			//Assert 
+			//Assert - SoegeResultat.SenesteStatusId udfyldes ikke længere; status ligger i SenesteStatus (tekst).
 			Assert.IsNotNull(resultatList);
+			CollectionAssert.AreEquivalent(new[] { Testdata.AnmeldelseAktivId }, resultatList.Select(a => a.AnmeldelseId).ToList(),
+				"Kun den godkendte og aktive anmeldelse (MockData\\AnmeldelserMock) er aktiv");
 
 			foreach (var anmeldelse in resultatList)
-			{
-				//Console.WriteLine(anmeldelse.AnmeldelseId + ", " + anmeldelse.SenesteStatusId + ", " + anmeldelse.SenesteStatus + ", "+ anmeldelse.Jordmodtager);
-				if (anmeldelse.SenesteStatusId != (int)EnumStatusAnmeldelse.GodkendtAfKommunen)
-					if (anmeldelse.SenesteStatusId != (int)EnumStatusAnmeldelse.JordmodtagerAcceptererJorden)
-						Assert.Fail("Uha-da. Den skal være godkendt af alle.");
-			}
+				Assert.AreEqual("Aktiv", anmeldelse.SenesteStatus, "Uha-da. Den skal være godkendt af alle.");
 		}
 
 		[Test]
@@ -178,17 +178,12 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			//Act
 			var resultatList = _business.GetIkkeFremSendteAnmeldelser(_brugerId, false);
 
-			//Assert 
+			//Assert
 			Assert.IsNotNull(resultatList);
+			CollectionAssert.Contains(resultatList.Select(a => a.AnmeldelseId).ToList(), Testdata.AnmeldelseGemtId, "Den gemte anmeldelse mangler");
 
 			foreach (var anmeldelse in resultatList)
-			{
-				//Console.WriteLine(anmeldelse.AnmeldelseId + ", " + anmeldelse .SenesteStatusId + ", " + anmeldelse.SenesteStatus + ", "+ anmeldelse.Jordmodtager);
-				if (anmeldelse.SenesteStatusId == (decimal)EnumStatusAnmeldelse.Afsendt)
-					Assert.Fail("Der må ikke være afsendet i ikke fremsendtlisten");
-				if (anmeldelse.SenesteStatusId == (decimal)EnumStatusAnmeldelse.GodkendtAfKommunen)
-					Assert.Fail("Der må ikke være GodkendtAfKommune i ikke fremsendtlisten");
-			}
+				Assert.AreEqual("Gemt", anmeldelse.SenesteStatus, "Der må kun være gemte (ikke afsendte) anmeldelser i ikke fremsendtlisten");
 		}
 
 		[Test]
@@ -199,19 +194,12 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			//Act
 			var resultatList = _business.GetAfsluttedeAnmeldelser(_brugerId);
 
-			//Assert 
+			//Assert
 			Assert.IsNotNull(resultatList);
+			CollectionAssert.AreEquivalent(new[] { Testdata.AnmeldelseAfsluttetId }, resultatList.Select(a => a.AnmeldelseId).ToList());
 
 			foreach (var anmeldelse in resultatList)
-			{
-				//Console.WriteLine(anmeldelse.AnmeldelseId + ", " + anmeldelse.SenesteStatusId + ", " + anmeldelse.SenesteStatus + ", " + anmeldelse.Jordmodtager);
-
-				if (anmeldelse.SenesteStatusId != (decimal)EnumStatusAnmeldelse.Afsluttet)
-					Assert.Fail("Der må ikke være andet end Afsluttet i ikke fremsendtlisten");
-
-				if (anmeldelse.SenesteStatus == "")
-					Assert.Fail("Der må ikke være tomme statuser i listen");
-			}
+				Assert.AreEqual("Afsluttet", anmeldelse.SenesteStatus, "Der må ikke være andet end Afsluttet i listen");
 		}
 
 		[Test]
@@ -221,18 +209,15 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			//Act
 			var resultatList = _business.GetFremSendteAnmeldelser(_brugerId, false);
 
-			//Assert 
+			//Assert
 			Assert.IsNotNull(resultatList);
+			CollectionAssert.Contains(resultatList.Select(a => a.AnmeldelseId).ToList(), Testdata.AnmeldelseAfsendtId, "Den afsendte anmeldelse mangler");
 
 			foreach (var anmeldelse in resultatList)
 			{
-				Console.WriteLine(anmeldelse.AnmeldelseId + ", " + anmeldelse.SenesteStatusId + ", " + anmeldelse.SenesteStatus + ", " + anmeldelse.Jordmodtager);
-
-				if (anmeldelse.SenesteStatusId == (decimal)EnumStatusAnmeldelse.Oprettet)
-					Assert.Fail("Der må ikke være  oprettet i ikke fremsendtlisten");
-
-				if (anmeldelse.SenesteStatus == "")
-					Assert.Fail("Der må ikke være tomme statuser i listen");
+				Console.WriteLine(anmeldelse.AnmeldelseId + ", " + anmeldelse.SenesteStatus + ", " + anmeldelse.Jordmodtager);
+				Assert.AreNotEqual("Gemt", anmeldelse.SenesteStatus, "Der må ikke være gemte (ikke afsendte) anmeldelser i fremsendtlisten");
+				Assert.IsNotEmpty(anmeldelse.SenesteStatus, "Der må ikke være tomme statuser i listen");
 			}
 		}
 

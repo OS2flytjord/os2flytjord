@@ -13,17 +13,22 @@ using System.Linq;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 
   public class StikproeveTests
   {
     // Ninject kernel
-    private readonly IKernel _ninjectKernel;
-    private readonly IStikproeveBusiness _stikBusi;
-    private readonly IStatusStikproeveBusiness _statusBusi;
-    private readonly IAdviseringBusiness _adviseringBusiness;
+    private IKernel _ninjectKernel;
+    private IStikproeveBusiness _stikBusi;
+    private IStatusStikproeveBusiness _statusBusi;
+    private IAdviseringBusiness _adviseringBusiness;
 
 
-    public StikproeveTests()
+    /// <summary>
+    /// Ny kernel (og dermed ny DbContext) pr. test, så entiteter fra én test ikke ligger i contexten i den næste.
+    /// </summary>
+    [SetUp]
+    public void Setup()
     {
       // Init Ninject kernel
       _ninjectKernel = new StandardKernel
@@ -45,25 +50,12 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 
       _ninjectKernel.Bind<IAdviseringBusiness>().To<AdviseringBusiness>();
       _adviseringBusiness = _ninjectKernel.Get<IAdviseringBusiness>();
-
-      
-
-      
-        
-        
-
-
-    }
-
-    [SetUp]
-    public void Setup()
-    {
-
     }
 
     [TearDown]
     public void TearDown()
     {
+      _ninjectKernel.Dispose();
 
     }
 
@@ -103,6 +95,11 @@ namespace Niras.Jordflytning.IntegrationTests.Core
       person.Adresse = "adresse";
       person.Efternavn = "efternavn";
       person.Email = "segseg@segseaf11234g.dk";
+      // Påkrævet af valideringen i Models\Partials\Personer.cs
+      person.Postdistrikt = "Aarhus C";
+      person.Telefon = 12345678;
+      person.Mobiltelefon = 87654321;
+      person.BrugerId = 990001; // Person.BrugerId er unik
       stikproeve.InternBemaerkning = "itrnbmk";
 
       // Act
@@ -114,8 +111,13 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 
 
       //Act part II
-      stikproeve.StatusStikproeve.Add(_statusBusi.CreateStatus(EnumStatusStikproeve.AnalyseAfvistPgaAffald, person));
-      stikproeve.StatusStikproeve.Add(_statusBusi.CreateStatus(EnumStatusStikproeve.AnalyseGodkendt, person));
+      // CreateStatus sætter Tid = DateTime.Now, så to statusser oprettet lige efter hinanden kan få samme tid.
+      // Godkendelsen gøres eksplicit senest, så testen ikke afhænger af timing.
+      var afvist = _statusBusi.CreateStatus(EnumStatusStikproeve.AnalyseAfvistPgaAffald, person);
+      var godkendt = _statusBusi.CreateStatus(EnumStatusStikproeve.AnalyseGodkendt, person);
+      godkendt.Tid = afvist.Tid.AddMinutes(1);
+      stikproeve.StatusStikproeve.Add(afvist);
+      stikproeve.StatusStikproeve.Add(godkendt);
 
 
       //Assert part II

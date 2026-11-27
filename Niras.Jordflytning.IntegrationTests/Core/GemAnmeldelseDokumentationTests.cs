@@ -23,6 +23,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
   /// Testen skriver i databasen (DefaultConnection) og rydder op i TearDown.
   /// </summary>
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class GemAnmeldelseDokumentationTests
   {
     private readonly IKernel _ninjectKernel;

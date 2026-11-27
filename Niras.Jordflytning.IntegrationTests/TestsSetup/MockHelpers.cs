@@ -26,6 +26,14 @@ namespace Niras.Jordflytning.IntegrationTests.TestsSetup
 			browser.Setup(b => b.IsMobileDevice).Returns(false);
 
 			request.Setup(r => r.Cookies).Returns(cookies);
+			// Bruges fx ved logning af requestet, når en anmeldelse gemmes
+			request.Setup(r => r.Headers).Returns(new NameValueCollection());
+			request.Setup(r => r.ServerVariables).Returns(new NameValueCollection());
+			request.Setup(r => r.UserHostAddress).Returns("127.0.0.1");
+			request.Setup(r => r.Url).Returns(new Uri("https://localhost/Anmeldelser/Opret"));
+			request.Setup(r => r[It.IsAny<string>()]).Returns((string)null);
+			request.Setup(r => r.Form).Returns(new NameValueCollection());
+			request.Setup(r => r.QueryString).Returns(new NameValueCollection());
 			request.Setup(r => r.ValidateInput());
 			request.Setup(r => r.UserAgent).Returns("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11");
 			response.Setup(r => r.Cookies).Returns(cookies);

@@ -17,6 +17,7 @@ using Niras.Jordflytning.UnitTests.TestsSetup.DependencyResolution;
 namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class PerfomanceAnmeldelserTests
   {
 

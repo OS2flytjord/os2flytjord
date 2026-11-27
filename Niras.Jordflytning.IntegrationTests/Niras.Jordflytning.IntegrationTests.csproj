@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnitTestAdapter.2.3.0\build\NUnitTestAdapter.props" Condition="Exists('..\packages\NUnitTestAdapter.2.3.0\build\NUnitTestAdapter.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -71,6 +72,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.3.0\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
@@ -97,8 +99,14 @@
     <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
-    <Reference Include="WebMatrix.Data, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.Data.3.2.6\lib\net45\WebMatrix.Data.dll</HintPath>
+    <Reference Include="WebMatrix.WebData, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.WebData.2.0.20710.0\lib\net40\WebMatrix.WebData.dll</HintPath>
+    </Reference>
+    <!-- Samme version som webappen: WebMatrix.WebData 2.0 kræver WebMatrix.Data 2.0 (3.0 giver MethodAccessException). -->
+    <Reference Include="WebMatrix.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.Data.2.0.20710.0\lib\net40\WebMatrix.Data.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Choose>
@@ -155,6 +163,10 @@
     <Compile Include="TestsSetup\DependencyResolution\ConfigModule.cs" />
     <Compile Include="TestsSetup\DependencyResolution\RepositoryModule.cs" />
     <Compile Include="TestsSetup\MockHelpers.cs" />
+    <Compile Include="TestsSetup\TestDatabase.cs" />
+    <Compile Include="TestsSetup\EksternTjenesteAttribute.cs" />
+    <!-- Mockdata til testdatabasen (IMockData). Kodelister\ er genereret fra FlytJordTest. -->
+    <Compile Include="MockData\**\*.cs" />
     <Compile Include="TestsSetup\TestSetupUtil.cs" />
     <Compile Include="TestsSetup\InitializeSimpleMembershipAttribute.cs" />
   </ItemGroup>
@@ -163,11 +175,27 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="..\Database\FlytJord.Database\bin\$(Configuration)\FlytJord.Database.dacpac">
+      <Link>FlytJord.Database.dacpac</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>False</Visible>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Niras.Jordflytning.Core\Niras.Jordflytning.Core.csproj">
       <Project>{bbaf3d72-f702-497d-bec6-0e2125db767f}</Project>
       <Name>Niras.Jordflytning.Core</Name>
+    </ProjectReference>
+    <!-- Bygger SQL-projektet først, så FlytJord.Database.dacpac findes, når testene publicerer en manglende testdatabase. -->
+    <ProjectReference Include="..\Database\FlytJord.Database\FlytJord.Database.sqlproj">
+      <Project>{6B1E4C1A-3F7D-4C55-9A0B-2E8F5D7C9A41}</Project>
+      <Name>FlytJord.Database</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <Private>false</Private>
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
     </ProjectReference>
     <ProjectReference Include="..\Niras.Jordflytning.Infrastructure\Niras.Jordflytning.Infrastructure.csproj">
       <Project>{f4d2423f-9b3d-4495-bc62-d0c91650fb84}</Project>

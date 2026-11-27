@@ -40,9 +40,10 @@ namespace Niras.Jordflytning.Infrastructure.DataAccess
 			DataContext.Entry(entity).Reload();
 		}
 
+		/// <summary>Opretter en ny, tom entitet. Den er ikke tilføjet til contexten - brug <see cref="Add"/>.</summary>
 		public T Create()
 		{
-			return default(T);
+			return DbSet.Create();
 		}
 
 		public void Delete(T entity)

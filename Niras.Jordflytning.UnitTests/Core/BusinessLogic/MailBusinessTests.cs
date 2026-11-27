@@ -7,6 +7,7 @@ using Niras.Jordflytning.Core.BusinessLogic;
 namespace Niras.Jordflytning.UnitTests
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	public class MailBusinessTests
 	{
 		[Test]

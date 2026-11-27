@@ -12,7 +12,9 @@ namespace Niras.Jordflytning.UnitTests.TestsSetup.DependencyResolution
 	{
 		public override void Load()
 		{
-			Bind<IConfigService>().To<ConfigService>();
+			//Én DbContext pr. kernel - svarer til InRequestScope i webappen. Med flere contexts fejler EF med
+			//"referenced by multiple instances of IEntityChangeTracker", og transaktionen pr. test kræver én forbindelse ad gangen.
+			Bind<IConfigService>().To<ConfigService>().InSingletonScope();
 		}
 	}
 }

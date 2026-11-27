@@ -11,6 +11,8 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.EksternTjeneste("GeoEnviron (intern server dmz-geoenvir01)")]
 	public class GeoEnvironRepositoryTests
 	{
 		private readonly IGeoEnvironRepository _repo;

@@ -8,6 +8,7 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	
 	public class PersonTests
 	{
@@ -60,6 +61,10 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			p.Navn = "UT Navn";
 			p.Efternavn = "Efternavn";
 			p.Email = "test@test.dk";
+			// Påkrævet af valideringen i Models\Partials\Personer.cs
+			p.Postdistrikt = "Aarhus C";
+			p.Telefon = 12345678;
+			p.Mobiltelefon = 87654321;
 
 			//Transportoer transportoer = new Transportoer();
 			//transportoer.Person = p;
@@ -67,6 +72,9 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 
 			_personRepo.Add(p);
 			_configService.DataContext.SaveChanges();
+
+			Assert.AreNotEqual(System.Guid.Empty, p.Id, "Personen fik ikke et Id");
+			Assert.IsNotNull(_personRepo.Read(p.Id), "Personen blev ikke gemt");
 			// Act
 			//var created = repo.Read();
 

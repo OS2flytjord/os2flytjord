@@ -16,27 +16,39 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	[InitializeSimpleMembership]
 	public class BrugereTests
 	{
 		// Ninject kernel
-		private readonly IKernel _ninjectKernel;
-		private readonly ISecurityProvider _securityProvider;
-		private readonly IBrugereBusiness _brugerBusiness;
-	  private readonly IAdviseringBusiness _adviseringBusiness;
+		private IKernel _ninjectKernel;
+		private ISecurityProvider _securityProvider;
+		private IBrugereBusiness _brugerBusiness;
+	  private IAdviseringBusiness _adviseringBusiness;
+		private FakeMailBusiness _mail;
 
 		private const String TestsUserName = "unittest@jordflytning.dk";
 		private const String TestsPassword = "UT_01";
 		private Guid _organisationsId = new Guid("f06cbca7-8154-4e44-bcea-0d8cdcab6bb3");
+		/// <summary>København (kodelisten).</summary>
+		private static readonly Guid KoebenhavnId = new Guid("2CDB9F35-5C1C-4206-BDF4-6B2C147A48FD");
 
-		public BrugereTests()
+		/// <summary>
+		/// Ny kernel (og DbContext) pr. test, så entiteter fra én test ikke ligger i contexten i den næste.
+		/// Mail er erstattet af en stub, så oprettelse af brugere ikke sender aktiveringsmails.
+		/// </summary>
+		[SetUp]
+		public void Setup()
 		{
+			_mail = new FakeMailBusiness();
+
 			// Init Ninject kernel
 			_ninjectKernel = new StandardKernel
 					(
 						new ConfigModule(),
 						new RepositoryModule()
 					);
+      _ninjectKernel.Bind<IMailBusiness>().ToConstant(_mail);
       _ninjectKernel.Bind<IAdviseringBusiness>().To<AdviseringBusiness>();
 			_ninjectKernel.Bind<ISecurityProvider>().To<WebSecurityProvider>();
 			_ninjectKernel.Bind<IUnitOfWork>().To<UnitOfWork>();
@@ -53,16 +65,37 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 		  _adviseringBusiness = _ninjectKernel.Get<IAdviseringBusiness>();
 		}
 
-		[SetUp]
-		public void Setup()
-		{
-			
-		}
-
 		[TearDown]
 		public void TearDown()
 		{
-			
+			_ninjectKernel.Dispose();
+		}
+
+		/// <summary>En person med alle felter, som valideringen i Models\Partials\Personer.cs kræver.</summary>
+		private static Person NyTestPerson(string email)
+		{
+			return new Person
+			{
+				Email = email,
+				Navn = "TestFornavn",
+				Efternavn = "TestEfternavn",
+				Adresse = "TestAdresse",
+				Postdistrikt = "Aarhus C",
+				Postnummer = 8000,
+				By = "TestBy",
+				Telefon = 11111111,
+				Mobiltelefon = 22222222
+			};
+		}
+
+		private class FakeMailBusiness : IMailBusiness
+		{
+			public readonly List<string> Modtagere = new List<string>();
+
+			public void SendEmail(string emailSubject, string emailContent, string emailTo)
+			{
+				Modtagere.Add(emailTo);
+			}
 		}
 
 
@@ -94,7 +127,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			// Arrange
 			var userProfile = new BrugerProfil();
 			userProfile.PasswordClearText = "1234";
-			userProfile.BrugerNavn = "kve@niras.dk";
+			userProfile.BrugerNavn = "ny.bruger@entreprenoer.test";
 
 			const string activationToken = "ql4ED-5bHztg7ZowGxIx3g2";
 
@@ -103,6 +136,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			_adviseringBusiness.SendAktivationEmail(userProfile, activationToken);
 
 			// Assert
+			CollectionAssert.AreEqual(new[] { userProfile.BrugerNavn }, _mail.Modtagere, "Aktiveringsmailen skal sendes til brugeren");
 		}
 
 
@@ -131,12 +165,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			String userName = DateTime.Now.Ticks + "@jordflytning.dk";
 			var userProfile = new BrugerProfil() { BrugerNavn = userName, PasswordClearText = TestsPassword };
 			String[] roles = new String[] { "Prøvetager" };
-			Person person = new Person();
-			person.Email = userName;
-			person.Navn = "TestFornavn";
-			person.Efternavn = "TestEfternavn";
-			person.Adresse = "TestAdresse";
-			person.By = "TestBy";
+			Person person = NyTestPerson(userName);
 
 			userProfile.Person = person;
 			// Act
@@ -160,23 +189,18 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			String userName = DateTime.Now.Ticks + "@jordflytning.dk";
 			var userProfile = new BrugerProfil() { BrugerNavn = userName, PasswordClearText = TestsPassword };
 			String[] roles = new String[] { "Prøvetager" };
-			Person person = new Person();
-			person.Email = userName;
-			person.Navn = "TestFornavn";
-			person.Efternavn = "TestEfternavn";
-			person.Adresse = "TestAdresse";
-			person.By = "TestBy";
+			Person person = NyTestPerson(userName);
 
 			userProfile.Person = person;
 			// Act
 
-			var created = _brugerBusiness.Create(userProfile, roles, "2CDB9F35-5C1C-4206-BDF4-6B2C147A48FD");
+			var created = _brugerBusiness.Create(userProfile, roles, KoebenhavnId.ToString());
+			Assert.IsTrue(created, "Brugeren blev ikke oprettet");
+
 			var user = _brugerBusiness.Read(userName);
 
-			user = _brugerBusiness.Read(userName);
-
-			Assert.IsTrue(user.Person.PersonKommune.Count == 1);
-			Assert.IsTrue(user.Person.PersonKommune.First().KommuneId == new Guid("2CDB9F35-5C1C-4206-BDF4-6B2C147A48FD"));
+			Assert.AreEqual(1, user.Person.PersonKommune.Count);
+			Assert.IsTrue(user.Person.PersonKommune.First().KommuneId == KoebenhavnId);
 		}
 
 		[Test]
@@ -186,12 +210,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			String userName = DateTime.Now.Ticks + "@jordflytning.dk";
 			var userProfile = new BrugerProfil() { BrugerNavn = userName, PasswordClearText = TestsPassword };
 			String[] roles = new String[] { "Prøvetager" };
-			Person person = new Person();
-			person.Email = userName;
-			person.Navn = "TestFornavn";
-			person.Efternavn = "TestEfternavn";
-			person.Adresse = "TestAdresse";
-			person.By = "TestBy";
+			Person person = NyTestPerson(userName);
 
 			userProfile.Person = person;
 			// Act
@@ -200,13 +219,13 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			var user = _brugerBusiness.Read(userName);
 
 			PersonKommune pk = new PersonKommune();
-			pk.KommuneId = new Guid("2CDB9F35-5C1C-4206-BDF4-6B2C147A48FD");
+			pk.KommuneId = KoebenhavnId;
 			
 			user.Person.PersonKommune.Add(pk);
 			_brugerBusiness.SaveChanges();
 
 			Assert.IsTrue(user.Person.PersonKommune.Count == 1);
-			Assert.IsTrue(user.Person.PersonKommune.First().KommuneId == new Guid("2CDB9F35-5C1C-4206-BDF4-6B2C147A48FD"));
+			Assert.IsTrue(user.Person.PersonKommune.First().KommuneId == KoebenhavnId);
 			Assert.IsTrue(user.Person.PersonKommune.First().Id != Guid.Empty);
 		}
 
@@ -220,13 +239,9 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			String userName = DateTime.Now.Ticks + "@jordflytning.dk";
 			var userProfile = new BrugerProfil() { BrugerNavn = userName, PasswordClearText = TestsPassword };
 			String[] roles = new String[] { "Prøvetager" };
-			Person person = new Person();
-			person.Email = userName;
-			person.Navn = "TestFornavn";
-			person.Efternavn = "TestEfternavn";
-			person.Adresse = "TestAdresse";
+			Person person = NyTestPerson(userName);
+			userProfile.Person = person;
 
-			//userProfile.Person.Add(person);
 			// Act
 			var created = _brugerBusiness.Create(userProfile, roles);
 
@@ -248,11 +263,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			var personBusiness = new GenericBusiness<Person>(_ninjectKernel.Get<IPersonRepository>(), _ninjectKernel.Get<IUnitOfWork>());
 
 			String userName = DateTime.Now.Ticks + "@jordflytning.dk";
-			Person person = new Person();
-			person.Email = userName;
-			person.Navn = "TestFornavn";
-			person.Efternavn = "TestEfternavn";
-			person.Adresse = "TestAdresse";
+			Person person = NyTestPerson(userName);
 
 			personBusiness.Create(person);
 			Assert.AreNotEqual(Guid.Empty, person.Id, "Id not generated");
@@ -269,11 +280,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			String userName = DateTime.Now.Ticks + "@jordflytning.dk";
 			var userProfile = new BrugerProfil() { BrugerNavn = userName, PasswordClearText = TestsPassword };
 			String[] roles = new String[] { "Prøvetager" };
-			Person person = new Person();
-			person.Email = userName;
-			person.Navn = "TestFornavn";
-			person.Efternavn = "TestEfternavn";
-			person.Adresse = "TestAdresse";
+			Person person = NyTestPerson(userName);
 
 			userProfile.Person = person;
 			// Act
@@ -311,12 +318,7 @@ namespace Niras.Jordflytning.IntegrationTests.Core
 			String userName = DateTime.Now.Ticks + "@jordflytning.dk";
 			var userProfile = new BrugerProfil() { BrugerNavn = userName, PasswordClearText = TestsPassword };
 			String[] roles = new String[] { "Prøvetager" };
-			Person person = new Person();
-			person.Email = userName;
-			person.Navn = "TestFornavn";
-			person.Efternavn = "TestEfternavn";
-
-			person.Adresse = "TestAdresse";
+			Person person = NyTestPerson(userName);
 			person.Transportoer = new Transportoer();
 			
 

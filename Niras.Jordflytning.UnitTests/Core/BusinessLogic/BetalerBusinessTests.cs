@@ -17,6 +17,7 @@ using Niras.Jordflytning.UnitTests.TestsSetup.DependencyResolution;
 namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class BetalerBusinessTests
   {
     // Ninject kernel
@@ -31,10 +32,10 @@ namespace Niras.Jordflytning.UnitTests.Core.BusinessLogic
          new ConfigModule(),
          new RepositoryModule()
          );
-      _ninjectKernel.Bind<IUnitOfWork>().To<UnitOfWork>();
+      _ninjectKernel.Rebind<IUnitOfWork>().To<UnitOfWork>();
 
       mockBetalerRepo = new Mock<IBetalerRepository>();
-      _ninjectKernel.Bind<IBetalerRepository>().ToConstant(mockBetalerRepo.Object);
+      _ninjectKernel.Rebind<IBetalerRepository>().ToConstant(mockBetalerRepo.Object);
 
       _ninjectKernel.Bind<IBetalerBusiness>().To<BetalerBusiness>();
       betalerBusiness = _ninjectKernel.Get<IBetalerBusiness>();

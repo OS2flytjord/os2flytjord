@@ -13,6 +13,7 @@ using Niras.Jordflytning.ViewModels.Anmeldelse;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
 	[TestFixture]
+	[Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
 	public class AnmeldelserBusinessTests
 	{
 		// Ninject kernel

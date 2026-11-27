@@ -1283,12 +1283,7 @@ namespace Niras.Jordflytning.Core.BusinessLogic
             try
             {
                 StringTemplate template;
-                string skabelonBaseDir;
-
-                if (HttpContext.Current != null)
-                    skabelonBaseDir = HttpContext.Current.Server.MapPath(@"~\App_Data\skabeloner");
-                else
-                    skabelonBaseDir = @"C:\projects\jordflytning\trunk\Niras.Jordflytning\App_Data\Skabeloner";
+                var skabelonBaseDir = SkabelonMappe.Find();
 
                 switch (skabelon)
                 {

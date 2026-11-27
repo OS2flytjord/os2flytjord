@@ -16,14 +16,31 @@ using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Repository;
 using Niras.Jordflytning.Core.Models;
 using Niras.Jordflytning.Infrastructure.Common;
 using Niras.Jordflytning.Infrastructure.DataAccess;
+using Niras.Jordflytning.UnitTests.TestsSetup;
 using Niras.Jordflytning.UnitTests.TestsSetup.DependencyResolution;
+using Niras.Jordflytning.UnitTests.MockData;
+using System.Linq.Expressions;
 
 
 namespace Niras.Jordflytning.UnitTests.Controllers
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class OpretAnmeldelseTests
   {
+    /// <summary>
+    /// Lader et mocket repository returnere <paramref name="data"/> - både fra Read() og fra Search(predikat),
+    /// som business-klasserne bruger. Data evalueres først ved kaldet, så ændringer efter opsætningen slår igennem.
+    /// </summary>
+    private static void SaetData<TRepo, T>(Mock<TRepo> mock, IList<T> data)
+      where TRepo : class, IRepository<T>
+      where T : class
+    {
+      mock.Setup(r => r.Read()).Returns(data);
+      mock.Setup(r => r.Search(It.IsAny<Expression<Func<T, bool>>>()))
+        .Returns((Expression<Func<T, bool>> predikat) => data.AsQueryable().Where(predikat));
+    }
+
     // Ninject kernel
     private IKernel _ninjectKernel;
 
@@ -50,6 +67,7 @@ namespace Niras.Jordflytning.UnitTests.Controllers
 
       //Bind repositories
       _ninjectKernel.Bind<IRepository<Lastbil>>().To<GenericRepository<Lastbil>>().WithConstructorArgument("dataContext", configService.DataContext);
+      _ninjectKernel.Bind<IRepository<MiljoeklasseType>>().To<GenericRepository<MiljoeklasseType>>().WithConstructorArgument("dataContext", configService.DataContext);
       //Bind<IModtagerAnlaegRepository>().To<ModtagerAnlaegRepository>().WithConstructorArgument("configService", configService);
       //Bind<IAnmeldelserRepository>().To<AnmeldelserRepository>().WithConstructorArgument("configService", configService);
       _ninjectKernel.Bind<IStatusBetalerRepository>().To<StatusBetalerRepository>().WithConstructorArgument("configService", configService);
@@ -79,6 +97,9 @@ namespace Niras.Jordflytning.UnitTests.Controllers
 
       mockModtagerAnlaeg = new Mock<IModtagerAnlaegRepository>();
       _ninjectKernel.Bind<IModtagerAnlaegRepository>().ToConstant(mockModtagerAnlaeg.Object);
+
+      //Øvrige afhængigheder (fx IStatusAnmeldelseBusiness i ModtagerAnlaegBusiness) bindes efter konvention.
+      TestSetupUtil.BindResterendeEfterKonvention(_ninjectKernel);
 
       _ninjectKernel.Bind<ITransportoerBusiness>().To<TransportoerBusiness>();
       transportoerBusiness = _ninjectKernel.Get<ITransportoerBusiness>();
@@ -120,25 +141,26 @@ namespace Niras.Jordflytning.UnitTests.Controllers
 
 
       //Transportører
-      var t1 = new Transportoer();
+      //Både transportøren og dens person skal være aktive for at transportøren er aktiv.
+      var t1 = new Transportoer { Aktiv = true };
       var f1 = new Firmaoplysninger { Id = Guid.NewGuid(), Firmanavn = "f1" };
       t1.Id = new Guid();
       t1.Person = pt1;
       t1.Person.Firmaoplysninger = f1;
 
-      var t2 = new Transportoer();
+      var t2 = new Transportoer { Aktiv = true };
       var f2 = new Firmaoplysninger { Id = Guid.NewGuid(), Firmanavn = "f2" };
       t2.Id = new Guid();
       t2.Person = pt2;
       t2.Person.Firmaoplysninger = f2;
 
-      var t3 = new Transportoer();
+      var t3 = new Transportoer { Aktiv = true };
       var f3 = new Firmaoplysninger { Id = Guid.NewGuid(), Firmanavn = "f3" };
       t3.Id = new Guid();
       t3.Person = pt3;
       t3.Person.Firmaoplysninger = f3;
 
-      var t4 = new Transportoer();
+      var t4 = new Transportoer { Aktiv = true }; //Personen er inaktiv (sættes nedenfor), så t4 er ikke aktiv
       var f4 = new Firmaoplysninger { Id = Guid.NewGuid(), Firmanavn = "f4" };
       t4.Id = new Guid();
       t4.Person = pt4;
@@ -187,8 +209,8 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       transportoers.Add(t2);
       transportoers.Add(t3);
       transportoers.Add(t4);
-      mockTransRepo.Setup(f => f.Read()).Returns(transportoers);
-      Assert.IsTrue(transportoerBusiness.ReadAktiveTransportoerer().Count == 3);
+      SaetData(mockTransRepo, transportoers);
+      Assert.AreEqual(3, transportoerBusiness.ReadAktiveTransportoerer().Count);
 
 
       //Test - Tidligere anvendte transportør
@@ -200,16 +222,16 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       anmeldelses.Add(a22);
       anmeldelses.Add(a33);
 
-      mockAnmeldelseRepo.Setup(f => f.Read()).Returns(anmeldelses);
+      SaetData(mockAnmeldelseRepo, anmeldelses);
       var t_res1 = transportoerBusiness.ReadTidligereAktiveAnvendteTransportoerer(an1.Id);
-      Assert.IsTrue(t_res1.Count == 2);
+      Assert.AreEqual(2, t_res1.Count);
       Assert.IsTrue(t_res1.Contains(t1));
       Assert.IsTrue(t_res1.Contains(t2));
       Assert.IsTrue(!t_res1.Contains(t3));
       Assert.IsTrue(!t_res1.Contains(t4));
 
       var t_res2 = transportoerBusiness.ReadTidligereAktiveAnvendteTransportoerer(an2.Id);
-      Assert.IsTrue(t_res2.Count == 2);
+      Assert.AreEqual(2, t_res2.Count);
       Assert.IsTrue(t_res2.Contains(t1));
       Assert.IsTrue(!t_res2.Contains(t2));
       Assert.IsTrue(t_res2.Contains(t3));
@@ -232,9 +254,10 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       var g2 = DbGeometry.PointFromText("POINT(54002 64002)", 25832);
       var g3 = DbGeometry.PointFromText("POINT(54003 64003)", 25832);
 
-      var ma1 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma1", Geom = g1, Aktiv = true, AnvenderJF = true };
-      var ma2 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma2", Geom = g2, Aktiv = true, AnvenderJF = true };
-      var ma3 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma3", Geom = g3, Aktiv = true, AnvenderJF = true };
+      //Tidligere anvendte modtageranlæg skal have en jordmodtager.
+      var ma1 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma1", Geom = g1, Aktiv = true, AnvenderJF = true, Jordmodtager = new Jordmodtager() };
+      var ma2 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma2", Geom = g2, Aktiv = true, AnvenderJF = true, Jordmodtager = new Jordmodtager() };
+      var ma3 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma3", Geom = g3, Aktiv = true, AnvenderJF = true, Jordmodtager = new Jordmodtager() };
 
 
       //Anmeldelser
@@ -274,7 +297,7 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       anmeldelses.Add(a22);
       anmeldelses.Add(a33);
 
-      mockAnmeldelseRepo.Setup(f => f.Read()).Returns(anmeldelses);
+      SaetData(mockAnmeldelseRepo, anmeldelses);
 
       //Tidligere anvendte modtagerAnlæg, AnvenderJF=True
       bool anvenderJF = true;
@@ -298,7 +321,7 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       modtagerAnlaegs.Add(ma2);
       modtagerAnlaegs.Add(ma3);
 
-      mockModtagerAnlaeg.Setup(f => f.Read()).Returns(modtagerAnlaegs);
+      SaetData(mockModtagerAnlaeg, modtagerAnlaegs);
 
       var g0 = DbGeometry.PointFromText("POINT(54000 64000)", 25832);
       var dist1 = modtagerAnlaegBusiness.ReadAktiveNaermesteModtagerAnlaeg(g0, anvenderJF, Guid.Empty, false);
@@ -319,11 +342,16 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       ma2.AnvenderJF = false;
       ma3.AnvenderJF = false;
 
-      //Tidligere anvendte modtagerAnlæg, AnvenderJF=False
+      //Tidligere anvendte modtagerAnlæg, AnvenderJF=False betyder "uden filter på AnvenderJF" (kun true filtrerer),
+      //så alle anmelderens tidligere anvendte anlæg returneres.
       var res3 = modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an1.Id, anvenderJF, Guid.Empty,false);
       var res4 = modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an2.Id, anvenderJF, Guid.Empty, false);
-      Assert.IsTrue(res3.Count == 1);
-      Assert.IsTrue(res4.Count == 1);
+      CollectionAssert.AreEquivalent(new[] { ma1, ma2 }, res3.ToList());
+      CollectionAssert.AreEquivalent(new[] { ma1, ma3 }, res4.ToList());
+
+      //Med AnvenderJF=True er det kun ma1, der stadig anvender FlytJord
+      CollectionAssert.AreEquivalent(new[] { ma1 }, modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an1.Id, true, Guid.Empty, false).ToList());
+      CollectionAssert.AreEquivalent(new[] { ma1 }, modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an2.Id, true, Guid.Empty, false).ToList());
 
       //Modtageranlæg sorteret efter afstand til oprindelsessted, anvenderjf=false
       var dist3 = modtagerAnlaegBusiness.ReadAktiveNaermesteModtagerAnlaeg(g0, anvenderJF, Guid.Empty, false);
@@ -354,12 +382,13 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       var g2 = DbGeometry.PointFromText("POINT(54002 64002)", 25832);
       var g3 = DbGeometry.PointFromText("POINT(54003 64003)", 25832);
 
-      var jk1 = new JordKlassifikationType { Id = Guid.NewGuid() };
-      var jk23 = new JordKlassifikationType { Id = Guid.NewGuid() };
+      //Jordklassifikationen slås op i kodelisten (MockData\JordKlassifikationTypeMock), så Id'erne skal findes dér.
+      var jk1 = JordKlassifikationTypeMock.Kategori1();  //Priotering 3 (ren jord)
+      var jk23 = JordKlassifikationTypeMock.Kategori2(); //Priotering 2
 
-      var ma1 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma1", Geom = g1, Aktiv = true, AnvenderJF = true,JordKlassifikationType = jk1};
-      var ma2 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma2", Geom = g2, Aktiv = true, AnvenderJF = true, JordKlassifikationType = jk23 };
-      var ma3 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma3", Geom = g3, Aktiv = true, AnvenderJF = true, JordKlassifikationType = jk23 };
+      var ma1 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma1", Geom = g1, Aktiv = true, AnvenderJF = true, JordKlassifikationType = jk1, Jordmodtager = new Jordmodtager() };
+      var ma2 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma2", Geom = g2, Aktiv = true, AnvenderJF = true, JordKlassifikationType = jk23, Jordmodtager = new Jordmodtager() };
+      var ma3 = new ModtagerAnlaeg { Id = new Guid(), Navn = "ma3", Geom = g3, Aktiv = true, AnvenderJF = true, JordKlassifikationType = jk23, Jordmodtager = new Jordmodtager() };
 
 
       //Anmeldelser
@@ -399,7 +428,7 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       anmeldelses.Add(a22);
       anmeldelses.Add(a33);
 
-      mockAnmeldelseRepo.Setup(f => f.Read()).Returns(anmeldelses);
+      SaetData(mockAnmeldelseRepo, anmeldelses);
 
 
       //Modtageranlæg sorteret efter afstand til oprindelsessted, anvenderjf=true
@@ -408,23 +437,23 @@ namespace Niras.Jordflytning.UnitTests.Controllers
       modtagerAnlaegs.Add(ma2);
       modtagerAnlaegs.Add(ma3);
 
-      mockModtagerAnlaeg.Setup(f => f.Read()).Returns(modtagerAnlaegs);
+      SaetData(mockModtagerAnlaeg, modtagerAnlaegs);
 
 
-      //Read modtagerAnlaeg med de forskellige funktioner, hvor vi anvender jordklassifikationer som filter
-
-      //ReadAktiveModtagerAnlaeg
-     // Assert.IsTrue(modtagerAnlaegBusiness.ReadAktiveModtagerAnlaeg(true, jk1.Id, false).Count == 1);
-     // Assert.IsTrue(modtagerAnlaegBusiness.ReadAktiveModtagerAnlaeg(true, jk23.Id, false).Count == 2);
+      //Read modtagerAnlaeg med de forskellige funktioner, hvor vi anvender jordklassifikationer som filter.
+      //Siden 15.8.2017 kan et anlæg vælges, hvis dets klassifikation har samme eller lavere Priotering (samme eller
+      //mere forurenet kategori) end jorden: Kategori 1-jord (3) kan køres til både kategori 1- og kategori 2-anlæg,
+      //mens kategori 2-jord (2) kun kan køres til kategori 2-anlæg.
 
       //ReadTidligereAktiveAnvendteModtagerAnlaeg
-      Assert.IsTrue(modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an1.Id, true, jk1.Id, false).Count == 1);
-      Assert.IsTrue(modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an2.Id, true, jk23.Id, false).Count == 1);
-      
-      //ReadAktiveNaermesteModtagerAnlaeg
+      CollectionAssert.AreEquivalent(new[] { ma1, ma2 }, modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an1.Id, true, jk1.Id, false).ToList());
+      CollectionAssert.AreEquivalent(new[] { ma2 }, modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an1.Id, true, jk23.Id, false).ToList());
+      CollectionAssert.AreEquivalent(new[] { ma3 }, modtagerAnlaegBusiness.ReadTidligereAktiveAnvendteModtagerAnlaeg(an2.Id, true, jk23.Id, false).ToList());
+
+      //ReadAktiveNaermesteModtagerAnlaeg - sorteret efter afstand
       var g0 = DbGeometry.PointFromText("POINT(54000 64000)", 25832);
-      Assert.IsTrue(modtagerAnlaegBusiness.ReadAktiveNaermesteModtagerAnlaeg(g0, true, jk1.Id, false).Count == 1);
-      Assert.IsTrue(modtagerAnlaegBusiness.ReadAktiveNaermesteModtagerAnlaeg(g0, true, jk23.Id, false).Count == 2);
+      CollectionAssert.AreEqual(new[] { ma1, ma2, ma3 }, modtagerAnlaegBusiness.ReadAktiveNaermesteModtagerAnlaeg(g0, true, jk1.Id, false).ToList());
+      CollectionAssert.AreEqual(new[] { ma2, ma3 }, modtagerAnlaegBusiness.ReadAktiveNaermesteModtagerAnlaeg(g0, true, jk23.Id, false).ToList());
 
     }
 

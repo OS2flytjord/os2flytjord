@@ -14,6 +14,7 @@ using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
 namespace Niras.Jordflytning.IntegrationTests.Core
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class KonfigBusinessTests
   {
     // Ninject kernel

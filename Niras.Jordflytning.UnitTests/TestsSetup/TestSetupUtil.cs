@@ -1,4 +1,8 @@
-﻿using Ninject;
+﻿using System.Linq;
+using System.Reflection;
+using Ninject;
+using Ninject.Activation.Providers;
+using Ninject.Planning.Bindings;
 using Niras.Jordflytning.Core.BusinessLogic;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
@@ -115,10 +119,47 @@ namespace Niras.Jordflytning.UnitTests.TestsSetup
 				ninjectKernel.Bind<ISecurityProvider>().To<WebSecurityProvider>();
 			}
 
-			ninjectKernel.Bind<IUnitOfWork>().To<UnitOfWork>();   
+			ninjectKernel.Bind<IUnitOfWork>().To<UnitOfWork>();
 
-			
 
+
+		}
+
+		/// <summary>
+		/// Binder alle Niras-interfaces fra Core/Infrastructure, som endnu ikke er bundet, til deres eneste konkrete
+		/// implementering. Bindingerne er implicitte (lav prioritet), så en fixture frit kan binde sin egen implementering
+		/// (fx en mock) bagefter uden "More than one matching bindings"-fejl.
+		/// Interfaces med flere eller ingen implementeringer springes over.
+		/// </summary>
+		public static void BindResterendeEfterKonvention(IKernel kernel)
+		{
+			var typer = new[] { typeof(AnmeldelserBusiness).Assembly, typeof(ConfigService).Assembly }
+				.SelectMany(a =>
+				{
+					try { return a.GetTypes(); }
+					catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t != null).ToArray(); }
+				})
+				.ToList();
+
+			var implementeringer = typer.Where(t => t.IsClass && !t.IsAbstract && !t.ContainsGenericParameters).ToList();
+			var interfaces = typer.Where(t => t.IsInterface && !t.ContainsGenericParameters
+			                                  && t.Namespace != null && t.Namespace.StartsWith("Niras.Jordflytning"));
+
+			foreach (var service in interfaces)
+			{
+				if (kernel.GetBindings(service).Any())
+					continue;
+
+				var impl = implementeringer.Where(service.IsAssignableFrom).ToList();
+				if (impl.Count != 1)
+					continue;
+
+				kernel.AddBinding(new Binding(service)
+				{
+					ProviderCallback = StandardProvider.GetCreationCallback(impl[0]),
+					IsImplicit = true
+				});
+			}
 		}
 
 

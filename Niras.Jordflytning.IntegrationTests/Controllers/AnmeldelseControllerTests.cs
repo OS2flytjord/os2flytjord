@@ -16,6 +16,7 @@ using Niras.Jordflytning.Core.BusinessLogic;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Business;
 using Niras.Jordflytning.Core.BusinessLogic.Interfaces.Common;
 using Niras.Jordflytning.Core.Models;
+using Niras.Jordflytning.IntegrationTests.MockData;
 using Niras.Jordflytning.IntegrationTests.TestsSetup;
 using Niras.Jordflytning.IntegrationTests.TestsSetup.DependencyResolution;
 using Niras.Jordflytning.ViewModels.Anmeldelse;
@@ -23,6 +24,7 @@ using Niras.Jordflytning.ViewModels.Anmeldelse;
 namespace Niras.Jordflytning.IntegrationTests.Controllers
 {
   [TestFixture]
+  [Niras.Jordflytning.IntegrationTests.TestsSetup.RulTilbageEfterTest]
   public class AnmeldelseControllerTests
   {
     private IKernel _ninjectKernel;
@@ -47,14 +49,18 @@ namespace Niras.Jordflytning.IntegrationTests.Controllers
 
       _user = new Mock<IPrincipal>();
       _identity = new Mock<IIdentity>();
-      _identity.Setup(i => i.Name).Returns("kve@niras.dk");
+      _identity.Setup(i => i.Name).Returns(Testdata.AnmelderEmail);
       _user.Setup(u => u.Identity).Returns(_identity.Object);
 
       _securityProvider.Setup(s => s.CurrentUser).Returns(_user.Object as IPrincipal);
-      _securityProvider.Setup(s => s.GetUserId("kve@niras.dk")).Returns(7);
-      _securityProvider.Setup(s => s.GetUserRoles("kve@niras.dk")).Returns(new List<string>());
+      _securityProvider.Setup(s => s.GetUserId(Testdata.AnmelderEmail)).Returns(Testdata.AnmelderBrugerId);
+      _securityProvider.Setup(s => s.GetUserRoles(Testdata.AnmelderEmail)).Returns(new List<string>());
 
       _ninjectKernel.Bind<ISecurityProvider>().ToConstant(_securityProvider.Object);
+
+      // Indsendelse laver PDF-blanket (PdfCrowd) og sender mails - begge er eksterne tjenester og erstattes af stubbe.
+      _ninjectKernel.Bind<IPdfBusiness>().To<FakePdfBusiness>();
+      _ninjectKernel.Bind<IMailBusiness>().To<FakeMailBusiness>();
 
       _kodelisteBusiness=  TestSetupUtil.InjectKodelists(_ninjectKernel);
 
@@ -101,8 +107,8 @@ namespace Niras.Jordflytning.IntegrationTests.Controllers
       var command = "Gem";
 
 
-      var anmelder = new Anmelder() { Id = new Guid("2BB90CF6-DEE4-45F2-AE65-EE103B8A9A43") };
-      var betaler = new Betaler() { Id = new Guid("2BB90CF6-DEE4-45F2-AE65-EE103B8A9A43") };
+      var anmelder = new Anmelder() { Id = Testdata.AnmelderId };
+      var betaler = new Betaler() { Id = Testdata.AnmelderId };
       var jord = new Jord()
         {
           ForventetJordmaengdeTon = 1000,
@@ -148,7 +154,7 @@ namespace Niras.Jordflytning.IntegrationTests.Controllers
       var model = (OpretModel)view.Model;
 
       // Assert
-      Assert.IsFalse(model.Anmeldelse.Id.Equals(Guid.Empty), "Anmeldelse blev ikke oprettet.");
+      Assert.IsFalse(model.Anmeldelse.Id.Equals(Guid.Empty), "Anmeldelse blev ikke oprettet. " + ValideringsFejl(view));
 
     }
 
@@ -182,15 +188,16 @@ namespace Niras.Jordflytning.IntegrationTests.Controllers
       var command = "Indsend";
 
 
-      var anmelder = new Anmelder() { Id = new Guid("2BB90CF6-DEE4-45F2-AE65-EE103B8A9A43") };
-      var betaler = new Betaler() { Id = new Guid("2BB90CF6-DEE4-45F2-AE65-EE103B8A9A43") };
+      var anmelder = new Anmelder() { Id = Testdata.AnmelderId };
+      var betaler = new Betaler() { Id = Testdata.AnmelderId };
       var jord = new Jord()
       {
         ForventetJordmaengdeTon = 1000,
         IntaktJord = false,
         JordflytningType = new JordflytningType() { Id = new Guid("1DB6CAC8-8335-49B1-A5AF-65DB18D7F9CB") },
         Jordproever = false,
-        JordproeverFoer = true, 
+        JordproeverFoer = true,
+        JordarbejdeBeskrivelse = "Udgravning til fundament", // påkrævet ved indsendelse
         KoerselStart = DateTime.Now.Date,
         KoerselSlut = DateTime.Now.AddDays(7).Date,
         JordKlassifikationType = jordforureningsopslag.JordKlassifikationType
@@ -225,11 +232,11 @@ namespace Niras.Jordflytning.IntegrationTests.Controllers
       opretModel.SelectedJordklassifikationType = new Guid("1426C54A-6C06-4970-AC52-327D013751C7"); //Kategori 1
       opretModel.ForureningOpslagJordklassifikationTypeId = new Guid("1426C54A-6C06-4970-AC52-327D013751C7");//Kategori 1
       
-      //Modtageranlæaeg
-      opretModel.SelectedModtagerAnlaegId = "B05F5607-6CF0-4D56-9671-0A78489C2E0B";//Reno Djurs I/S, Aktiv=1, Anvender JF=0
+      //Modtageranlæg - aktivt, men anvender ikke FlytJord (MockData\AktoererMock)
+      opretModel.SelectedModtagerAnlaegId = Testdata.ModtagerAnlaegUdenFlytJordId.ToString();
 
       //Transportør
-      opretModel.SelectedTransportoerId = "ACF41B4B-63F4-4448-B4BB-139A17B851CB";
+      opretModel.SelectedTransportoerId = Testdata.TransportoerId.ToString();
 
       //Betaler
       opretModel.SelectedBetalerIndex = 0; //Anmelder er betaler.
@@ -238,8 +245,28 @@ namespace Niras.Jordflytning.IntegrationTests.Controllers
       // Act
       var view = controller.Opret(opretModel, command) as PartialViewResult;
       
-      Assert.IsTrue(view==null); // hvis anmeldelsen indsendes, redirectes man til forsiden. Derfor er view null
-      
+      Assert.IsTrue(view==null, "Anmeldelsen blev ikke indsendt. " + ValideringsFejl(view)); // hvis anmeldelsen indsendes, redirectes man til forsiden. Derfor er view null
+
+    }
+
+    private class FakePdfBusiness : IPdfBusiness
+    {
+      public void CreateAnmeldelseBlanket(Guid anmeldelseId) { }
+      public void CreateHistorikKommunikationPdf(Guid anmeldelseId) { }
+    }
+
+    private class FakeMailBusiness : IMailBusiness
+    {
+      public void SendEmail(string emailSubject, string emailContent, string emailTo) { }
+    }
+
+    /// <summary>Opret rydder ModelState og lægger valideringsfejl (og fejl under gem) i OpretModel.ValideringList.</summary>
+    private static string ValideringsFejl(PartialViewResult view)
+    {
+      var model = view != null ? view.Model as OpretModel : null;
+      if (model == null || model.ValideringList == null || model.ValideringList.Count == 0)
+        return "(ingen valideringsfejl)";
+      return "Valideringsfejl: " + string.Join(" | ", model.ValideringList);
     }
   }
 }
